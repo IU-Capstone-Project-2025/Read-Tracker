@@ -54,7 +54,7 @@ We conducted market research on the topic of our project, and want to emphasize 
  - The only way to share literature is through the creation of groups, where, again, all books are uploaded manually by the creator
  - There are no collections, as such, there are no user accounts to subscribe to and whose recommendations can be viewed.
 
-Although readed.me showed the functionality pretty close to our goals, we consider the social functionality of the application as
+Although the first site showed the functionality pretty close to our goals, we consider the social functionality of the application as
 important as the tracking one. We expect that the ability to make and share collections of books will stand out favorably. The second
 website we reviwed showed pretty poor communication abilities between users, adding which is one of our primary goals. To conclude, the
 strong side of our application - the combination of reader's diary with broad rating and communication system - will be unique on the 
