@@ -37,21 +37,28 @@ But since this is not comfortable for everyone, we decided that the user will de
 
 ### Brief market research / problem validation
 
-https://readed.me/books
+We conducted market research on the topic of our project, and want to emphasize two available solutions that we found:
+
+[The first site](https://readed.me/books)
  - There is tracking, calendar, statistics, general database of books, reviews and rating
  - There is no way to make your own collections and share them.
  - It is not possible to subscribe to other users or read their collections.
 
    
-https://rj-ten.vercel.app/
+[The second site](https://rj-ten.vercel.app/)
  - A simpler solution
- - You can crack how many pages you read per day in a book
+ - You can track how many pages you read per day in a book
  - There are functions of a reader's diary, reading progress and statistics
  - There is no global literature list, all books are downloaded locally
  - No reviews, no global rating
  - The only way to share literature is through the creation of groups, where, again, all books are uploaded manually by the creator
  - There are no collections, as such, there are no user accounts to subscribe to and whose recommendations can be viewed.
 
+Although readed.me showed the functionality pretty close to our goals, we consider the social functionality of the application as
+important as the tracking one. We expect that the ability to make and share collections of books will stand out favorably. The second
+website we reviwed showed pretty poor communication abilities between users, adding which is one of our primary goals. To conclude, the
+strong side of our application - the combination of reader's diary with broad rating and communication system - will be unique on the 
+market amongst competitors.
 
 ## Basic requirements
 
