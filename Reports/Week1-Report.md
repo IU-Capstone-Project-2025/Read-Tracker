@@ -76,9 +76,19 @@ As a user I want to create "Next to read list", so it will be convenient to sele
 
 ### Initial scope
 
-*...*
-
-
+**IN MVP**
+- The opportunity to mark what I read today (as a fact). Accordingly, viewing the statistics of the days when user read
+- The ability to add a book to the read/want to read list
+- The ability to write a review of a book you've read
+- The ability to create collections of books
+- The ability to subscribe to other users and view information that the user has allowed to watch
+  
+**OUT MVP**
+- Personalized suggestions for what to read based on what you've read before
+- The ability to add the number of pages of a book and mark which page you are on now to see how many percent have been read
+- The ability to view detailed statistics for a period of time (genres of books, number of reviews, number of pages read)
+- The ability to discuss a specific book with users through comments under the review
+  
 ## Tech-stack
 
 - HTML + CSS
