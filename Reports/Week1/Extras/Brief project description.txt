@@ -1,19 +1,42 @@
-Webite (?) for book tracking
+Website (NOT mobile app nor computer application) for book tracking
+Books are not contained only their names (tracker, NOT online-reader)
 
 Actions:
-Open site
-Check profile
-Check that user read today (in calendar (on the right?))
-Check subscription feed (additional maybe): 
+- Open site
+- Check profile
+- Check that user read today (FACT OF READING in calendar (on the right?))
+- Check subscription feed (additional maybe): 
 	- people on whom user subscribed
 	- check what they read
-	- their reviews
+	- their reviews:
+		- potentially comment section after review to discuss it (?)
 	- book packs
+- Create own book packs (or collections in other words)
+- Mark book as added for reading/reading right now/finished (Possibly mark which pages were read -> specify number of pages in book when adding)
+- Add book for reading
+- Write public/private reviews on books (user can choose private or public on its own)
+- Create reading groups (?)
+- Add book in read/want list (before adding book to actually reading?)
+- Personalised suggestions on books (ML?)
 
 Possible implementation:
 - Website
 - Backend on Python
+- FastAPI
 - Implement db with books
 (ElasticSearch for db control?)
 
-Goal: Service for tracking reading activity
+Examples:
+https://readed.me/books
+https://rj-ten.vercel.app/
+
+Goals: 
+1) Service for tracking reading activity (book diary)
+2) Recommendation system to find new books
+3) Forum (?) for writing review to the book
+4) Discussion of the reviews
+
+For potential future work:
+- Possibly some of goals will remain untouched, use them
+- Upgrade to social network maybe?
+- Add actual online-reader (troubles with book author rights)
