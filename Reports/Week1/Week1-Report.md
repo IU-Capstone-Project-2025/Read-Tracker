@@ -28,12 +28,12 @@ Thanks to our system, users will be able to track their reading progress and sto
 ### Ideas during brainstorming
 The project description has already added the ideas that we came up with during brainstorming, but below we will add information about the order in which the ideas appeared.
 
+Firstly, we conducted the project idea brainstorming. Among all ideas we came up with the best ones were:
+ - The application that will help to keep up with the study timetable and not be late. Was rejected due to lack of ideas that are not implemented yet by the majority of calendars
+ - Some application that will simplify the communication between HR's and candidates. Ruled out to due to inability to create in the available short time any features that are not present in most applications for job search
+ - The reader's diary with additional social functionality and rating systems. Was kept, we proceeded with it
 
-The original idea is a tracker. But this is too trivial and it was necessary to develop the project somehow. 
-That's why we had the idea to keep lists of what we've read and, accordingly, reviews of these books we've read. 
-Then we decided that it would be nice to create our own collections of books (because they are more thematic and focused than just "I want to read"). 
-After that, we thought it would be nice for users to share information with each other. 
-But since this is not comfortable for everyone, we decided that the user will decide for himself what to share and what not to share. If he wants to stay completely private, then he will
+The original idea is a tracker. But this is too trivial and it was necessary to develop the project somehow. That's why we had the idea to keep lists of what we've read and, accordingly, reviews of these books we've read. Then we decided that it would be nice to create our own collections of books (because they are more thematic and focused than just "I want to read"). After that, we thought it would be nice for users to share information with each other. But since this is not comfortable for everyone, we decided that the user will decide for himself what to share and what not to share. If he wants to stay completely private, then he will.
 
 ### Brief market research / problem validation
 
@@ -113,13 +113,16 @@ At this point, it is important to explain the difference between collections and
 # Weekly commitments
 
 ## Individual contribution of each participant
-**Darya:** wrote a report
+**Darya:** wrote the [report](https://github.com/IU-Capstone-Project-2025/Read-Tracker/edit/main/Reports/Week1/Week1-Report.md). Commits: [7d378cf](https://github.com/IU-Capstone-Project-2025/Read-Tracker/commit/7d378cf062b4a3127e98c45c0038897be1bf861a), [825633a](https://github.com/IU-Capstone-Project-2025/Read-Tracker/commit/825633a85dafc50de693340b658412abb22a98b3), [1b5e814](https://github.com/IU-Capstone-Project-2025/Read-Tracker/commit/1b5e8147375687ab7e88d48b2b3b80d4597436fb), [42ec874](https://github.com/IU-Capstone-Project-2025/Read-Tracker/commit/42ec874791c2ea4b95ed1a08d1d500815b4df065)
 
 
-**Ivan Savelev and Batraz:** сreated the directory structure and files, docker-compose and `README.md`
+**Ivan Savelev and Batraz:** сreated the directory structure and files, docker-compose and `README.md`. Commits: [81f2bc4](https://github.com/IU-Capstone-Project-2025/Read-Tracker/commit/81f2bc47a05c99ca5ae052c91a389af96ade04ce), [2afb506](https://github.com/IU-Capstone-Project-2025/Read-Tracker/commit/2afb5068c85e5b6b5dafb4b0744a6e4f734c977a), [df6981a](https://github.com/IU-Capstone-Project-2025/Read-Tracker/commit/df6981a756a1210babcc767106881405407cf96c)
 
 
-**Ivan Isakov and Andrey:** studied the market and product analogues, provided information for report
+**Ivan Isakov:** studied the market and product analogues, recorded and structurized meetings' [milestones](https://github.com/IU-Capstone-Project-2025/Read-Tracker/blob/main/Reports/Week1/Extras/Brief%20project%20description.txt)
+
+
+**Andrey Torgashinov:** studied the market and product analogues, redacted the report. Commits: [9f14484](https://github.com/IU-Capstone-Project-2025/Read-Tracker/commit/9f14484939d8e95c55554763acce133ff2495d57) and the last version of the report
 
 ## Confirmation of the code's operability
 
