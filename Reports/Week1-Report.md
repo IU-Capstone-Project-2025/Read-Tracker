@@ -64,6 +64,7 @@ wants to create collections of books (for example, "The top 10 books that everyo
 can share with other users or keep secret. The user will be able to subscribe to other users to read their reviews, watch collections and progress.
 
 ### User stories
+As a user I want to be able to mark what I've read today so that I can see statistics on how many days I've read this week/month/year.
 
 As a user I want a convenient tool, where I can document books I have read, so I can track my reading activity.
 
@@ -89,6 +90,8 @@ As a user I want to create "Next to read list", so it will be convenient to sele
 - Postgre SQL
 - Docker
 
+## Something else you want to add 
+At this point, it is important to explain the difference between collections and "want to read" lists. The collection can contain both books that you have already read and books that you will read. The collection has a specific theme, and the books in it can be arranged in the order in which it is worth reading, so that it is clear (because an unprepared reader may not understand certain literature). So the collections are more of an inspiration. The user can save/create many collections, but the reading plan will still have some direction (it is unlikely that he will be able to read books from 10 collections at the same time). He may set a plan to read all the books from the "Haruki Murakami" collection by the end of the year, but he won't necessarily do it in a row. It will just create/save the collection and when he wants to read something from there, he will take it to his list of plans.
 
 # Weekly commitments
 
@@ -99,7 +102,7 @@ As a user I want to create "Next to read list", so it will be convenient to sele
 **Ivan Savelev and Batraz:** сreated the directory structure and files, docker-compose and `README.md`
 
 
-**Ivan Isakov and Andrey:** studied the market and product analogues
+**Ivan Isakov and Andrey:** studied the market and product analogues, provided information for report
 
 ## Confirmation of the code's operability
 
