@@ -14,13 +14,13 @@ Thanks to our system, users will be able to track their reading progress and sto
 
 ### **Team Members**
 
-| Team Member                             | Telegram Alias   | Email Address                      | Track                                       | Responsibilities   |
-|-----------------------------------------|------------------|------------------------------------|---------------------------------------------|--------------------|
-| Darya Tolmeneva (Lead)                  | @DinPg           | d.tolmeneva@innopolis.university   | Fullstack + Reports                         | [Responsibilities] |
-| Andrey Torgashinov                      | @TovarishDru     | a.torgashinov@innopolis.university | DevOps                                      | [Responsibilities] |
-| Ivan Isakov                             | @Muhozhukich     | i.isakov@innopolis.university      | Backend                                     | [Responsibilities] |
-| Ivan Savelev                            | @Savelev_IV      | i.savelev@innopolis.university     | Frontend                                    | [Responsibilities] |
-| Batraz Dzesov                           | @Borodum         | b.dzesov@innopolis.university      | Backend                                     | [Responsibilities] |
+| Team Member                             | Telegram Alias   | Email Address                      | Track                                       | Responsibilities                                                                                                      |
+|-----------------------------------------|------------------|------------------------------------|---------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| Darya Tolmeneva (Lead)                  | @DinPg           | d.tolmeneva@innopolis.university   | Fullstack                                   | Reports, tracker functionality and database design                                                                    | 
+| Andrey Torgashinov                      | @TovarishDru     | a.torgashinov@innopolis.university | DevOps                                      | Docker, testing, CI/CD                                                                                                |
+| Ivan Isakov                             | @Muhozhukich     | i.isakov@innopolis.university      | Backend                                     | Creating the functionality of collections and what you have read (the fact that you have read + a review of the book) |                           |
+| Ivan Savelev                            | @Savelev_IV      | i.savelev@innopolis.university     | Frontend                                    | Creating the entire front-end of our service                                                                          |
+| Batraz Dzesov                           | @Borodum         | b.dzesov@innopolis.university      | Backend                                     | Creating an opportunity to view information about other users, subscribe to users                                     |
 
 
 ## Brainstorming
@@ -65,7 +65,13 @@ can share with other users or keep secret. The user will be able to subscribe to
 
 ### User stories
 
-*...*
+As a user I want a convenient tool, where I can document books I have read, so I can track my reading activity.
+
+As a user I want to have access to platform with ability to read others reports on books and create own, so I have easier time finding book worth my time.
+
+As a user I want to make collections (e.g. "The top 10 books that everyone should read"), so that may be helpful for other users and maybe for me.
+
+As a user I want to create "Next to read list", so it will be convenient to select the next book.
 
 ### Initial scope
 
