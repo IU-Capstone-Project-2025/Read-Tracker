@@ -1,0 +1,19 @@
+Webite (?) for book tracking
+
+Actions:
+Open site
+Check profile
+Check that user read today (in calendar (on the right?))
+Check subscription feed (additional maybe): 
+	- people on whom user subscribed
+	- check what they read
+	- their reviews
+	- book packs
+
+Possible implementation:
+- Website
+- Backend on Python
+- Implement db with books
+(ElasticSearch for db control?)
+
+Goal: Service for tracking reading activity
