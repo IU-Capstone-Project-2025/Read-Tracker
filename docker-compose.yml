@@ -1,0 +1,66 @@
+services:
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - front_net
+    ports:
+      - 8080:80
+    depends_on:
+      - backend
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - front_net
+      - back_net
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # TODO: add healthcheck of db
+
+  database:
+    container_name: service_postgres
+    image: postgres:15
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - back_net
+      - db_net
+    volumes:
+      - ./Postgresql/Schemas:/docker-entrypoint-initdb.d
+      - ./Postgresql/.pgdata:/var/lib/postgresql/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  front_net:
+  back_net:
+  db_net:
