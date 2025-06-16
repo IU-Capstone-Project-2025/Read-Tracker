@@ -43,6 +43,7 @@ async def add_review(request: Request):
     return JSONResponse(content={
         "status": "success",
         "message": "Review created",
+        "data": []
     })
 
 

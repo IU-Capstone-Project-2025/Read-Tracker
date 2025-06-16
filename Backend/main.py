@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from Backend import auth, books, notes, reviews, users
+from Routes import auth, books, notes, reviews, users
 
 app = FastAPI()
 

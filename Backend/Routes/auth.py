@@ -46,8 +46,19 @@ async def login_user(request: Request):
 
 # TODO: Create mockup of function
 @router.get("/profile", status_code=200)
-async def get_user_profile():
-    pass
+async def get_user_profile(request: Request):
+    if data:
+        pass
+
+    return JSONResponse(content={
+        "status": "success",
+        "message": "User fetched successfully",
+        "data": {
+            "id": "uuid",
+            "username": "Username",
+            "email": "user@example.com"
+        }
+    })
 
 
 # TODO: Code validation process; 400 and 404 errors
