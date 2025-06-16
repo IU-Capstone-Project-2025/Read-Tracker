@@ -41,4 +41,4 @@ docker-rebuild-db:  ## Reabuild database
 
 docker-clean-data:  ## Stop and remove volume и .pgdata
 	$(DOCKER_COMPOSE) down -v
-	rm -rf /.pgdata
+	rm -rf ./Postgresql/.pgdata
