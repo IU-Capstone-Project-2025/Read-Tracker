@@ -28,6 +28,7 @@ async def get_book(book_id: int):
             "title": "Book Title",
             "author": "Author Name",
             "language": "lang",
+            "cover": "https://cdn.example.com/cover.jpg",
             "status": "not started"  # or "reading" or "finished"
         }
     })
@@ -44,6 +45,11 @@ async def add_book(request: Request):
         "message": "Book added",
         "data": {
             "id": "uuid",
+            "title": "Book Title",
+            "author": "Author Name",
+            "language": "lang",
+            "cover": "https://cdn.example.com/cover.jpg",
+            "status": "not started"  # or "reading" or "finished"
         }
     })
 
@@ -71,6 +77,18 @@ async def delete_book(book_id: int):
         "status": "success",
         "message": "Book deleted",
 
+    })
+
+
+# TODO: Replace mockup
+@router.get("/{book_id}/reviews", status_code=200)
+async def get_reviews(book_id: int):
+    if book_id:
+        pass
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Reviews retrieved",
+        "data": []
     })
 
 

@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-# TODO Check 400 and 409 error cases; Code validation process.
+# TODO: Check 400 and 409 error cases; Code validation process.
 @router.post("/register")
 async def register_user(request: Request):
     """
@@ -23,7 +23,7 @@ async def register_user(request: Request):
     }, status_code=201)
 
 
-# TODO 401 and 404 errors
+# TODO: 401 and 404 errors. Code validation
 @router.post("/login")
 async def login_user(request: Request):
     """
@@ -38,27 +38,32 @@ async def login_user(request: Request):
 
     return JSONResponse(content={
         "status": "success",
-        "message": "Login successful.",
+        "message": "User logged in successfully.",
         "token": "abc123...",  # JWT or session token
         "user_id": 123    # uuid
     }, status_code=200)
 
 
-# TODO: Create mockup of function
-@router.get("/profile", status_code=200)
-async def get_user_profile(request: Request):
-    if data:
+# TODO: 404 error
+@router.post("/validate", status_code=200)
+async def validate_token(request: Request):
+    if request:
         pass
-
     return JSONResponse(content={
         "status": "success",
-        "message": "User fetched successfully",
-        "data": {
-            "id": "uuid",
-            "username": "Username",
-            "email": "user@example.com"
-        }
-    })
+        "message": "Token validated",
+    }, status_code=200)
+
+
+# TODO: 404 error
+@router.post("/refresh", status_code=200)
+async def refresh_token(request: Request):
+    if request:
+        pass
+    return JSONResponse(content={
+        "status": "success",
+        "token": "abc123...",  # JWT or session token
+    }, status_code=200)
 
 
 # TODO: Code validation process; 400 and 404 errors
@@ -85,3 +90,44 @@ async def reset_password(request: Request):
         "status": "success",
         "message": "Password updated successfully"
     }, status_code=200)
+
+
+# TODO: 401 error
+@router.get("/profile", status_code=200)
+async def get_user_profile(request: Request):
+    if request:
+        pass
+
+    return JSONResponse(content={
+        "status": "success",
+        "message": "User fetched successfully",
+        "data": {
+            "id": "uuid",
+            "username": "Username",
+            "email": "user@example.com"
+        }
+    })
+
+
+# TODO: 400, 401 error
+@router.put("/profile/avatar", status_code=200)
+async def update_avatar(request: Request):
+    if request:
+        pass
+
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Avatar updated",
+    })
+
+
+# TODO: 400, 401 error
+@router.put("/profile/password", status_code=200)
+async def change_password(request: Request):
+    if request:
+        pass
+
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Password changed successfully",
+    })
