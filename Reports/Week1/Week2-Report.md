@@ -115,7 +115,7 @@ On the otherpage named “Interaction flow” documented navigational abilities 
 HTML page was created, which has some most basic functionality of frontend part.
 
 ### Backend
-During this week we designed created initial user-flow of the service, where you can check all possibilities user can
+During this week we created initial user-flow of the service, where you can check all possibilities user can
 use in our application. After that, we created initial structure of our API.
 https://miro.com/welcomeonboard/c09neEoyUkpXU1JkN3BZUks3V2lGWHlJZ0NTNU1KMmhIU2pkcU1kUUQ2aGRrOXpZamJueDVPVVBjMWFlUkxpWll6clpxNTFkcUdvV1hXOVlHbjdzTVN5UTdKclc0b2w5bENDTndsVXJOOEZ3VDlrMnk1Q0M5dDNSVFZZbGVLVjBQdGo1ZEV3bUdPQWRZUHQzSGl6V2NBPT0hdjE=?share_link_id=173411649380
 
