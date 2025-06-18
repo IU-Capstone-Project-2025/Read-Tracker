@@ -134,10 +134,14 @@ You can check all these things in the project directory.
 # Weekly commitments
 
 ## Individual contribution of each participant
-Batraz created a database schema and a query to create tables according to the schema
+Batraz created a database schema and a query to create tables according to the schema.
+
 Andrey created a Dockerfile for each component of the application, a common docker-compose on them, as well as a Makefile and helped review the code of Ivan Isakov and Ivan Savelev.
+
 Dasha created a scheme according to which she wrote documentation for the API, wrote a report, created server and oversees the task board.
-Ivan Isakov translated the API documentation into python code (so far only the structure)
+
+Ivan Isakov translated the API documentation into python code (so far only the structure).
+
 Ivan Savelev created the design in figma and wrote the frontend.
 
 Specific branches were created for each task, they can be found on the tasks tab.
