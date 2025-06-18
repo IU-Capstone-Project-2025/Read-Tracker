@@ -106,8 +106,13 @@ As a user I want to create “Next to read list”, so it will be convenient to 
 - The list is saved and persists between sessions.
 
 ### Frontend
+During this week basic ideas of design were created and visualized in Figma:
+https://www.figma.com/design/pYttfnV3jeoDErQZeNmGPj/Draft-on-Webpge?node-id=0-1&t=wZ5CilWZ10Wsiwfd-1
 
-*...*
+Materials are located on page named “Draft”. Later,based on desired functionality, personal ideas and preferences of whole team (during meeting) it was decided to make several changes in initial design.These changes were taken into consideration and documented as 2nd iteration(same page).
+
+On the otherpage named “Interaction flow” documented navigational abilities of user.
+HTML page was created, which has some most basic functionality of frontend part.
 
 ### Backend
 During this week we designed created initial user-flow of the service, where you can check all possibilities user can
@@ -125,10 +130,6 @@ will help us to implement features in a structured and convenient way.
 
 Moreover, our team designed the initial database schema. It contains all tables we need for our service. 
 You can check all these things in the project directory.
-
-### Design
-A prototype of the design was created and how the user will interact with our product: 
-https://www.figma.com/design/pYttfnV3jeoDErQZeNmGPj/Draft-on-Webpge?t=oUowJROfBbhA8D0u-1
 
 # Weekly commitments
 
