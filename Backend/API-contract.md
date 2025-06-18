@@ -6,7 +6,7 @@ On the auth page user may register, login or reset password:
 
 ```
 {
-  "email": "user@example.com",
+  "mail": "user@example.com",
   "password": "password"
 }
 ```
@@ -19,12 +19,12 @@ Validation Steps:
 
 Possible Responses:
 
-- 201 Created – Registration successful.
+- 200 OK – Registration successful.
 
 ```
 {
   "status": "success",
-  "message": "User registered successfully."
+  "message": "User registered successfully",
 }
 ```
 
@@ -53,7 +53,7 @@ Accepts a JSON for authentication:
 ```
 {
   "mail": "user@example.com",
-  "password": "secure_password123"
+  "password": "password"
 }
 ```
 
@@ -61,18 +61,17 @@ Validation Steps:
 
 1. Checks if the email exists in the system.
 2. Verifies the password matches the stored hash.
-3. Generates a session token or JWT for authenticated users.
+3. Generates a JWT for authenticated users.
 
 Possible Responses:
 
 - 200 OK – Login successful.
+  The route returns JWT with description "User logged in successfully."
+  Something like
 
 ```
 {
-  "status": "success",
-  "message": "Login successful.",
-  "token": "abc123...",  // JWT or session token
-  "user_id": uuid
+    "token": "abc123..."
 }
 ```
 
@@ -94,23 +93,65 @@ Possible Responses:
 }
 ```
 
-#### GET /auth/profile
+#### POST /auth/validate
 
-Get the current user info (token required)
+The route which validates token
 
-Response
+Accepts a JSON for validation:
+
+```
+{
+    "token": "abc123...",
+}
+```
+
+Possible responses:
 
 - 200 OK
 
 ```
 {
-"status": "success",
-  "message": "User fetched successfully",
-  "data": {
-    "id": "uuid",
-    "username": "Username",
-    "email": "user@example.com"
-  }
+  "status": "success",
+  "message": "Token validated."
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "User is not found."
+}
+```
+
+#### POST /auth/refresh
+
+Refreshes the token with new one.
+Accepts a JSON with refresh token:
+
+```
+{
+    "token": "abc123...",
+}
+```
+
+Possible responses:
+
+- 200 OK - sends back new created token
+
+```
+{
+    "token": "abc123..."
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "User is not found."
 }
 ```
 
@@ -128,7 +169,7 @@ The reset functionality has two steps: forgot-password and reset-password
 
 Validation steps:
 
-1. Email must be valid email adress
+1. Email must be valid email address
 2. Checks if the email exists in the system.
 3. Generates unique token for reset  (e.g., 6-digit numeric or UUID or digits with letters).
 4. Sends the link to the email with this format:
@@ -137,7 +178,7 @@ https://{read-tracker.com}/auth/reset-password?token=abc123...
 
 Possible responses:
 
-- 200 OK – Если email существует (но не раскрываем статус в целях безопасности).
+- 200 OK
 
 ```
 {
@@ -146,7 +187,7 @@ Possible responses:
 }
 ```
 
-- 400 Bad Request – Некорректный email.
+- 400 Bad Request – Incorrect.
 
 ```
 {
@@ -192,37 +233,36 @@ Possible responses:
 }
 ```
 
-- 400 Bad Request – Invalid or expired token.
+- 400 Bad Request – Invalid or expired mail token.
 
 ```
 {
   "status": "error",
-  "message": "Invalid or expired token."
+  "message": "Invalid or expired mail token."
 }
 ```
 
 ### User profile page
 
-#### GET /users/:user_id
+#### GET /auth/profile
 
-Response:
+Possible responses:
+
+- 200 OK
+  Returns the profile schema with name, mail, id and avatarUrl
+
+- 401 Unauthorized
 
 ```
 {
-  "status": "success",
-  "message": "Profile retrieved",
-  "data": {
-    "id": "uuid",
-    "username": "Username",
-    "avatar": "https://cdn.example.com/avatar.jpg",
-    "isVisible": true
-  }
+    "status": "error",
+    "message": "Invalid or expired token."
 }
 ```
 
-#### PUT /users/:user_id/avatar
+#### PUT /auth/profile/avatar
 
-Request:
+The route accepts JSON:
 
 ```
 {
@@ -230,7 +270,7 @@ Request:
 }
 ```
 
-Responses:
+Possible responses:
 
 - 200 OK - avatar updated
 
@@ -250,28 +290,18 @@ Responses:
 }
 ```
 
-#### PUT /users/:user_id/visibility
-
-Request:
+- 401 Unauthorized
 
 ```
 {
-  "isVisible": false
+    "status": "error",
+    "message": "Invalid or expired token."
 }
 ```
 
-Response:
+#### PUT /auth/profile/password
 
-```
-{
-  "status": "success",
-  "message": "Visibility updated"
-}
-```
-
-#### PUT /users/:user_id/password
-
-Request:
+The route accepts JSON:
 
 ```
 {
@@ -306,7 +336,56 @@ Possible responses:
 }
 ```
 
-### My Books page
+- 401 Unauthorized
+
+```
+{
+    "status": "error",
+    "message": "Invalid or expired token."
+}
+```
+
+### Users streak
+
+#### POST /me/check_in
+
+``` 
+{
+  "date": date
+}
+```
+
+If user already has a streak, do nothing. Else create new streak (add create_date)
+
+- 200 OK
+```
+{
+  "status": "success",
+  "message": "Successfully marked"
+}
+```
+
+#### PUT /me/check_in
+
+This place if user forgot about streak: make end_date of streak
+
+``` 
+{
+  "date": date
+}
+```
+
+Response:
+
+- 200 OK
+```
+{
+  "status": "success",
+  "message": "Successfully marked"
+}
+```
+
+### Books page
 
 #### GET /books
 
@@ -341,7 +420,7 @@ Possible responses:
     "title": "Book Title",
     "author": "Author Name",
     "language": "lang",
-    "status": "not started" // or "reading" or "finished"
+    "cover": "https://cdn.example.com/cover.jpg"
   }
 }
 ```
@@ -361,10 +440,10 @@ Request:
 
 ```
 {
-  "title": "Back to the Future",
-  "author": "Robert Zemekis"
-  "language": "English",
-  "description": "science fiction"
+  "title": "Book Title",
+  "author": "Author Name",
+  "language": "lang",
+  "cover": "https://cdn.example.com/cover.jpg"
 }
 ```
 
@@ -383,6 +462,10 @@ Possible responses:
   "message": "Book added",
   "data": {
       "id": "uuid",
+      "title": "Book Title",
+      "author": "Author Name",
+      "language": "lang",
+      "cover": "https://cdn.example.com/cover.jpg"
       }
 }
 ```
@@ -408,7 +491,7 @@ Request:
   "author": "new author",
   "status": "finished",
   "language": "English",
-  "description": "smth"
+  "cover": "https://cdn.example.com/new-cover.jpg"
 }
 ```
 
@@ -442,7 +525,7 @@ Possible responses:
 ```
 {
   "status": "error",
-  "message": "Review not found"
+  "message": "Book not found"
 }
 ```
 
@@ -468,9 +551,234 @@ Possible responses:
 }
 ```
 
+### My books page 
+
+The page where user may add book and add status of reading, finishing etc
+
+#### GET /me/books?{filter=status:reading} 
+
+Response:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "User books retrieved",
+  "data": [ /* Array of books (may be empty if no books) */ ]
+}
+```
+
+#### GET /me/books/:book_id
+
+Get single book
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "User book details retrieved",
+  "data": {
+    "book_id": uuid,
+    "start_date": "2025-01-01",
+    "end_date": "",
+    "status": "reading"
+  }
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "User book not found"
+}
+```
+
+#### POST /me/books
+
+```
+{
+  "book_id": uuid,
+  "start_date": "2025-01-01",
+  "status": "reading"
+}
+```
+
+Possible responses:
+
+- 200 OK
+```
+{
+  "status": "success",
+  "message": "User book successfully added"
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "User book not found"
+}
+```
+
+#### PUT /me/books/:book_id
+
+Update the status/end_date of the user book
+
+```
+{
+  "end_date": "2025-01-10",
+  "status": "finished"
+}
+```
+
+- 200 OK
+```
+{
+  "status": "success",
+  "message": "User book updated successfully"
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "User book not found"
+}
+```
+
+#### DELETE /me/books/:book_id
+
+- 200 OK
+```
+{
+  "status": "success",
+  "message": "User book deleted successfully"
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "User book not found"
+}
+```
+
+### Users page (for subscriptions etc)
+
+### Subscriptions
+
+#### POST /subscriptions
+
+```
+{
+  "subscribed_id": "user_id"
+}
+```
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "Subscribed successfully"
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "User not found"
+}
+```
+
+
+#### DELETE /subscriptions/:subscribed_id
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "Unsubscribed successfully"
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "Subscriber not found"
+}
+```
+
+
+#### GET /feed/collections?{limit=10&offset=20|user_id=uuid}
+Get all collections from subscriptions (maybe we can add limit query parameter to get limited count)
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "collections retrieved successfully",
+  "data": { 
+    "items": [*/array of collections (may be empty)/*],
+    "pagination": {
+      "limit": 10,
+      "offset": 20,
+      "total": 123
+    }
+  }
+}
+```
+?sort=rate|created_at
+
+#### GET /feed/reviews?{limit=10&offset=20|user_id=uuid}
+Get all reviews from subscriptions (maybe we can add limit query parameter to get limited count)
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "reviews retrieved successfully",
+  "data": { 
+    "items": [*/array of reviews (may be empty)/*],
+    "pagination": {
+      "limit": 10,
+      "offset": 20,
+      "total": 123
+    }
+  }
+}
+```
+
 ### Reviews page
 
-#### GET /reviews
+#### GET /books/:book_id/reviews
 
 Possible responses:
 
@@ -484,7 +792,21 @@ Possible responses:
 }
 ```
 
-#### GET /reviews/:review_id
+#### GET /users/:user_id/reviews
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "Reviews retrieved",
+  "data": [ /* Array of reviews (may be empty) */ ]
+}
+```
+
+#### GET /me/reviews/:review_id
 
 Possible responses:
 
@@ -514,19 +836,15 @@ Possible responses:
 }
 ```
 
-#### POST /reviews
+#### POST /me/reviews
 
 Request:
 
 ```
 {
     "book_id": uuid,
-    "content_type": "good_review",
     "rate": 5,
     "text": "Loved it!"
-    "data": {
-      "id": "uuid"
-    }
 }
 ```
 
@@ -564,11 +882,10 @@ Possible responses:
 }
 ```
 
-#### PUT /reviews/:review_id
+#### PUT /me/reviews/:review_id
 
 ```
 {
-    "content_type": "bad_review",
     "rate": 3,
     "text": "Changed"
 }
@@ -586,7 +903,7 @@ Possible responses:
 ```
 {
   "status": "success",
-  "message": "Review changed"
+  "message": "Review updated"
 }
 ```
 
@@ -595,7 +912,7 @@ Possible responses:
 ```
 {
   "status": "error",
-  "message": "Invalid comment"
+  "message": "Invalid review"
 }
 ```
 
@@ -608,7 +925,15 @@ Possible responses:
 }
 ```
 
-#### DELETE /reviews/:review_id
+- 409 Conflict
+```
+{
+  "status": "error",
+  "message": "You do not have permission to modify this review."
+}
+```
+
+#### DELETE /me/reviews/:review_id
 
 Possible responses:
 
@@ -630,9 +955,17 @@ Possible responses:
 }
 ```
 
+- 409 Conflict
+```
+{
+  "status": "error",
+  "message": "You do not have permission to modify this review."
+}
+```
+
 ### Notes
 
-#### GET /books/:book_id/notes
+#### GET /me/books/:book_id/notes
 
 Response:
 
@@ -644,14 +977,14 @@ Response:
 }
 ```
 
-#### POST /books/:book_id/notes
+#### POST /me/books/:book_id/notes
 
 Request:
 
 ```
 {
-  "content_type": "
-  "text": "Interesting car"
+  "rate": "5",
+  "text": "Interesting..."
 }
 ```
 
@@ -670,12 +1003,12 @@ Possible responses
 
 ```
 {
-  "status": "success",
+  "status": "error",
   "message": "Invalid note"
 }
 ```
 
-#### GET /notes/:note_id
+#### GET /me/notes/:note_id
 
 Possible responses:
 
@@ -687,7 +1020,6 @@ Possible responses:
   "message": "Note details retrieved",
   "data": {
     "id": uuid,
-    "content_type": type,
     "text": "Note text here",
     "book_id": uuid,
     "created_at": datetime,
@@ -704,13 +1036,12 @@ Possible responses:
 }
 ```
 
-#### PUT /notes/:note_id
+#### PUT /me/notes/:note_id
 
 Request:
 
 ```
 {
-  "content_type": "
   "text": "Interesting car"
 }
 ```
@@ -730,7 +1061,7 @@ Possible responses:
 
 ```
 {
-  "status": "success",
+  "status": "error",
   "message": "Invalid note"
 }
 ```
@@ -744,9 +1075,9 @@ Possible responses:
 }
 ```
 
-#### DELETE /notes/:note_id
+#### DELETE /me/notes/:note_id
 
-Possible response:
+Possible responses:
 
 - 200 OK
 
@@ -766,8 +1097,190 @@ Possible response:
 }
 ```
 
-### Collections
+### My Collections
+
+#### GET /me/collections
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "collections retrieved successfully",
+  "data": { */array of collections (may be empty)/* }
+}
+```
+
+#### GET /me/collections/:collection_id
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "Collection fetched successfully",
+  "data":
+  {
+    "collection_id": uuid,
+    "title": "Collection",
+    "description": "descriptions",
+    "cover": "https://...",
+    "user_id": uuid,
+    "username": "username",
+    "is_private": false,
+    "created_at": datetime,
+  }
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "Collection not found"
+}
+```
+
+#### POST /me/collections
+
+Applies JSON:
+```
+{
+  "title": "title",
+  "description": "description",
+  "is_private": true,
+  "cover": "https://..."
+}
+```
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "Collection created"
+}
+```
+
+- 400 Bad Request
+
+```
+{
+  "status": "error",
+  "message": "Invalid collection"
+}
+```
+
+#### PUT /me/collections/:collection_id
+
+Update the collection.
+```
+{
+  "title": "new title",
+  "description": "new description",
+  "is_private": false,
+  "cover": "https://..."
+}
+```
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "Collection updated"
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "Collection not found"
+}
+```
 
 
+#### DELETE /me/collections/:collection_id
 
+Possible responses:
 
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "Collection deleted"
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "Collection not found"
+}
+```
+
+#### POST /me/collections/:collection_id/books
+
+Add the book to the collection
+Applies the JSON with uuid of the book:
+
+```
+{
+  "book_id": uuid
+}
+```
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "Book added to the collection"
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "Collection not found"
+}
+```
+
+#### DELETE /me/collections/:collection_id/books/:book_id
+
+Possible responses:
+
+- 200 OK
+
+```
+{
+  "status": "success",
+  "message": "Book deleted from the collection"
+}
+```
+
+- 404 Not Found
+
+```
+{
+  "status": "error",
+  "message": "Collection or book not found"
+}
+```
