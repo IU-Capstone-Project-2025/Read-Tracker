@@ -1,15 +1,15 @@
 from fastapi import FastAPI, Response, APIRouter, Request
 from fastapi.responses import JSONResponse
-
+from ..models.notes import NoteResponse, CreateNoteRequest
 router = APIRouter(tags=["Notes"])
 
 
 # TODO: Replace mockup, 404 error
-@router.get("/me/books/{book_id}/notes", status_code=200)
+@router.get("/me/books/{book_id}/notes", response_model=NoteResponse, status_code=200)
 async def get_notes(book_id: int):
     if book_id:
         pass
-
+    response
     return JSONResponse(content={
         "status": "success",
         "message": "Note details retrieved",
