@@ -12,9 +12,9 @@ class NoteData:
     created_at: datetime
 
 
-class CreateNoteRequest:
+class NoteRequest:
     text: str
 
 
-class NoteResponse:
+class NoteResponse(BaseResponse):
     data: List[NoteData]
