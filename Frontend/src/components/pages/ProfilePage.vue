@@ -52,9 +52,6 @@
           }"
         >
           {{ day }}
-          <span v-if="readingData[day]" class="reading-count">
-            {{ readingData[day] }} min
-          </span>
         </div>
       </div>
     </div>
@@ -83,17 +80,17 @@ const calendarDays = Array.from({ length: 30 }, (_, i) => i + 1)
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 const readingData = ref({
-  3: 45,
-  5: 60,
-  7: 30,
-  10: 90,
-  12: 120,
-  15: 45,
-  17: 60,
-  20: 75,
-  22: 90,
-  25: 60,
-  28: 120
+  3: true,
+  5: true,
+  7: true,
+  10: true,
+  12: true,
+  15: true,
+  17: true,
+  20: true,
+  22: true,
+  25: true,
+  28: true
 })
 
 const currentStreak = ref(12)
@@ -102,9 +99,16 @@ const todayMarked = ref(false)
 const markAsRead = () => {
   if (!todayMarked.value) {
     const today = new Date().getDate()
-    readingData.value[today] = 30
+    readingData.value[today] = true
     currentStreak.value++
     todayMarked.value = true
   }
 }
 </script>
+
+<style scoped>
+.calendar-day.has-data {
+  background: #764ba2;
+  color: white;
+}
+</style>

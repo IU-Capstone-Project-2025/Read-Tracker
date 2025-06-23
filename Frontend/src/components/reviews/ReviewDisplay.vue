@@ -2,7 +2,7 @@
   <div class="review-display">
     <div class="review-header">
       <div class="rating">
-        <span v-for="star in 5" :key="star" :class="{ 'active': star <= review.rating }">★</span>
+        Rating: <span class="rating-value">{{ review.rating }}/10</span>
       </div>
       <div class="visibility-tag" :class="{ 'public': review.isPublic, 'private': !review.isPublic }">
         {{ review.isPublic ? 'Public' : 'Private' }}
@@ -66,13 +66,10 @@ const formatDate = (dateString) => {
   margin-bottom: 15px;
 }
 
-.rating span {
-  font-size: 20px;
-  color: #ddd;
-}
-
-.rating span.active {
-  color: #f39c12;
+.rating-value {
+  font-weight: bold;
+  font-size: 18px;
+  color: #764ba2;
 }
 
 .visibility-tag {

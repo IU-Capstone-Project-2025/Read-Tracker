@@ -8,9 +8,7 @@ export const useReviewsStore = defineStore('reviews', {
   
   actions: {
     addReview(newReview) {
-      // Remove any existing review for this book
       this.reviews = this.reviews.filter(r => r.bookId !== newReview.bookId)
-      
       this.reviews.push(newReview)
       this.persistReviews()
     },
@@ -34,6 +32,15 @@ export const useReviewsStore = defineStore('reviews', {
     
     persistReviews() {
       localStorage.setItem('bookReviews', JSON.stringify(this.reviews))
+    },
+    
+    getAllReviews() {
+      return this.reviews.map(review => ({
+        ...review,
+        title: `Book ${review.bookId}`,
+        author: 'Author Name',
+        cover: '/path/to/default-cover.jpg'
+      }))
     }
   },
   

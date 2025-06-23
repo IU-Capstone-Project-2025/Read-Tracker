@@ -52,7 +52,6 @@ const bookId = parseInt(route.params.id)
 const notesStore = useNotesStore()
 const reviewsStore = useReviewsStore()
 
-// Sample book data - in a real app, this would come from an API
 const book = ref({
   id: bookId,
   title: 'Sample Book Title',
@@ -86,7 +85,6 @@ const deleteReview = () => {
 }
 
 onMounted(() => {
-  // In a real app, you would fetch book details from an API here
   console.log(`Loading book details for ID: ${bookId}`)
 })
 </script>

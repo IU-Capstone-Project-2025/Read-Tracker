@@ -1,15 +1,15 @@
 <template>
   <div class="review-editor">
     <div class="rating">
-      <span>Rating:</span>
-      <div class="stars">
-        <span 
-          v-for="star in 5" 
-          :key="star" 
-          @click="setRating(star)"
-          :class="{ 'active': star <= rating }"
-        >★</span>
-      </div>
+      <span>Rating (0-10):</span>
+      <input 
+        type="number" 
+        v-model="rating" 
+        min="0" 
+        max="10" 
+        step="1"
+        class="rating-input"
+      >
     </div>
     
     <textarea v-model="reviewContent" placeholder="Write your review..." rows="6"></textarea>
@@ -41,15 +41,11 @@ const rating = ref(0)
 const reviewContent = ref('')
 const isPublic = ref(false)
 
-const setRating = (stars) => {
-  rating.value = stars
-}
-
 const saveReview = () => {
-  if (rating.value > 0 && reviewContent.value.trim()) {
+  if (rating.value >= 0 && rating.value <= 10 && reviewContent.value.trim()) {
     const newReview = {
       id: Date.now(),
-      rating: rating.value,
+      rating: parseInt(rating.value),
       content: reviewContent.value,
       isPublic: isPublic.value,
       createdAt: new Date().toISOString()
@@ -74,19 +70,12 @@ const saveReview = () => {
   color: #333;
 }
 
-.stars {
+.rating-input {
   margin-left: 10px;
-  cursor: pointer;
-}
-
-.stars span {
-  font-size: 24px;
-  color: #ddd;
-  transition: color 0.2s;
-}
-
-.stars span.active {
-  color: #f39c12;
+  width: 60px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 textarea {
