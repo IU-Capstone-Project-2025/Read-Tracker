@@ -1,0 +1,13 @@
+/node_modules
+/package-lock.json
+
+*.log
+
+.idea
+.vscode
+
+Dockerfile
+nginx.conf
+.babelrc
+/vue.config.js
+/Read Tracker.html

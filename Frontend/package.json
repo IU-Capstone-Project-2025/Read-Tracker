@@ -6,10 +6,12 @@
     "serve": "vue-cli-service serve"
   },
   "dependencies": {
-    "vue": "^3.2.0"
+    "pinia": "^3.0.3",
+    "vue": "^3.2.0",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "@vue/cli-service": "^4.5.0",
-    "@vue/cli-plugin-babel": "^4.5.0"
+    "@vue/cli-plugin-babel": "^5.0.8",
+    "@vue/cli-service": "^5.0.8"
   }
 }
