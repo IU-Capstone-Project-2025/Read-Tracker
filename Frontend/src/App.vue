@@ -7,7 +7,7 @@
       @navigate="changePage"
     />
     <div class="main-content">
-      <component :is="currentPageComponent" />
+      <router-view />
     </div>
     <div class="toggle-btn" @click="toggleSidebar">
       {{ isCollapsed ? '>' : '<' }}
@@ -17,24 +17,15 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import NavigationPanel from './components/NavigationPanel.vue'
-import RecommendationsPage from './components/pages/RecommendationsPage.vue'
-import ProfilePage from './components/pages/ProfilePage.vue'
-import BooksPage from './components/pages/BooksPage.vue'
-import ReviewsPage from './components/pages/ReviewsPage.vue'
-import CollectionsPage from './components/pages/CollectionsPage.vue'
 
+const router = useRouter()
 const isCollapsed = ref(false)
-const currentPage = ref('recommendations')
 
-const currentPageComponent = computed(() => {
-  return {
-    recommendations: RecommendationsPage,
-    profile: ProfilePage,
-    books: BooksPage,
-    reviews: ReviewsPage,
-    collections: CollectionsPage,
-  }[currentPage.value]
+const currentPage = computed(() => {
+  const routeName = router.currentRoute.value.name
+  return routeName || 'recommendations'
 })
 
 const toggleSidebar = () => {
@@ -42,6 +33,6 @@ const toggleSidebar = () => {
 }
 
 const changePage = (page) => {
-  currentPage.value = page
+  router.push({ name: page })
 }
 </script>
