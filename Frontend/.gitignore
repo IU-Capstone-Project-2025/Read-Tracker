@@ -6,8 +6,5 @@
 .idea
 .vscode
 
-Dockerfile
-nginx.conf
 .babelrc
 /vue.config.js
-/Read Tracker.html
