@@ -5,14 +5,14 @@ from typing import List
 from base_response import BaseResponse
 
 
-class NoteData:
+class NoteData(BaseModel):
     id: UUID
     text: str
     book_id: UUID
     created_at: datetime
 
 
-class NoteRequest:
+class NoteRequest(BaseModel):
     text: str
 
 
