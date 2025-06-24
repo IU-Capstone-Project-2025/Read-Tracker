@@ -12,7 +12,6 @@
         :key="review.id"
       >
         <div class="card-top" @click="goToBookProfile(review.bookId)">
-          <img class="book-cover" :src="getBookCover(review.bookId)" :alt="getBookTitle(review.bookId)" />
           <div class="review-content">
             <div class="review-header">
               <h3 class="book-title">{{ getBookTitle(review.bookId) }}</h3>
@@ -58,11 +57,6 @@ const getBookTitle = (bookId) => {
   return book ? book.title : `Book ${bookId}`
 }
 
-const getBookCover = (bookId) => {
-  const book = booksData.find(b => b.id === bookId)
-  return book ? book.cover : '/path/to/default-cover.jpg'
-}
-
 const goToBookProfile = (bookId) => {
   router.push({ name: 'bookProfile', params: { id: bookId } })
 }
@@ -78,7 +72,6 @@ const editReview = (review) => {
 const deleteReview = (review) => {
   if (confirm('Are you sure you want to delete this review?')) {
     reviewsStore.deleteReview(review.id)
-    // Refresh reviews
     userReviews.value = reviewsStore.getAllReviews()
   }
 }
@@ -110,69 +103,52 @@ const formatDate = (dateString) => {
   background: white;
   border-radius: 10px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-  padding: 15px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
 }
 
 .card-top {
-  display: flex;
   cursor: pointer;
-  margin-bottom: 10px;
-}
-
-.book-cover {
-  width: 80px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 5px;
-  margin-right: 15px;
-  flex-shrink: 0;
+  margin-bottom: 15px;
 }
 
 .review-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
 }
 
 .review-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  align-items: center;
 }
 
 .book-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: #333;
   margin-right: 10px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .review-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+  gap: 12px;
 }
 
 .review-rating {
   font-weight: bold;
   color: #764ba2;
   font-size: 16px;
-  white-space: nowrap;
 }
 
 .visibility-tag {
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 10px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
   font-weight: 500;
-  white-space: nowrap;
 }
 
 .public {
@@ -187,46 +163,42 @@ const formatDate = (dateString) => {
 
 .review-text {
   color: #555;
-  font-size: 14px;
-  line-height: 1.5;
-  flex: 1;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  line-clamp: 3;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 5px;
 }
 
 .review-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 10px;
+  padding-top: 15px;
   border-top: 1px solid #eee;
+  margin-top: auto;
 }
 
 .review-date {
-  font-size: 12px;
+  font-size: 13px;
   color: #777;
 }
 
 .review-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .edit-btn, .delete-btn {
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
+  border: 1px solid;
 }
 
 .edit-btn {
   background: none;
-  border: 1px solid #764ba2;
+  border-color: #764ba2;
   color: #764ba2;
 }
 
@@ -237,7 +209,7 @@ const formatDate = (dateString) => {
 
 .delete-btn {
   background: none;
-  border: 1px solid #e74c3c;
+  border-color: #e74c3c;
   color: #e74c3c;
 }
 
@@ -252,21 +224,13 @@ const formatDate = (dateString) => {
   }
   
   .review-card {
-    padding: 12px;
-  }
-  
-  .book-cover {
-    width: 60px;
-    height: 90px;
+    padding: 15px;
   }
   
   .review-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-  
-  .review-meta {
-    margin-top: 5px;
+    gap: 8px;
   }
 }
 </style>
