@@ -38,7 +38,9 @@ const editReview = () => {
 }
 
 const deleteReview = () => {
-  emit('delete-review')
+  if (confirm('Are you sure you want to delete this review?')) {
+    emit('delete-review')
+  }
 }
 
 const formatDate = (dateString) => {

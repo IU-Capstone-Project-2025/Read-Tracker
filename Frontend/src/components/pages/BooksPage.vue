@@ -29,26 +29,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import booksData from '@/data/books'
 
 const router = useRouter()
-
-// Sample book data - in a real app, this would come from an API
-const books = ref([
-  {
-    id: 1,
-    title: 'Sample Book 1',
-    author: 'Author One',
-    cover: '/path/to/cover1.jpg',
-    description: 'Description of the first sample book.'
-  },
-  {
-    id: 2,
-    title: 'Sample Book 2',
-    author: 'Author Two',
-    cover: '/path/to/cover2.jpg',
-    description: 'Description of the second sample book.'
-  }
-])
+const books = ref(booksData)
 
 const goToBookProfile = (bookId) => {
   router.push({ name: 'bookProfile', params: { id: bookId } })
