@@ -80,16 +80,6 @@ async def delete_book(book_id: int):
     })
 
 
-# TODO: Replace mockup
-@router.get("/{book_id}/reviews", status_code=200)
-async def get_reviews(book_id: int):
-    if book_id:
-        pass
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Reviews retrieved",
-        "data": []
-    })
 
 
 # TODO: Replace mockup

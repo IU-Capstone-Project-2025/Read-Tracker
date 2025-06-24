@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from Routes import auth, books, collections, feed, me, notes, subscriptions
+from routes import auth, books, collections, feed, me, notes, subscriptions
 
 app = FastAPI()
 
