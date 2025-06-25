@@ -178,8 +178,7 @@ class DBHandler:
         finally:
             session.close()
 
-    # --- Streak Methods ---
-
+            
     def startStreak(self, user_id: Optional[uuid.UUID] = None, check_date: date = None) -> Optional[Exception]:
         if user_id is None:
             user_id = self.fixed_user_id
@@ -203,10 +202,6 @@ class DBHandler:
             session.close()
 
     def end_streak(self, user_id: Optional[uuid.UUID] = None, close_date: date = None) -> Optional[Exception]:
-        """
-        End an open streak for a user.
-        Returns: Error or None
-        """
         if user_id is None:
             user_id = self.fixed_user_id
         session = self.Session()
@@ -223,3 +218,12 @@ class DBHandler:
         finally:
             session.close()
 
+    def getBooks(self) -> Tuple[List[Book], Optional[Exception]]:
+        session = self.Session()
+        try:
+            books = session.query(Book).all()
+            return books, None
+        except SQLAlchemyError as e:
+            return [], e
+        finally:
+            session.close()

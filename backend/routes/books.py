@@ -78,3 +78,41 @@ async def delete_book(book_id: int):
         "message": "Book deleted",
 
     })
+
+
+# TODO: Replace mockup
+@router.get("/{book_id}/reviews", status_code=200)
+async def get_reviews(book_id: int):
+    if book_id:
+        pass
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Reviews retrieved",
+        "data": []
+    })
+
+
+# TODO: Replace mockup
+@router.get("/{book_id}/notes", status_code=200)
+async def get_book_notes(request: Request, book_id: int):
+    if book_id and request:
+        pass
+
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Notes retrieved",
+        "data": []
+    })
+
+
+# TODO: Replace mockup
+@router.post("/{book_id}/notes", status_code=200)
+async def add_book_note(request: Request, book_id: int):
+    if book_id and request:
+        pass
+
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Note added",
+        "data": []
+    })
