@@ -2,3 +2,5 @@ fastapi[all]
 requests
 uvicorn
 pydantic[all]
+sqlalchemy
+psycopg2

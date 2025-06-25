@@ -1,17 +1,31 @@
 from fastapi import FastAPI, Response, APIRouter, Request
 from fastapi.responses import JSONResponse
-
+import sys
+sys.path.append('..')
+from database.db_instance import db_handler
+from models.base_response import BaseResponse
+from models.books import BookData, BookResponse
 router = APIRouter(prefix="/books", tags=["Books"])
 
 
 # TODO: Replace mockup
-@router.get("/", status_code=200)
+@router.get("/", response_model=BookResponse, status_code=200)
 async def get_books():
-    return JSONResponse(content={
+    data, err = db_handler.getBooks()
+    answer = []
+    if data:
+        for book in data:
+            answer.append(BookData(id=book.ID,
+                                   author=book.author,
+                                   title=book.title,
+                                   language=book.language,
+                                   description=book.description,
+                                   cover=book.cover))
+    return {
         "status": "success",
         "message": "Books retrieved",
-        "data": []  # Array of books (may be empty if no books)
-    })
+        "data": answer
+    }
 
 
 # TODO: Replace mockup, 404 error

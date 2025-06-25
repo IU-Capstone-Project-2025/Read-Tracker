@@ -1,36 +1,22 @@
 from fastapi import FastAPI, Response, APIRouter, Request
 from fastapi.responses import JSONResponse
-from ..models.base_response import BaseResponse
-from ..models.tracker import TrackerRequest
+import sys
+sys.path.append('..')
+from models.base_response import BaseResponse
+from models.tracker import TrackerRequest, TrackerResponse, TrackerData
+from typing import Optional
+from database.db_instance import db_handler
+router = APIRouter(prefix="/me", tags=["Me"])
 
-
-@router.post("/check_in", status_code=200)
-async def create_streak(request: Request):
-    if request:
-        pass
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Successfully marked"
-    })
-
-
-# TODO: implement function
-@router.put("/check_in", status_code=200)
-async def end_streak(request: Request):
-    if request:
-        pass
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Successfully marked"
-    })
-=======
 @router.post("/check_in", response_model=BaseResponse, status_code=200)
 async def create_streak(request: TrackerRequest):
     if request:
         pass
+    err = db_handler.startStreak(check_date=request.date)
+    print(err)
     return {
         "status": "success",
-        "message": "Successfully marked"
+        "message": "Streak started"
     }
 
 
@@ -39,11 +25,27 @@ async def create_streak(request: TrackerRequest):
 async def end_streak(request: TrackerRequest):
     if request:
         pass
+    err = db_handler.endStreak(close_date=request.date)
     return {
         "status": "success",
-        "message": "Successfully marked"
+        "message": "Streak ended"
     }
 
+@router.get("/streaks", response_model=TrackerResponse, status_code=200)
+async def get_streaks():
+    data, err = db_handler.getStreaks()
+    answer = []
+    if data:
+        for streak in data:
+            answer.append(TrackerData(id=streak.ID,
+                                   user_id=streak.user_ID,
+                                   start_date=streak.start_date,
+                                   end_date=streak.end_date))
+    return {
+        "status": "success",
+        "message": "Streaks retrieved",
+        "data": answer
+    }
 
 # TODO: implement function
 @router.get("/books", status_code=200)
