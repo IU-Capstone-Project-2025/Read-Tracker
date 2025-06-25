@@ -178,6 +178,7 @@ class DBHandler:
         finally:
             session.close()
 
+            
     def startStreak(self, user_id: Optional[uuid.UUID] = None, check_date: date = None) -> Optional[Exception]:
         if user_id is None:
             user_id = self.fixed_user_id

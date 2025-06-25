@@ -1,53 +1,60 @@
 <template>
-  <div class="page-content">
+  <div class="books-page">
     <div class="page-header">
-      <h1 class="page-title">My Books</h1>
-      <p class="page-subtitle">Your personal reading collection</p>
+      <h1 class="page-title">Your Books</h1>
+      <p class="page-subtitle">Manage your book collection</p>
     </div>
 
-    <div class="books-header">
-      <h3>Filter by Status:</h3>
-      <div class="filter-container">
-        <button
-          class="filter-button"
-          :class="{ active: currentFilter === 'all' }"
-          @click="currentFilter = 'all'"
-        >
-          All Books
-        </button>
-        <button
-          class="filter-button"
-          :class="{ active: currentFilter === 'to read' }"
-          @click="currentFilter = 'to read'"
-        >
-          To Read
-        </button>
-        <button
-          class="filter-button"
-          :class="{ active: currentFilter === 'reading' }"
-          @click="currentFilter = 'reading'"
-        >
-          Reading
-        </button>
-        <button
-          class="filter-button"
-          :class="{ active: currentFilter === 'read' }"
-          @click="currentFilter = 'read'"
-        >
-          Have Read
-        </button>
+    <div class="books-controls">
+      <div class="status-filter">
+        <label>Filter by status:</label>
+        <select v-model="statusFilter" class="filter-select">
+          <option value="all">All Books</option>
+          <option value="to-read">To Read</option>
+          <option value="reading">Reading</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <div class="sort-control">
+        <label>Sort by:</label>
+        <select v-model="sortBy" class="filter-select">
+          <option value="title">Title</option>
+          <option value="status">Status</option>
+          <option value="added">Recently Added</option>
+        </select>
       </div>
     </div>
 
     <div class="books-grid">
-      <div class="book-card" v-for="book in filteredBooks" :key="book.id">
-        <div class="book-card-cover" :style="{ backgroundImage: `url(${book.cover})` }"></div>
-        <div class="book-card-details">
-          <div class="book-status" :class="'status-' + book.status.replace(' ', '-')">
-            {{ statusLabels[book.status] }}
-          </div>
+      <div 
+        v-for="book in filteredBooks" 
+        :key="book.id" 
+        class="book-card"
+        @click="goToBookProfile(book.id)"
+      >
+        <div class="book-cover-container">
+          <img :src="book.cover" :alt="book.title" class="book-cover">
+        </div>
+        <div class="book-details">
           <h3 class="book-title">{{ book.title }}</h3>
           <span class="book-author">{{ book.author }}</span>
+          
+          <div class="book-status">
+            <label>Status:</label>
+            <select 
+              v-model="book.status" 
+              @click.stop
+              @change="updateBookStatus(book)"
+              class="status-select"
+            >
+              <option value="to-read">To Read</option>
+              <option value="reading">Reading</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          
+          <p class="book-info">{{ book.description.substring(0, 100) }}...</p>
+          <button class="reviews-button">View Details</button>
         </div>
       </div>
     </div>
@@ -55,63 +62,125 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import booksData from '@/data/books'
+import { useBooksStore } from '@/store/books'
 
-const currentFilter = ref('all')
+const router = useRouter()
+const booksStore = useBooksStore()
 
-const books = ref([
-  {
-    id: 1,
-    title: 'Project Hail Mary',
-    author: 'Andy Weir',
-    cover: 'https://m.media-amazon.com/images/I/91Bc+UJQn0L._AC_UF1000,1000_QL80_.jpg',
-    status: 'read'
-  },
-  {
-    id: 2,
-    title: 'The Midnight Library',
-    author: 'Matt Haig',
-    cover: 'https://m.media-amazon.com/images/I/81WZ6QvGZ2L._AC_UF1000,1000_QL80_.jpg',
-    status: 'reading'
-  },
-  {
-    id: 3,
-    title: 'The Silent Patient',
-    author: 'Alex Michaelides',
-    cover: 'https://m.media-amazon.com/images/I/81bsw6fnUiL._AC_UF1000,1000_QL80_.jpg',
-    status: 'read'
-  },
-  {
-    id: 4,
-    title: 'Educated',
-    author: 'Tara Westover',
-    cover: 'https://m.media-amazon.com/images/I/71m+Qtq+HUL._AC_UF1000,1000_QL80_.jpg',
-    status: 'reading'
-  },
-  {
-    id: 5,
-    title: 'Atomic Habits',
-    author: 'James Clear',
-    cover: 'https://m.media-amazon.com/images/I/91uwocAMtSL._AC_UF1000,1000_QL80_.jpg',
-    status: 'to read'
-  },
-  {
-    id: 6,
-    title: 'Sapiens',
-    author: 'Yuval Noah Harari',
-    cover: 'https://m.media-amazon.com/images/I/713jIoMO3UL._AC_UF1000,1000_QL80_.jpg',
-    status: 'read'
+const statusFilter = ref('all')
+const sortBy = ref('title')
+
+// Initialize books with status
+const books = ref([])
+
+onMounted(() => {
+  // Load books from store or initialize
+  if (booksStore.books.length === 0) {
+    booksStore.initializeBooks(booksData)
   }
-])
-
-const statusLabels = {
-  'to read': 'To Read',
-  'reading': 'Reading',
-  'read': 'Have Read'
-}
+  books.value = booksStore.books
+})
 
 const filteredBooks = computed(() => {
-  if (currentFilter.value === 'all') return books.value
-  return books.value.filter(book => book.status === currentFilter.value)
+  let filtered = [...books.value]
+  
+  // Apply status filter
+  if (statusFilter.value !== 'all') {
+    filtered = filtered.filter(book => book.status === statusFilter.value)
+  }
+  
+  // Apply sorting
+  switch (sortBy.value) {
+    case 'title':
+      return filtered.sort((a, b) => a.title.localeCompare(b.title))
+    case 'status':
+      return filtered.sort((a, b) => {
+        const statusOrder = { 'to-read': 1, 'reading': 2, 'completed': 3 }
+        return statusOrder[a.status] - statusOrder[b.status]
+      })
+    case 'added':
+      return filtered.sort((a, b) => b.addedDate - a.addedDate)
+    default:
+      return filtered
+  }
 })
+
+const goToBookProfile = (bookId) => {
+  router.push({ name: 'bookProfile', params: { id: bookId } })
+}
+
+const updateBookStatus = (book) => {
+  booksStore.updateBookStatus(book.id, book.status)
+}
 </script>
+
+<style scoped>
+.books-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.books-controls {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.status-filter, .sort-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+}
+
+.book-card {
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.book-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.book-status {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-select {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+}
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+@media (max-width: 768px) {
+  .books-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+</style>

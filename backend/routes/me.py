@@ -1,10 +1,9 @@
 from fastapi import FastAPI, Response, APIRouter, Request
 from fastapi.responses import JSONResponse
-from typing import Optional
-router = APIRouter(prefix="/me", tags=["Me"])
+from ..models.base_response import BaseResponse
+from ..models.tracker import TrackerRequest
 
 
-# TODO: implement function
 @router.post("/check_in", status_code=200)
 async def create_streak(request: Request):
     if request:
@@ -24,6 +23,26 @@ async def end_streak(request: Request):
         "status": "success",
         "message": "Successfully marked"
     })
+=======
+@router.post("/check_in", response_model=BaseResponse, status_code=200)
+async def create_streak(request: TrackerRequest):
+    if request:
+        pass
+    return {
+        "status": "success",
+        "message": "Successfully marked"
+    }
+
+
+# TODO: implement function
+@router.put("/check_in", response_model=BaseResponse, status_code=200)
+async def end_streak(request: TrackerRequest):
+    if request:
+        pass
+    return {
+        "status": "success",
+        "message": "Successfully marked"
+    }
 
 
 # TODO: implement function
