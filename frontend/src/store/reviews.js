@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import booksData from '@/data/books'
+import { useBooksStore } from '@/store/books'
 
 export const useReviewsStore = defineStore('reviews', {
   state: () => ({
@@ -9,16 +9,12 @@ export const useReviewsStore = defineStore('reviews', {
   
   actions: {
     addReview(newReview) {
-      // Ensure we have all required fields
       const completeReview = {
         id: Date.now(),
         createdAt: new Date().toISOString(),
         ...newReview
       }
-      
-      // Remove any existing review for this book
       this.reviews = this.reviews.filter(r => r.bookId !== newReview.bookId)
-      
       this.reviews.push(completeReview)
       this.persistReviews()
       return completeReview
@@ -46,8 +42,9 @@ export const useReviewsStore = defineStore('reviews', {
     },
     
     getAllReviews() {
+      const booksStore = useBooksStore()
       return this.reviews.map(review => {
-        const book = booksData.find(b => b.id === review.bookId) || {}
+        const book = booksStore.books.find(b => b.id === review.bookId) || {}
         return {
           ...review,
           title: book.title || `Book ${review.bookId}`,

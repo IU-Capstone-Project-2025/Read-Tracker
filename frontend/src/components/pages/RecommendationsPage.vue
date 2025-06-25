@@ -27,12 +27,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import booksData from '@/data/books'
+import { useBooksStore } from '@/store/books'
 
 const router = useRouter()
-const books = ref(booksData)
+const booksStore = useBooksStore()
+
+const books = ref([])
+
+onMounted(() => {
+  books.value = booksStore.books
+})
 
 const goToBookProfile = (bookId) => {
   router.push({ name: 'bookProfile', params: { id: bookId } })

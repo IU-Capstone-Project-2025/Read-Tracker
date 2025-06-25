@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date
-from database.models import User, Book, Review, Note, Streak, Base  # Assuming models are in a separate module
+from database.models import Users, Book, Review, Note, Streak, Base  # Assuming models are in a separate module
 from database.database import engine
 
 class DBHandler:

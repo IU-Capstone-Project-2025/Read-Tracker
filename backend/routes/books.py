@@ -9,13 +9,13 @@ router = APIRouter(prefix="/books", tags=["Books"])
 
 
 # TODO: Replace mockup
-@router.get("/", response_model=BookResponse, status_code=200)
+@router.get("", response_model=BookResponse, status_code=200)
 async def get_books():
     data, err = db_handler.getBooks()
     answer = []
     if data:
         for book in data:
-            answer.append(BookData(id=book.ID,
+            answer.append(BookData(id=book.id,
                                    author=book.author,
                                    title=book.title,
                                    language=book.language,

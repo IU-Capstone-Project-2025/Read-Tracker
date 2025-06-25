@@ -64,8 +64,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import booksData from '@/data/books'
 import { useBooksStore } from '@/store/books'
+import { fetchBooks } from '@/api/books'
 
 const router = useRouter()
 const booksStore = useBooksStore()
@@ -73,34 +73,31 @@ const booksStore = useBooksStore()
 const statusFilter = ref('all')
 const sortBy = ref('title')
 
-// Initialize books with status
-const books = ref([])
-
-onMounted(() => {
-  // Load books from store or initialize
+onMounted(async () => {
+  const loadedBooks = await fetchBooks()
   if (booksStore.books.length === 0) {
-    booksStore.initializeBooks(booksData)
+    booksStore.initializeBooks(
+      loadedBooks.map(book => ({
+        ...book,
+        status: 'to-read',       
+        addedDate: Date.now() 
+      }))
+    )
   }
-  books.value = booksStore.books
 })
 
 const filteredBooks = computed(() => {
-  let filtered = [...books.value]
-  
-  // Apply status filter
+  let filtered = [...booksStore.books]
+
   if (statusFilter.value !== 'all') {
     filtered = filtered.filter(book => book.status === statusFilter.value)
   }
-  
-  // Apply sorting
   switch (sortBy.value) {
     case 'title':
       return filtered.sort((a, b) => a.title.localeCompare(b.title))
     case 'status':
-      return filtered.sort((a, b) => {
-        const statusOrder = { 'to-read': 1, 'reading': 2, 'completed': 3 }
-        return statusOrder[a.status] - statusOrder[b.status]
-      })
+      const statusOrder = { 'to-read': 1, 'reading': 2, 'completed': 3 }
+      return filtered.sort((a, b) => statusOrder[a.status] - statusOrder[b.status])
     case 'added':
       return filtered.sort((a, b) => b.addedDate - a.addedDate)
     default:

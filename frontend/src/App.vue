@@ -19,9 +19,26 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import NavigationPanel from './components/NavigationPanel.vue'
+import { useBooksStore } from '@/store/books'
+import { fetchBooks } from '@/api/books'
+import { onMounted } from 'vue'
 
 const router = useRouter()
 const isCollapsed = ref(false)
+const booksStore = useBooksStore()
+
+
+onMounted(() => {
+  if (!booksStore.books.length) {
+    loadBooks()
+  }
+})
+
+async function loadBooks() {
+  const booksData = await fetchBooks()
+  booksStore.initializeBooks(booksData)
+}
+
 
 const currentPage = computed(() => {
   const routeName = router.currentRoute.value.name

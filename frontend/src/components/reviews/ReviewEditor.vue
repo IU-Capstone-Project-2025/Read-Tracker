@@ -33,10 +33,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { createReview, updateReview } from '@/api/reviews.js'
 
 const props = defineProps({
   bookId: {
-    type: Number,
+    type: [String, Number],
     required: true
   },
   existingReview: {
@@ -53,23 +54,38 @@ const isPublic = ref(false)
 
 onMounted(() => {
   if (props.existingReview) {
-    rating.value = props.existingReview.rating
-    reviewContent.value = props.existingReview.content
-    isPublic.value = props.existingReview.isPublic
+    rating.value = props.existingReview.rate
+    reviewContent.value = props.existingReview.text
+    isPublic.value = props.existingReview.isPublic ?? true
   }
 })
 
-const saveReview = () => {
-  if (rating.value >= 0 && rating.value <= 10 && reviewContent.value.trim()) {
-    const reviewData = {
-      rating: parseInt(rating.value),
-      content: reviewContent.value,
-      isPublic: isPublic.value
+const saveReview = async () => {
+  if (rating.value < 0 || rating.value > 10 || !reviewContent.value.trim()) {
+    alert('Please enter valid rating and text.')
+    return
+  }
+
+  const payload = {
+    rate: parseInt(rating.value),
+    text: reviewContent.value.trim(),
+    isPublic: isPublic.value
+  }
+
+  try {
+    if (props.existingReview) {
+      await updateReview(props.bookId, payload)
+    } else {
+      await createReview(props.bookId, payload)
     }
-    
-    emit('review-saved', reviewData)
+
+    emit('review-saved') 
+  } catch (error) {
+    console.error('Review save failed:', error)
+    alert('Failed to save review. Please try again.')
   }
 }
+
 
 const cancel = () => {
   emit('cancel-edit')

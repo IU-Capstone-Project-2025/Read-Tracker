@@ -1,5 +1,9 @@
 <template>
-  <div class="book-profile">
+  <div v-if="loading" class="book-profile">
+    <p>Loading book data...</p>
+  </div>
+
+  <div v-else class="book-profile">
     <div class="book-header">
       <div class="cover-container">
         <img :src="book.cover" :alt="book.title" class="book-cover">
@@ -39,6 +43,7 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -48,27 +53,37 @@ import ReviewEditor from '@/components/reviews/ReviewEditor.vue'
 import ReviewDisplay from '@/components/reviews/ReviewDisplay.vue'
 import { useNotesStore } from '@/store/notes'
 import { useReviewsStore } from '@/store/reviews'
-import booksData from '@/data/books'
+import { fetchBooks } from '@/api/books'
 
 const route = useRoute()
-const bookId = parseInt(route.params.id)
+const bookId = route.params.id // UUID
+
 const notesStore = useNotesStore()
 const reviewsStore = useReviewsStore()
 
-const book = ref(booksData.find(b => b.id === bookId) || {
-  id: bookId,
-  title: `Book ${bookId}`,
-  author: 'Unknown Author',
-  genre: 'Unknown Genre',
-  description: 'Book description not available.',
-  cover: '/path/to/default-cover.jpg'
+const book = ref(null)
+const editingReview = ref(false)
+const loading = ref(true)
+
+onMounted(async () => {
+  const loadedBooks = await fetchBooks()
+  const found = loadedBooks.find(b => b.id === bookId)
+
+  book.value = found || {
+    id: bookId,
+    title: `Book ${bookId}`,
+    author: 'Unknown Author',
+    genre: 'Unknown Genre',
+    description: 'Book description not available.',
+    cover: '/path/to/default-cover.jpg'
+  }
+
+  loading.value = false
 })
 
-const editingReview = ref(false)
 const notes = computed(() => notesStore.getNotesForBook(bookId))
 const existingReview = computed(() => reviewsStore.getReviewForBook(bookId))
 
-// Check if we're in edit mode from URL
 watch(() => route.query, (query) => {
   if (query.editReview) {
     editingReview.value = true
@@ -112,6 +127,8 @@ const deleteReview = () => {
   editingReview.value = false
 }
 </script>
+
+
 
 <style scoped>
 .book-profile {
