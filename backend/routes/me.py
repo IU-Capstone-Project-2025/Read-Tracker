@@ -8,8 +8,6 @@ from typing import Optional
 from database.db_instance import db_handler
 router = APIRouter(prefix="/me", tags=["Me"])
 
-
-# TODO: implement function
 @router.post("/check_in", response_model=BaseResponse, status_code=200)
 async def create_streak(request: TrackerRequest):
     if request:
@@ -21,7 +19,6 @@ async def create_streak(request: TrackerRequest):
         "message": "Streak started"
     }
 
-# "2025-06-25T18:05:53.563505"
 
 # TODO: implement function
 @router.put("/check_in", response_model=BaseResponse, status_code=200)
@@ -109,4 +106,56 @@ async def delete_user_book(request: Request, book_id: int):
     return JSONResponse(content={
         "status": "success",
         "message": "User book deleted successfully"
+    })
+
+
+# TODO: Replace mockup
+@router.get("/reviews/{review_id}", status_code=200)
+async def get_review(review_id: int):
+    if review_id:
+        pass
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Review retrieved",
+        "data": {
+            "id": "uuid",
+            "content_type": "good_review",
+            "user_id": 123,
+            "rate": 5,
+            "text": "Great read!",
+            "book_id": 123
+        }
+    })
+
+
+# TODO: Replace mockup
+@router.put("/reviews/{review_id}", status_code=200)
+async def update_review(review_id: int):
+    if review_id:
+        pass
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Review updated"
+    })
+
+
+# TODO: Replace mockup
+@router.delete("/reviews/{review_id}", status_code=200)
+async def delete_review(review_id: int):
+    if review_id:
+        pass
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Review deleted"
+    })
+
+
+# TODO: Replace mockup
+@router.post("/reviews", status_code=200)
+async def create_review(review_id: int):
+    if review_id:
+        pass
+    return JSONResponse(content={
+        "status": "success",
+        "message": "Review created"
     })

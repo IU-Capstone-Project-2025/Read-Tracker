@@ -84,7 +84,7 @@ async def update_note(request: NoteRequest, note_id: UUID):
     return {
         "status": "success",
         "message": "Note updated",
-    }
+    })
 
 
 # TODO: Replace mockup; 404 error.
@@ -97,4 +97,4 @@ async def delete_note(note_id: UUID):
     return {
         "status": "success",
         "message": "Note deleted",
-    }
+    })
