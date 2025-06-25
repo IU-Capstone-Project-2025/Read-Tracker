@@ -161,3 +161,6 @@ class Subscription(Base):
     follower = relationship("User", back_populates="following", foreign_keys=[follower_id])
     # the sub
     followed = relationship("User", back_populates="followers", foreign_keys=[subscribed_id])
+
+note = Note()
+note.ID

@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date
-from models import User, Book, Review, Note, Streak, Base  # Assuming models are in a separate module
-
+from database.models import User, Book, Review, Note, Streak, Base  # Assuming models are in a separate module
+from database.database import engine
 
 class DBHandler:
     def __init__(self, engine):
@@ -202,7 +202,7 @@ class DBHandler:
         finally:
             session.close()
 
-    def end_streak(self, user_id: Optional[uuid.UUID] = None, close_date: date = None) -> Optional[Exception]:
+    def endStreak(self, user_id: Optional[uuid.UUID] = None, close_date: date = None) -> Optional[Exception]:
         """
         End an open streak for a user.
         Returns: Error or None
@@ -220,6 +220,16 @@ class DBHandler:
         except SQLAlchemyError as e:
             session.rollback()
             return e
+        finally:
+            session.close()
+
+    def getBooks(self) -> Tuple[List[Book], Optional[Exception]]:
+        session = self.Session()
+        try:
+            books = session.query(Book).all()
+            return books, None
+        except SQLAlchemyError as e:
+            return [], e
         finally:
             session.close()
 

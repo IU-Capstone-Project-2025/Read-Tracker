@@ -1,8 +1,11 @@
 from fastapi import FastAPI, Response, APIRouter, Request
 from fastapi.responses import JSONResponse
-from ..models.base_response import BaseResponse
-from ..models.tracker import TrackerRequest
+import sys
+sys.path.append('..')
+from models.base_response import BaseResponse
+from models.tracker import TrackerRequest
 from typing import Optional
+from database.db_instance import db_handler
 router = APIRouter(prefix="/me", tags=["Me"])
 
 
@@ -11,20 +14,24 @@ router = APIRouter(prefix="/me", tags=["Me"])
 async def create_streak(request: TrackerRequest):
     if request:
         pass
+    err = db_handler.startStreak(check_date=request.date)
+    print(err)
     return {
         "status": "success",
-        "message": "Successfully marked"
+        "message": "Streak started"
     }
 
+# "2025-06-25T18:05:53.563505"
 
 # TODO: implement function
 @router.put("/check_in", response_model=BaseResponse, status_code=200)
 async def end_streak(request: TrackerRequest):
     if request:
         pass
+    err = db_handler.endStreak(close_date=request.date)
     return {
         "status": "success",
-        "message": "Successfully marked"
+        "message": "Streak ended"
     }
 
 
