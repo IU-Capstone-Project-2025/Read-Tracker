@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 import sys
 sys.path.append('..')
 from models.base_response import BaseResponse
-from models.tracker import TrackerRequest
+from models.tracker import TrackerRequest, TrackerResponse, TrackerData
 from typing import Optional
 from database.db_instance import db_handler
 router = APIRouter(prefix="/me", tags=["Me"])
@@ -34,6 +34,21 @@ async def end_streak(request: TrackerRequest):
         "message": "Streak ended"
     }
 
+@router.get("/streaks", response_model=TrackerResponse, status_code=200)
+async def get_streaks():
+    data, err = db_handler.getStreaks()
+    answer = []
+    if data:
+        for streak in data:
+            answer.append(TrackerData(id=streak.ID,
+                                   user_id=streak.user_ID,
+                                   start_date=streak.start_date,
+                                   end_date=streak.end_date))
+    return {
+        "status": "success",
+        "message": "Streaks retrieved",
+        "data": answer
+    }
 
 # TODO: implement function
 @router.get("/books", status_code=200)

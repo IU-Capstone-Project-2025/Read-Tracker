@@ -223,6 +223,20 @@ class DBHandler:
         finally:
             session.close()
 
+
+    def getStreaks(self, user_id: Optional[uuid.UUID] = None) -> Tuple[List[Streak], Optional[Exception]]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        session = self.Session()
+        try:
+            streaks = session.query(Streak).filter_by(user_ID=user_id)
+            return streaks, None
+        except SQLAlchemyError as e:
+            return None, e
+        finally:
+            session.close()
+
+
     def getBooks(self) -> Tuple[List[Book], Optional[Exception]]:
         session = self.Session()
         try:
