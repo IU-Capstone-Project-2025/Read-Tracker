@@ -7,7 +7,7 @@ Additionally, functionality has been added for users to write personal notes and
 Several user interface screens have also been developed, including Main Page, My Profile, My Books, My Reviews, and My Collections.
 
 ## Demonstration of the working MVP
-
+https://disk.yandex.ru/d/ZsQcL-Vqy4elhQ
 
 ## Internal demo
 
