@@ -76,52 +76,94 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 
-const currentDate = new Date()
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 
                'July', 'August', 'September', 'October', 'November', 'December']
 
+const currentDate = new Date()
 const currentMonth = ref(currentDate.getMonth())
 const currentYear = ref(currentDate.getFullYear())
 
-const readingData = ref({
-  '2025-06-03': true,
-  '2025-06-05': true,
-  '2025-06-07': true,
-  '2025-06-10': true,
-  '2025-06-12': true,
-  '2025-06-15': true,
-  '2025-06-17': true,
-  '2025-06-20': true,
-  '2025-06-22': true,
-  '2025-06-25': true,
-  '2025-06-28': true
-})
-
-const currentStreak = ref(12)
+const readingData = ref({})
+const currentStreak = ref(0)
 const todayMarked = ref(false)
+
+const loadStreaks = async () => {
+  try {
+    const res = await axios.get('http://localhost:8000/me/streaks')
+    const streaks = res.data?.data
+
+    if (Array.isArray(streaks)) {
+      readingData.value = {}
+
+      let maxStreak = 0
+
+      streaks.forEach((item) => {
+        const start = new Date(item.start_date)
+        const end = item.end_date ? new Date(item.end_date) : new Date()
+        
+        let date = new Date(start)
+        while (date <= end) {
+          const dateStr = date.toISOString().split('T')[0]
+          readingData.value[dateStr] = true
+          date.setDate(date.getDate() + 1)
+        }
+        
+        const streakLength = calculateStreakLength(item.start_date, item.end_date)
+        if (streakLength > maxStreak) {
+          maxStreak = streakLength
+        }
+      })
+
+      currentStreak.value = maxStreak
+      const today = new Date().toISOString().split('T')[0]
+      todayMarked.value = !!readingData.value[today]
+    } else {
+      console.error('Invalid streaks format', res.data)
+    }
+  } catch (e) {
+    console.error('Failed to load streaks', e)
+  }
+}
+
+const markAsRead = async () => {
+  if (!todayMarked.value) {
+    const today = new Date().toISOString().split('T')[0]
+
+    try {
+      await axios.post('http://localhost:8000/me/check_in', {
+        date: today
+      })
+
+      readingData.value[today] = true
+      currentStreak.value++
+      todayMarked.value = true
+    } catch (error) {
+      console.error('Failed to mark today as read', error)
+    }
+  }
+}
 
 const calendarDays = computed(() => {
   const days = []
   const firstDay = new Date(currentYear.value, currentMonth.value, 1)
   const lastDay = new Date(currentYear.value, currentMonth.value + 1, 0)
-  
-  // Add empty days for the first week
+
   for (let i = 0; i < firstDay.getDay(); i++) {
     days.push({ day: '', date: '' })
   }
-  
-  // Add actual days of the month
+
   for (let i = 1; i <= lastDay.getDate(); i++) {
     const date = new Date(currentYear.value, currentMonth.value, i)
-    days.push({ 
-      day: i, 
+    days.push({
+      day: i,
       date: date.toISOString().split('T')[0]
     })
   }
-  
+
   return days
 })
 
@@ -148,14 +190,18 @@ const nextMonth = () => {
   }
 }
 
-const markAsRead = () => {
-  if (!todayMarked.value) {
-    const today = new Date().toISOString().split('T')[0]
-    readingData.value[today] = true
-    currentStreak.value++
-    todayMarked.value = true
-  }
+const calculateStreakLength = (startDate, endDate = null) => {
+  const start = new Date(startDate)
+  const end = endDate ? new Date(endDate) : new Date()
+  const diffTime = end - start
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays > 0 ? diffDays : 0
 }
+
+
+onMounted(() => {
+  loadStreaks()
+})
 </script>
 
 <style scoped>

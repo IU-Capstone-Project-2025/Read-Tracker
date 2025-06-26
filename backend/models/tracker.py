@@ -3,6 +3,7 @@ from uuid import UUID
 from datetime import datetime
 from typing import List, Optional
 from models.base_response import BaseResponse
+from datetime import date
 
 
 class TrackerRequest(BaseModel):
@@ -10,10 +11,10 @@ class TrackerRequest(BaseModel):
 
 
 class TrackerData(BaseModel):
-    id: UUID
+    id: int
     user_id: UUID
     start_date: datetime
-    end_date: datetime
+    end_date: Optional[date] 
 
 
 class TrackerResponse(BaseResponse):
