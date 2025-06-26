@@ -33,7 +33,18 @@
         @click="goToBookProfile(book.id)"
       >
         <div class="book-cover-container">
-          <img :src="book.cover" :alt="book.title" class="book-cover">
+          <img 
+            v-if="book.cover" 
+            :src="book.cover" 
+            :alt="book.title" 
+            class="book-cover"
+          />
+          <img 
+            v-else 
+            src="/images/placeholder.png" 
+            alt="No cover available" 
+            class="book-cover"
+          />
         </div>
         <div class="book-details">
           <h3 class="book-title">{{ book.title }}</h3>
@@ -53,7 +64,8 @@
             </select>
           </div>
           
-          <p class="book-info">{{ book.description.substring(0, 100) }}...</p>
+          <p class="book-info" v-if="book.description">{{ book.description.substring(0, 100) }}...</p>
+          <p class="book-info" v-else>No description available</p>
           <button class="reviews-button">View Details</button>
         </div>
       </div>

@@ -5,9 +5,7 @@ from routes import auth, books, collections, feed, me, notes, subscriptions, rev
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:8080"
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,

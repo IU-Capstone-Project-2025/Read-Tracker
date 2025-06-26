@@ -22,11 +22,11 @@
 
 <script setup>
 import { ref } from 'vue'
-import { saveNoteApi } from '@/api/notes.js'
+import { useNotesStore } from '@/store/notes'
 
 const props = defineProps({
   bookId: {
-    type: String, // UUID string
+    type: String,
     required: true
   }
 })
@@ -37,6 +37,8 @@ const noteContent = ref('')
 const loading = ref(false)
 const error = ref(null)
 
+const notesStore = useNotesStore()
+
 const saveNote = async () => {
   if (!noteContent.value.trim()) return
 
@@ -44,11 +46,8 @@ const saveNote = async () => {
   error.value = null
 
   try {
-    const savedNote = await saveNoteApi({
-      book_id: props.bookId,
-      text: noteContent.value
-    })
-    emit('note-saved', savedNote)
+    await notesStore.addNote(props.bookId, { text: noteContent.value })
+    emit('note-saved')
     noteContent.value = ''
   } catch (err) {
     error.value = err.response?.data?.message || err.message || 'Error saving note'
@@ -57,6 +56,7 @@ const saveNote = async () => {
   }
 }
 </script>
+
 
 <style scoped>
 .note-form {

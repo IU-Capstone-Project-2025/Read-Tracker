@@ -4,11 +4,11 @@
     <h3 v-else>Write a Review</h3>
     
     <div class="rating">
-      <span>Rating (0-10):</span>
+      <span>Rating (1-10):</span>
       <input 
         type="number" 
-        v-model="rating" 
-        min="0" 
+        v-model.number="rating" 
+        min="1" 
         max="10" 
         step="1"
         class="rating-input"
@@ -32,12 +32,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { createReview, updateReview } from '@/api/reviews.js'
+import { ref, onMounted, watch } from 'vue'
 
 const props = defineProps({
   bookId: {
-    type: [String, Number],
+    type: String,
     required: true
   },
   existingReview: {
@@ -48,44 +47,44 @@ const props = defineProps({
 
 const emit = defineEmits(['review-saved', 'cancel-edit'])
 
-const rating = ref(0)
+const rating = ref(1)
 const reviewContent = ref('')
-const isPublic = ref(false)
+const isPublic = ref(true)
 
 onMounted(() => {
   if (props.existingReview) {
-    rating.value = props.existingReview.rate
-    reviewContent.value = props.existingReview.text
+    rating.value = props.existingReview.rate || 1
+    reviewContent.value = props.existingReview.text || ''
     isPublic.value = props.existingReview.isPublic ?? true
   }
 })
 
-const saveReview = async () => {
-  if (rating.value < 0 || rating.value > 10 || !reviewContent.value.trim()) {
-    alert('Please enter valid rating and text.')
+watch(() => props.existingReview, (newReview) => {
+  if (newReview) {
+    rating.value = newReview.rate || 1
+    reviewContent.value = newReview.text || ''
+    isPublic.value = newReview.isPublic ?? true
+  } else {
+    rating.value = 1
+    reviewContent.value = ''
+    isPublic.value = true
+  }
+})
+
+const saveReview = () => {
+  if (rating.value < 1 || rating.value > 10 || !reviewContent.value.trim()) {
+    alert('Please enter a valid rating between 1 and 10 and some review text.')
     return
   }
 
   const payload = {
-    rate: parseInt(rating.value),
+    rate: rating.value,
     text: reviewContent.value.trim(),
     isPublic: isPublic.value
   }
 
-  try {
-    if (props.existingReview) {
-      await updateReview(props.bookId, payload)
-    } else {
-      await createReview(props.bookId, payload)
-    }
-
-    emit('review-saved') 
-  } catch (error) {
-    console.error('Review save failed:', error)
-    alert('Failed to save review. Please try again.')
-  }
+  emit('review-saved', payload)
 }
-
 
 const cancel = () => {
   emit('cancel-edit')

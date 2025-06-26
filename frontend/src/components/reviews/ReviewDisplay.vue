@@ -15,14 +15,13 @@
       <span class="review-date">{{ formatDate(review.created_at) }}</span>
       <div class="actions">
         <button @click="editReview" class="edit-btn">Edit</button>
-        <button @click="deleteReview" class="delete-btn">Delete</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, defineEmits } from 'vue'
 
 const props = defineProps({
   review: {
@@ -31,16 +30,10 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['edit-review', 'delete-review'])
+const emit = defineEmits(['edit-review']) 
 
 const editReview = () => {
   emit('edit-review', props.review)
-}
-
-const deleteReview = () => {
-  if (confirm('Are you sure you want to delete this review?')) {
-    emit('delete-review', props.review)
-  }
 }
 
 const formatDate = (dateString) => {

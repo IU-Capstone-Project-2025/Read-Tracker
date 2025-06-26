@@ -1,9 +1,17 @@
 import axios from 'axios'
 
-export async function saveNoteApi(noteData) {
-  const response = await axios.post('http://localhost:8000/notes/', noteData)
-  if (!response.data || !response.data.data || !response.data.data.length) {
-    throw new Error('Invalid response from server')
+export async function saveNoteApi(bookID, noteData) {
+  const postResponse = await axios.post(`http://localhost:8000/me/books/${bookID}/notes`, noteData)
+
+  if (postResponse.data.status !== 'success') {
+    throw new Error('Failed to add note')
   }
-  return response.data.data[0]
+
+  const getResponse = await axios.get(`http://localhost:8000/me/books/${bookID}/notes`)
+
+  if (getResponse.data.status !== 'success') {
+    throw new Error('Failed to fetch notes')
+  }
+
+  return getResponse.data.data
 }

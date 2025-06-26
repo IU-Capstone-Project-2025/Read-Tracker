@@ -6,7 +6,18 @@
   <div v-else class="book-profile">
     <div class="book-header">
       <div class="cover-container">
-        <img :src="book.cover" :alt="book.title" class="book-cover">
+        <img 
+          v-if="book.cover" 
+          :src="book.cover" 
+          :alt="book.title" 
+          class="book-cover"
+        />
+        <img 
+          v-else 
+          src="/images/placeholder.png" 
+          alt="No cover available" 
+          class="book-cover"
+        />
       </div>
       <div class="book-info">
         <h1 class="book-title">{{ book.title }}</h1>
@@ -19,7 +30,7 @@
     <div class="content-sections">
       <div class="notes-section">
         <h2>Your Notes</h2>
-        <NoteForm :book-id="book.id" @note-saved="addNote" />
+        <NoteForm :book-id="book.id" @note-saved="refreshNotes" />
         <NoteList :notes="notes" @delete-note="deleteNote" />
       </div>
 
@@ -43,7 +54,6 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -56,62 +66,76 @@ import { useReviewsStore } from '@/store/reviews'
 import { fetchBooks } from '@/api/books'
 
 const route = useRoute()
-const bookId = route.params.id // UUID
+const bookId = route.params.id
 
 const notesStore = useNotesStore()
 const reviewsStore = useReviewsStore()
 
 const book = ref(null)
-const editingReview = ref(false)
 const loading = ref(true)
+const editingReview = ref(false)
 
 onMounted(async () => {
-  const loadedBooks = await fetchBooks()
-  const found = loadedBooks.find(b => b.id === bookId)
-
-  book.value = found || {
-    id: bookId,
-    title: `Book ${bookId}`,
-    author: 'Unknown Author',
-    genre: 'Unknown Genre',
-    description: 'Book description not available.',
-    cover: '/path/to/default-cover.jpg'
+  try {
+    const loadedBooks = await fetchBooks()
+    const found = loadedBooks.find(b => b.id === bookId)
+    book.value = found || {
+      id: bookId,
+      title: `Book ${bookId}`,
+      author: 'Unknown Author',
+      genre: 'Unknown Genre',
+      description: 'Book description not available.',
+      cover: '/images/placeholder.png'
+    }
+    await notesStore.fetchNotes(bookId)
+    await reviewsStore.fetchReviews(bookId)
+  } catch (e) {
+    console.error('Failed to load book, notes or reviews:', e)
+  } finally {
+    loading.value = false
   }
-
-  loading.value = false
 })
 
 const notes = computed(() => notesStore.getNotesForBook(bookId))
 const existingReview = computed(() => reviewsStore.getReviewForBook(bookId))
 
 watch(() => route.query, (query) => {
-  if (query.editReview) {
-    editingReview.value = true
-  }
+  editingReview.value = !!query.editReview
 })
 
-const addNote = (newNote) => {
-  notesStore.addNote({ ...newNote, bookId })
-}
-
-const deleteNote = (noteId) => {
-  notesStore.deleteNote(noteId)
-}
-
-const saveReview = (reviewData) => {
-  if (editingReview.value) {
-    reviewsStore.updateReview({
-      ...existingReview.value,
-      ...reviewData
-    })
-  } else {
-    reviewsStore.addReview({ 
-      ...reviewData, 
-      bookId,
-      createdAt: new Date().toISOString()
-    })
+const refreshNotes = async () => {
+  try {
+    await notesStore.fetchNotes(bookId)
+  } catch (e) {
+    console.error('Failed to refresh notes:', e)
   }
-  editingReview.value = false
+}
+
+const deleteNote = async (noteId) => {
+  try {
+    await notesStore.deleteNote(noteId)
+    await refreshNotes()
+  } catch (e) {
+    console.error('Failed to delete note:', e)
+  }
+}
+
+const saveReview = async (reviewData) => {
+  if (!bookId) {
+    console.error('BookId is undefined!')
+    return
+  }
+  try {
+    if (editingReview.value && existingReview.value) {
+      await reviewsStore.updateReview(bookId, reviewData)
+    } else {
+      await reviewsStore.addReview(bookId, reviewData)
+    }
+    editingReview.value = false
+    await reviewsStore.fetchReviews(bookId)
+  } catch (e) {
+    console.error('Failed to save review:', e)
+  }
 }
 
 const startEditReview = () => {
@@ -122,13 +146,18 @@ const cancelEdit = () => {
   editingReview.value = false
 }
 
-const deleteReview = () => {
-  reviewsStore.deleteReview(existingReview.value.id)
-  editingReview.value = false
+const deleteReview = async () => {
+  if (existingReview.value) {
+    try {
+      await reviewsStore.deleteReview(bookId)
+      editingReview.value = false
+      await reviewsStore.fetchReviews(bookId)
+    } catch (e) {
+      console.error('Failed to delete review:', e)
+    }
+  }
 }
 </script>
-
-
 
 <style scoped>
 .book-profile {
@@ -155,7 +184,9 @@ const deleteReview = () => {
 }
 
 .book-cover {
+  position: relative;
   width: 100%;
+  height: 100%;
   max-height: 300px;
   object-fit: contain;
   border-radius: 8px;

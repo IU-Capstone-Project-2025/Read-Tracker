@@ -1,57 +1,69 @@
 import { defineStore } from 'pinia'
-import { useBooksStore } from '@/store/books'
+
+const API_BASE = 'http://localhost:8000'
 
 export const useReviewsStore = defineStore('reviews', {
   state: () => ({
-    reviews: JSON.parse(localStorage.getItem('bookReviews')) || [],
+    reviews: [],
     editingReviewId: null
   }),
   
   actions: {
-    addReview(newReview) {
-      const completeReview = {
-        id: Date.now(),
-        createdAt: new Date().toISOString(),
-        ...newReview
-      }
-      this.reviews = this.reviews.filter(r => r.bookId !== newReview.bookId)
-      this.reviews.push(completeReview)
-      this.persistReviews()
-      return completeReview
-    },
-    
-    updateReview(updatedReview) {
-      const index = this.reviews.findIndex(r => r.id === updatedReview.id)
-      if (index !== -1) {
-        this.reviews[index] = {
-          ...this.reviews[index],
-          ...updatedReview,
-          updatedAt: new Date().toISOString()
-        }
-        this.persistReviews()
+    async fetchReviews(bookId) {
+      try {
+        const res = await fetch(`${API_BASE}/reviews/${bookId}`)
+        if (!res.ok) throw new Error('Failed to fetch reviews')
+        const data = await res.json()
+        this.reviews = data.data || []
+      } catch (e) {
+        console.error('fetchReviews error:', e)
       }
     },
     
-    deleteReview(reviewId) {
-      this.reviews = this.reviews.filter(r => r.id !== reviewId)
-      this.persistReviews()
+    async addReview(newReview) {
+      try {
+        const res = await fetch(`${API_BASE}/me/reviews/${newReview.bookId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            rate: newReview.rate,
+            text: newReview.text
+          })
+        })
+        if (!res.ok) throw new Error('Failed to add review')
+        await this.fetchReviews(newReview.bookId)
+      } catch (e) {
+        console.error('addReview error:', e)
+      }
     },
     
-    persistReviews() {
-      localStorage.setItem('bookReviews', JSON.stringify(this.reviews))
+    async updateReview(updatedReview) {
+      try {
+        const res = await fetch(`${API_BASE}/me/reviews/${updatedReview.bookId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            rate: updatedReview.rate,
+            text: updatedReview.text
+          })
+        })
+        if (!res.ok) throw new Error('Failed to update review')
+        await this.fetchReviews(updatedReview.bookId)
+      } catch (e) {
+        console.error('updateReview error:', e)
+      }
     },
     
-    getAllReviews() {
-      const booksStore = useBooksStore()
-      return this.reviews.map(review => {
-        const book = booksStore.books.find(b => b.id === review.bookId) || {}
-        return {
-          ...review,
-          title: book.title || `Book ${review.bookId}`,
-          author: book.author || 'Unknown Author',
-          cover: book.cover || '/path/to/default-cover.jpg'
-        }
-      })
+    async deleteReview(bookId) {
+      try {
+        const res = await fetch(`${API_BASE}/me/reviews/${bookId}`, {
+          method: 'DELETE'
+        })
+        if (!res.ok) throw new Error('Failed to delete review')
+        this.reviews = this.reviews.filter(r => r.bookId !== bookId)
+      } catch (e) {
+        console.error('deleteReview error:', e)
+      }
     },
     
     getReviewForBook(bookId) {

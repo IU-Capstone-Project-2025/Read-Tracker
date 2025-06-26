@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const getMyReviews = () => {
-  return axios.get('http://localhost:8000/reviews/')
+  return axios.get('http://localhost:8000/reviews')
 }
 
 export const getBookReviews = (bookId) => {
