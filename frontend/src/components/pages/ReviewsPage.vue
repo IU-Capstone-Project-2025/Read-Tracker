@@ -11,23 +11,23 @@
         v-for="review in userReviews" 
         :key="review.id"
       >
-        <div class="card-top" @click="goToBookProfile(review.bookId)">
+        <div class="card-top" @click="goToBookProfile(review.book_id)">
           <div class="review-content">
             <div class="review-header">
-              <h3 class="book-title">{{ getBookTitle(review.bookId) }}</h3>
+              <h3 class="book-title">{{ getBookTitle(review.book_id) }}</h3>
               <div class="review-meta">
-                <div class="review-rating">{{ review.rating }}/10</div>
+                <div class="review-rating">{{ review.rate }}/10</div>
                 <div class="visibility-tag" :class="{ 'public': review.isPublic, 'private': !review.isPublic }">
                   {{ review.isPublic ? 'Public' : 'Private' }}
                 </div>
               </div>
             </div>
-            <p class="review-text">{{ review.content }}</p>
+            <p class="review-text">{{ review.text }}</p>
           </div>
         </div>
         
         <div class="review-footer">
-          <div class="review-date">{{ formatDate(review.createdAt) }}</div>
+          <div class="review-date">{{ formatDate(review.created_at) }}</div>
           <div class="review-actions">
             <button @click="editReview(review)" class="edit-btn">Edit</button>
             <button @click="deleteReview(review)" class="delete-btn">Delete</button>
@@ -49,8 +49,8 @@ const router = useRouter()
 const reviewsStore = useReviewsStore()
 const booksStore = useBooksStore()
 
-const userReviews = ref([])
 const books = computed(() => booksStore.books)
+const userReviews = computed(() => reviewsStore.reviews)
 
 const getBookTitle = (bookId) => {
   const book = books.value.find(b => b.id === bookId)
@@ -62,7 +62,8 @@ onMounted(async () => {
     const booksData = await fetchBooks()
     booksStore.initializeBooks(booksData)
   }
-  userReviews.value = reviewsStore.getAllReviews()
+
+  await reviewsStore.fetchMyReviews()
 })
 
 const goToBookProfile = (bookId) => {
@@ -70,17 +71,16 @@ const goToBookProfile = (bookId) => {
 }
 
 const editReview = (review) => {
-  router.push({ 
-    name: 'bookProfile', 
-    params: { id: review.bookId },
-    query: { editReview: review.id }
+  router.push({
+    name: 'bookProfile',
+    params: { id: review.book_id },
+    query: { editReview: review.book_id }
   })
 }
 
-const deleteReview = (review) => {
+const deleteReview = async (bookId) => {
   if (confirm('Are you sure you want to delete this review?')) {
-    reviewsStore.deleteReview(review.id)
-    userReviews.value = reviewsStore.getAllReviews()
+    await reviewsStore.deleteReview(bookId)
   }
 }
 
@@ -93,6 +93,7 @@ const formatDate = (dateString) => {
   })
 }
 </script>
+
 
 <style scoped>
 .reviews-page {
