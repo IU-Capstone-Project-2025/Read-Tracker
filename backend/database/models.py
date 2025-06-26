@@ -1,7 +1,6 @@
 import uuid
 from sqlalchemy import (
-    Column, Integer, String, Text, Boolean, ForeignKey, Date, DateTime, CheckConstraint,
-    UniqueConstraint, Table, func
+    Column, Integer, Text, Boolean, ForeignKey, Date, DateTime, CheckConstraint, func
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
@@ -10,10 +9,10 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 
-class User(Base):
-    __tablename__ = "User"
+class Users(Base):
+    __tablename__ = "users"
 
-    ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(Text, nullable=False)
     mail = Column(Text, nullable=False, unique=True)
     password = Column(Text, nullable=False)
@@ -24,16 +23,14 @@ class User(Base):
     notes = relationship("Note", back_populates="user")
     streaks = relationship("Streak", back_populates="user")
     user_books = relationship("UserBook", back_populates="user")
-    # the sub
     followers = relationship("Subscription", back_populates="followed", foreign_keys="Subscription.subscribed_id")
-    # the author
     following = relationship("Subscription", back_populates="follower", foreign_keys="Subscription.follower_id")
 
 
 class Book(Base):
-    __tablename__ = "Book"
+    __tablename__ = "book"
 
-    ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     author = Column(Text)
     title = Column(Text, nullable=False)
     language = Column(Text)
@@ -48,9 +45,9 @@ class Book(Base):
 
 
 class Tag(Base):
-    __tablename__ = "Tag"
+    __tablename__ = "tag"
 
-    ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(Text, nullable=False, unique=True)
     description = Column(Text)
 
@@ -58,35 +55,35 @@ class Tag(Base):
 
 
 class BookTag(Base):
-    __tablename__ = "BookTag"
+    __tablename__ = "book_tag"
 
-    tag_ID = Column(UUID, ForeignKey("Tag.ID", ondelete="CASCADE"), primary_key=True)
-    book_ID = Column(UUID, ForeignKey("Book.ID", ondelete="CASCADE"), primary_key=True)
+    tag_id = Column(UUID, ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True)
+    book_id = Column(UUID, ForeignKey("book.id", ondelete="CASCADE"), primary_key=True)
 
     tag = relationship("Tag", back_populates="books")
     book = relationship("Book", back_populates="tags")
 
 
 class Collection(Base):
-    __tablename__ = "Collection"
+    __tablename__ = "collection"
 
-    ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(Text, nullable=False)
-    user_ID = Column(UUID, ForeignKey("User.ID", ondelete="SET NULL"))
+    user_id = Column(UUID, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     description = Column(Text)
     cover = Column(Text)
     is_private = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
 
-    user = relationship("User", back_populates="collections")
+    user = relationship("Users", back_populates="collections")
     items = relationship("CollectionItem", back_populates="collection")
 
 
 class CollectionItem(Base):
-    __tablename__ = "CollectionItem"
+    __tablename__ = "collection_item"
 
-    collection_ID = Column(UUID, ForeignKey("Collection.ID", ondelete="CASCADE"), primary_key=True)
-    book_ID = Column(UUID, ForeignKey("Book.ID", ondelete="CASCADE"), primary_key=True)
+    collection_id = Column(UUID, ForeignKey("collection.id", ondelete="CASCADE"), primary_key=True)
+    book_id = Column(UUID, ForeignKey("book.id", ondelete="CASCADE"), primary_key=True)
     content_type = Column(Text)
 
     collection = relationship("Collection", back_populates="items")
@@ -94,10 +91,10 @@ class CollectionItem(Base):
 
 
 class Review(Base):
-    __tablename__ = "Review"
+    __tablename__ = "review"
 
-    user_ID = Column(UUID, ForeignKey("User.ID", ondelete="CASCADE"), primary_key=True)
-    book_ID = Column(UUID, ForeignKey("Book.ID", ondelete="CASCADE"), primary_key=True)
+    user_id = Column(UUID, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    book_id = Column(UUID, ForeignKey("book.id", ondelete="CASCADE"), primary_key=True)
     rate = Column(Integer)
     text = Column(Text)
     created_at = Column(DateTime, server_default=func.now())
@@ -106,28 +103,28 @@ class Review(Base):
         CheckConstraint("rate BETWEEN 0 AND 10", name="check_review_rate"),
     )
 
-    user = relationship("User", back_populates="reviews")
+    user = relationship("Users", back_populates="reviews")
     book = relationship("Book", back_populates="reviews")
 
 
 class Note(Base):
-    __tablename__ = "Note"
+    __tablename__ = "note"
 
-    ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_ID = Column(UUID, ForeignKey("User.ID", ondelete="CASCADE"))
-    book_ID = Column(UUID, ForeignKey("Book.ID", ondelete="CASCADE"))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID, ForeignKey("users.id", ondelete="CASCADE"))
+    book_id = Column(UUID, ForeignKey("book.id", ondelete="CASCADE"))
     text = Column(Text)
     created_at = Column(DateTime, server_default=func.now())
 
-    user = relationship("User", back_populates="notes")
+    user = relationship("Users", back_populates="notes")
     book = relationship("Book", back_populates="notes")
 
 
 class UserBook(Base):
-    __tablename__ = "UserBook"
+    __tablename__ = "user_book"
 
-    user_ID = Column(UUID, ForeignKey("User.ID", ondelete="CASCADE"), primary_key=True)
-    book_ID = Column(UUID, ForeignKey("Book.ID", ondelete="CASCADE"), primary_key=True)
+    user_id = Column(UUID, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    book_id = Column(UUID, ForeignKey("book.id", ondelete="CASCADE"), primary_key=True)
     start_date = Column(Date)
     end_date = Column(Date)
     status = Column(Text)
@@ -136,28 +133,26 @@ class UserBook(Base):
         CheckConstraint("status IN ('want to read', 'reading now', 'have read')", name="check_userbook_status"),
     )
 
-    user = relationship("User", back_populates="user_books")
+    user = relationship("Users", back_populates="user_books")
     book = relationship("Book", back_populates="user_books")
 
 
 class Streak(Base):
-    __tablename__ = "Streak"
+    __tablename__ = "streak"
 
-    ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_ID = Column(UUID, ForeignKey("User.ID", ondelete="CASCADE"))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(UUID, ForeignKey("users.id", ondelete="CASCADE"))
     start_date = Column(Date)
     end_date = Column(Date)
 
-    user = relationship("User", back_populates="streaks")
+    user = relationship("Users", back_populates="streaks")
 
 
 class Subscription(Base):
-    __tablename__ = "Subscription"
+    __tablename__ = "subscription"
 
-    follower_id = Column(UUID, ForeignKey("User.ID", ondelete="CASCADE"), primary_key=True)
-    subscribed_id = Column(UUID, ForeignKey("User.ID", ondelete="CASCADE"), primary_key=True)
+    follower_id = Column(UUID, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    subscribed_id = Column(UUID, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
 
-    # the author
-    follower = relationship("User", back_populates="following", foreign_keys=[follower_id])
-    # the sub
-    followed = relationship("User", back_populates="followers", foreign_keys=[subscribed_id])
+    follower = relationship("Users", back_populates="following", foreign_keys=[follower_id])
+    followed = relationship("Users", back_populates="followers", foreign_keys=[subscribed_id])

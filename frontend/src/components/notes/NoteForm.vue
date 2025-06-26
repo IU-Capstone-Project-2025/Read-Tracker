@@ -1,16 +1,32 @@
 <template>
   <div class="note-form">
-    <textarea v-model="noteContent" placeholder="Write your private notes here..." rows="4"></textarea>
-    <button @click="saveNote" class="save-btn">Save Note</button>
+    <textarea
+      v-model="noteContent"
+      placeholder="Write your private notes here..."
+      rows="4"
+      :disabled="loading"
+    ></textarea>
+
+    <button
+      @click="saveNote"
+      class="save-btn"
+      :disabled="loading || !noteContent.trim()"
+    >
+      <span v-if="loading">Saving...</span>
+      <span v-else>Save Note</span>
+    </button>
+
+    <p v-if="error" class="error-message">{{ error }}</p>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useNotesStore } from '@/store/notes'
 
 const props = defineProps({
   bookId: {
-    type: Number,
+    type: String,
     required: true
   }
 })
@@ -18,19 +34,29 @@ const props = defineProps({
 const emit = defineEmits(['note-saved'])
 
 const noteContent = ref('')
+const loading = ref(false)
+const error = ref(null)
 
-const saveNote = () => {
-  if (noteContent.value.trim()) {
-    const newNote = {
-      id: Date.now(),
-      content: noteContent.value,
-      createdAt: new Date().toISOString()
-    }
-    emit('note-saved', newNote)
+const notesStore = useNotesStore()
+
+const saveNote = async () => {
+  if (!noteContent.value.trim()) return
+
+  loading.value = true
+  error.value = null
+
+  try {
+    await notesStore.addNote(props.bookId, { text: noteContent.value })
+    emit('note-saved')
     noteContent.value = ''
+  } catch (err) {
+    error.value = err.response?.data?.message || err.message || 'Error saving note'
+  } finally {
+    loading.value = false
   }
 }
 </script>
+
 
 <style scoped>
 .note-form {
@@ -60,7 +86,18 @@ textarea {
   transition: background 0.2s;
 }
 
-.save-btn:hover {
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.save-btn:hover:not(:disabled) {
   background: #667eea;
+}
+
+.error-message {
+  color: #e53e3e;
+  margin-top: 8px;
+  font-weight: 500;
 }
 </style>

@@ -6,11 +6,11 @@ from models.base_response import BaseResponse
 
 class BookData(BaseModel):
     id: UUID
-    author: str
+    author: Optional[str]
     title: str
-    language: str
-    description: str
-    cover: str
+    language: Optional[str]
+    description: Optional[str]
+    cover: Optional[str]
 
 
 class BookResponse(BaseResponse):

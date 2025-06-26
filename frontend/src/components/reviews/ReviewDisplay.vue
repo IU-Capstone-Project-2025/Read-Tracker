@@ -2,27 +2,26 @@
   <div class="review-display">
     <div class="review-header">
       <div class="rating">
-        Rating: <span class="rating-value">{{ review.rating }}/10</span>
+        Rating: <span class="rating-value">{{ review.rate }}/10</span>
       </div>
       <div class="visibility-tag" :class="{ 'public': review.isPublic, 'private': !review.isPublic }">
         {{ review.isPublic ? 'Public' : 'Private' }}
       </div>
     </div>
     
-    <div class="review-content">{{ review.content }}</div>
+    <div class="review-content">{{ review.text }}</div>
     
     <div class="review-footer">
-      <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+      <span class="review-date">{{ formatDate(review.created_at) }}</span>
       <div class="actions">
         <button @click="editReview" class="edit-btn">Edit</button>
-        <button @click="deleteReview" class="delete-btn">Delete</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, defineEmits } from 'vue'
 
 const props = defineProps({
   review: {
@@ -31,16 +30,10 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['edit-review', 'delete-review'])
+const emit = defineEmits(['edit-review']) 
 
 const editReview = () => {
-  emit('edit-review')
-}
-
-const deleteReview = () => {
-  if (confirm('Are you sure you want to delete this review?')) {
-    emit('delete-review')
-  }
+  emit('edit-review', props.review)
 }
 
 const formatDate = (dateString) => {

@@ -33,7 +33,18 @@
         @click="goToBookProfile(book.id)"
       >
         <div class="book-cover-container">
-          <img :src="book.cover" :alt="book.title" class="book-cover">
+          <img 
+            v-if="book.cover" 
+            :src="book.cover" 
+            :alt="book.title" 
+            class="book-cover"
+          />
+          <img 
+            v-else 
+            src="/images/placeholder.png" 
+            alt="No cover available" 
+            class="book-cover"
+          />
         </div>
         <div class="book-details">
           <h3 class="book-title">{{ book.title }}</h3>
@@ -53,7 +64,8 @@
             </select>
           </div>
           
-          <p class="book-info">{{ book.description.substring(0, 100) }}...</p>
+          <p class="book-info" v-if="book.description">{{ book.description.substring(0, 100) }}...</p>
+          <p class="book-info" v-else>No description available</p>
           <button class="reviews-button">View Details</button>
         </div>
       </div>
@@ -64,8 +76,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import booksData from '@/data/books'
 import { useBooksStore } from '@/store/books'
+import { fetchBooks } from '@/api/books'
 
 const router = useRouter()
 const booksStore = useBooksStore()
@@ -73,34 +85,31 @@ const booksStore = useBooksStore()
 const statusFilter = ref('all')
 const sortBy = ref('title')
 
-// Initialize books with status
-const books = ref([])
-
-onMounted(() => {
-  // Load books from store or initialize
+onMounted(async () => {
+  const loadedBooks = await fetchBooks()
   if (booksStore.books.length === 0) {
-    booksStore.initializeBooks(booksData)
+    booksStore.initializeBooks(
+      loadedBooks.map(book => ({
+        ...book,
+        status: 'to-read',       
+        addedDate: Date.now() 
+      }))
+    )
   }
-  books.value = booksStore.books
 })
 
 const filteredBooks = computed(() => {
-  let filtered = [...books.value]
-  
-  // Apply status filter
+  let filtered = [...booksStore.books]
+
   if (statusFilter.value !== 'all') {
     filtered = filtered.filter(book => book.status === statusFilter.value)
   }
-  
-  // Apply sorting
   switch (sortBy.value) {
     case 'title':
       return filtered.sort((a, b) => a.title.localeCompare(b.title))
     case 'status':
-      return filtered.sort((a, b) => {
-        const statusOrder = { 'to-read': 1, 'reading': 2, 'completed': 3 }
-        return statusOrder[a.status] - statusOrder[b.status]
-      })
+      const statusOrder = { 'to-read': 1, 'reading': 2, 'completed': 3 }
+      return filtered.sort((a, b) => statusOrder[a.status] - statusOrder[b.status])
     case 'added':
       return filtered.sort((a, b) => b.addedDate - a.addedDate)
     default:

@@ -1,8 +1,8 @@
 <template>
   <div class="note-item">
-    <div class="note-content">{{ note.content }}</div>
+    <div class="note-content">{{ note.text }}</div>
     <div class="note-meta">
-      <span class="note-date">{{ formatDate(note.createdAt) }}</span>
+      <span class="note-date">{{ formatDate(note.created_at) }}</span>
       <button @click="deleteNote" class="delete-btn">Delete</button>
     </div>
   </div>

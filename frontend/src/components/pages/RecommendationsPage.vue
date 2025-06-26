@@ -13,7 +13,18 @@
         @click="goToBookProfile(book.id)"
       >
         <div class="book-cover-container">
-          <img class="book-cover" :src="book.cover" :alt="book.title" />
+          <img 
+            v-if="book.cover" 
+            :src="book.cover" 
+            :alt="book.title" 
+            class="book-cover"
+          />
+          <img 
+            v-else 
+            src="/images/placeholder.png" 
+            alt="No cover available" 
+            class="book-cover"
+          />
         </div>
         <div class="book-details">
           <h3 class="book-title">{{ book.title }}</h3>
@@ -27,12 +38,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import booksData from '@/data/books'
+import { useBooksStore } from '@/store/books'
 
 const router = useRouter()
-const books = ref(booksData)
+const booksStore = useBooksStore()
+
+const books = computed(() => booksStore.books)
 
 const goToBookProfile = (bookId) => {
   router.push({ name: 'bookProfile', params: { id: bookId } })
