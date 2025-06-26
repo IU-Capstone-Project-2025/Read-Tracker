@@ -20,9 +20,9 @@ export const useReviewsStore = defineStore('reviews', {
       }
     },
     
-    async addReview(newReview) {
+    async addReview(bookId, newReview) {
       try {
-        const res = await fetch(`${API_BASE}/me/reviews/${newReview.bookId}`, {
+        const res = await fetch(`${API_BASE}/me/reviews/${bookId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -31,15 +31,15 @@ export const useReviewsStore = defineStore('reviews', {
           })
         })
         if (!res.ok) throw new Error('Failed to add review')
-        await this.fetchReviews(newReview.bookId)
+        await this.fetchReviews(bookId)
       } catch (e) {
         console.error('addReview error:', e)
       }
     },
     
-    async updateReview(updatedReview) {
+    async updateReview(bookId, updatedReview) {
       try {
-        const res = await fetch(`${API_BASE}/me/reviews/${updatedReview.bookId}`, {
+        const res = await fetch(`${API_BASE}/me/reviews/${bookId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -47,8 +47,10 @@ export const useReviewsStore = defineStore('reviews', {
             text: updatedReview.text
           })
         })
+        console.log(res);
+        
         if (!res.ok) throw new Error('Failed to update review')
-        await this.fetchReviews(updatedReview.bookId)
+        await this.fetchReviews(bookId)
       } catch (e) {
         console.error('updateReview error:', e)
       }
@@ -67,7 +69,7 @@ export const useReviewsStore = defineStore('reviews', {
     },
     
     getReviewForBook(bookId) {
-      return this.reviews.find(review => review.bookId === bookId)
+      return this.reviews.find(r => String(r.book_id) === String(bookId))
     }
   }
 })

@@ -133,6 +133,7 @@ const saveReview = async (reviewData) => {
     }
     editingReview.value = false
     await reviewsStore.fetchReviews(bookId)
+    console.log('Reviews from store:', reviewsStore.reviews)
   } catch (e) {
     console.error('Failed to save review:', e)
   }

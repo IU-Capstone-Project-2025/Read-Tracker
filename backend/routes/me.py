@@ -122,7 +122,7 @@ async def get_review(review_id: UUID):
         }
     })
 
-
+'''
 @router.put("/reviews/{review_id}", status_code=200)
 async def update_review(review_id: UUID):
     # TODO: Implement update review by review_id
@@ -130,6 +130,7 @@ async def update_review(review_id: UUID):
         "status": "success",
         "message": "Review updated"
     })
+'''
 
 
 @router.delete("/reviews/{review_id}", status_code=200)
