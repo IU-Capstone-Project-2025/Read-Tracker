@@ -27,7 +27,6 @@ const router = useRouter()
 const isCollapsed = ref(false)
 const booksStore = useBooksStore()
 
-
 onMounted(() => {
   if (!booksStore.books.length) {
     loadBooks()
@@ -38,7 +37,6 @@ async function loadBooks() {
   const booksData = await fetchBooks()
   booksStore.initializeBooks(booksData)
 }
-
 
 const currentPage = computed(() => {
   const routeName = router.currentRoute.value.name

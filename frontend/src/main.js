@@ -11,6 +11,7 @@ import BooksPage from './components/pages/BooksPage.vue'
 import ReviewsPage from './components/pages/ReviewsPage.vue'
 import CollectionsPage from './components/pages/CollectionsPage.vue'
 import BookProfilePage from './components/pages/BookProfilePage.vue'
+import CollectionDetailPage from './components/pages/CollectionDetailPage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -20,7 +21,8 @@ const router = createRouter({
     { path: '/books', name: 'books', component: BooksPage },
     { path: '/reviews', name: 'reviews', component: ReviewsPage },
     { path: '/collections', name: 'collections', component: CollectionsPage },
-    { path: '/book/:id', name: 'bookProfile', component: BookProfilePage, props: true }
+    { path: '/book/:id', name: 'bookProfile', component: BookProfilePage, props: true },
+    { path: '/collection/:id', name: 'collectionDetail', component: CollectionDetailPage, props: true }
   ]
 })
 
