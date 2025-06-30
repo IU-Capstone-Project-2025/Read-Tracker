@@ -5,7 +5,7 @@ router = APIRouter(prefix="/me/collections", tags=["Collections"])
 
 
 # TODO: implement
-@router.get("/", status_code=200)
+@router.get("", status_code=200)
 async def get_collections():
     return JSONResponse(content={
         "status": "success",

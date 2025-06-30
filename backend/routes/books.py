@@ -29,27 +29,29 @@ async def get_books():
 
 
 # TODO: Replace mockup, 404 error
-@router.get("/{book_id}", status_code=200)
+@router.get("/{book_id}", response_model=BookResponse, status_code=200)
 async def get_book(book_id: int):
     if book_id:
         pass
-
+    data, err = db_handler.getBook(book_id=book_id)
+    answer = []
+    if data:
+        for book in data:
+            answer.append(BookData(id=book.id,
+                                   author=book.author,
+                                   title=book.title,
+                                   language=book.language,
+                                   description=book.description,
+                                   cover=book.cover))
     return JSONResponse(content={
         "status": "success",
         "message": "Book details retrieved",
-        "data": {
-            "id": "uuid",
-            "title": "Book Title",
-            "author": "Author Name",
-            "language": "lang",
-            "cover": "https://cdn.example.com/cover.jpg",
-            "status": "not started"  # or "reading" or "finished"
-        }
+        "data": answer
     })
 
 
 # TODO: Replace mockup; Code validation steps, 400, 404 errors
-@router.post("/", status_code=200)
+@router.post("", status_code=200)
 async def add_book(request: Request):
     if request:
         pass
@@ -91,42 +93,4 @@ async def delete_book(book_id: int):
         "status": "success",
         "message": "Book deleted",
 
-    })
-
-
-# TODO: Replace mockup
-@router.get("/{book_id}/reviews", status_code=200)
-async def get_reviews(book_id: int):
-    if book_id:
-        pass
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Reviews retrieved",
-        "data": []
-    })
-
-
-# TODO: Replace mockup
-@router.get("/{book_id}/notes", status_code=200)
-async def get_book_notes(request: Request, book_id: int):
-    if book_id and request:
-        pass
-
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Notes retrieved",
-        "data": []
-    })
-
-
-# TODO: Replace mockup
-@router.post("/{book_id}/notes", status_code=200)
-async def add_book_note(request: Request, book_id: int):
-    if book_id and request:
-        pass
-
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Note added",
-        "data": []
     })
