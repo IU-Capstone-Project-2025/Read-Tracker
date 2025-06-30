@@ -16,31 +16,44 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import NavigationPanel from './components/NavigationPanel.vue'
+import { useAuthStore } from '@/store/auth'
 import { useBooksStore } from '@/store/books'
 import { fetchBooks } from '@/api/books'
-import { onMounted } from 'vue'
 
 const router = useRouter()
 const isCollapsed = ref(false)
+const authStore = useAuthStore()
 const booksStore = useBooksStore()
 
 onMounted(() => {
+  // Initialize user if token exists
+  if (authStore.token) {
+    authStore.fetchProfile().catch(() => {
+      // Handle token expiration or invalid token
+      authStore.logout()
+    })
+  }
+  
+  // Load books if not already loaded
   if (!booksStore.books.length) {
     loadBooks()
   }
 })
 
 async function loadBooks() {
-  const booksData = await fetchBooks()
-  booksStore.initializeBooks(booksData)
+  try {
+    const booksData = await fetchBooks()
+    booksStore.initializeBooks(booksData)
+  } catch (error) {
+    console.error('Failed to load books:', error)
+  }
 }
 
 const currentPage = computed(() => {
-  const routeName = router.currentRoute.value.name
-  return routeName || 'recommendations'
+  return router.currentRoute.value.name || 'recommendations'
 })
 
 const toggleSidebar = () => {
