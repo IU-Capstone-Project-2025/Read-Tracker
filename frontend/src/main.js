@@ -5,6 +5,10 @@ import App from './App.vue'
 import './assets/styles.css'
 
 // Import components
+import LoginPage from './components/pages/LoginPage.vue'
+import RegistrationPage from './components/pages/RegistrationPage.vue'
+import ForgotPasswordPage from './components/pages/ForgotPasswordPage.vue'
+import ResetPasswordPage from './components/pages/ResetPasswordPage.vue'
 import RecommendationsPage from './components/pages/RecommendationsPage.vue'
 import ProfilePage from './components/pages/ProfilePage.vue'
 import BooksPage from './components/pages/BooksPage.vue'
@@ -16,14 +20,32 @@ import CollectionDetailPage from './components/pages/CollectionDetailPage.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', name: 'recommendations', component: RecommendationsPage },
-    { path: '/profile', name: 'profile', component: ProfilePage },
-    { path: '/books', name: 'books', component: BooksPage },
-    { path: '/reviews', name: 'reviews', component: ReviewsPage },
-    { path: '/collections', name: 'collections', component: CollectionsPage },
-    { path: '/book/:id', name: 'bookProfile', component: BookProfilePage, props: true },
-    { path: '/collection/:id', name: 'collectionDetail', component: CollectionDetailPage, props: true }
+    { path: '/login', name: 'login', component: LoginPage, meta: { requiresGuest: true } },
+    { path: '/register', name: 'register', component: RegistrationPage, meta: { requiresGuest: true } },
+    { path: '/forgot-password', name: 'forgotPassword', component: ForgotPasswordPage, meta: { requiresGuest: true } },
+    { path: '/reset-password', name: 'resetPassword', component: ResetPasswordPage, meta: { requiresGuest: true } },
+    { path: '/', name: 'recommendations', component: RecommendationsPage, meta: { requiresAuth: true } },
+    { path: '/profile', name: 'profile', component: ProfilePage, meta: { requiresAuth: true } },
+    { path: '/books', name: 'books', component: BooksPage, meta: { requiresAuth: true } },
+    { path: '/reviews', name: 'reviews', component: ReviewsPage, meta: { requiresAuth: true } },
+    { path: '/collections', name: 'collections', component: CollectionsPage, meta: { requiresAuth: true } },
+    { path: '/book/:id', name: 'bookProfile', component: BookProfilePage, props: true, meta: { requiresAuth: true } },
+    { path: '/collection/:id', name: 'collectionDetail', component: CollectionDetailPage, props: true, meta: { requiresAuth: true } },
+    { path: '/:pathMatch(.*)*', redirect: '/' }
   ]
+})
+
+// Navigation guard
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next('/login')
+  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    next('/')
+  } else {
+    next()
+  }
 })
 
 const pinia = createPinia()

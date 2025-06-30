@@ -1,15 +1,18 @@
 <template>
   <div class="app-container">
     <NavigationPanel
+      v-if="isAuthenticated"
       :is-collapsed="isCollapsed"
       :current-page="currentPage"
       @toggle-sidebar="toggleSidebar"
       @navigate="changePage"
     />
-    <div class="main-content">
+    
+    <div class="main-content" :class="{ 'full-width': !isAuthenticated }">
       <router-view />
     </div>
-    <div class="toggle-btn" @click="toggleSidebar">
+    
+    <div v-if="isAuthenticated" class="toggle-btn" @click="toggleSidebar">
       {{ isCollapsed ? '>' : '<' }}
     </div>
   </div>
@@ -28,6 +31,8 @@ const isCollapsed = ref(false)
 const authStore = useAuthStore()
 const booksStore = useBooksStore()
 
+const isAuthenticated = computed(() => authStore.isAuthenticated)
+
 onMounted(() => {
   // Initialize user if token exists
   if (authStore.token) {
@@ -38,7 +43,7 @@ onMounted(() => {
   }
   
   // Load books if not already loaded
-  if (!booksStore.books.length) {
+  if (!booksStore.books.length && isAuthenticated.value) {
     loadBooks()
   }
 })
@@ -64,3 +69,14 @@ const changePage = (page) => {
   router.push({ name: page })
 }
 </script>
+
+<style scoped>
+.full-width {
+  margin-left: 0;
+  width: 100%;
+}
+
+.main-content {
+  transition: all 0.3s ease;
+}
+</style>

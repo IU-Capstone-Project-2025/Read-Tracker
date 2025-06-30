@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 const API_URL = 'http://localhost:8000'
 
@@ -11,10 +12,31 @@ export const useAuthStore = defineStore('auth', {
     error: null
   }),
   getters: {
-    isAuthenticated: (state) => !!state.token,
-    currentUser: (state) => state.user
+    isAuthenticated: (state) => !!state.token
   },
   actions: {
+    async register(userData) {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await axios.post(`${API_URL}/auth/register`, {
+          email: userData.email,
+          password: userData.password
+        })
+        
+        if (response.data.status === 'success') {
+          return true
+        } else {
+          throw new Error(response.data.message || 'Registration failed')
+        }
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message || 'Registration failed'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+    
     async login(credentials) {
       this.loading = true
       this.error = null
@@ -37,28 +59,6 @@ export const useAuthStore = defineStore('auth', {
         }
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Login failed'
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
-    
-    async register(userData) {
-      this.loading = true
-      this.error = null
-      try {
-        const response = await axios.post(`${API_URL}/auth/register`, {
-          email: userData.email,
-          password: userData.password
-        })
-        
-        if (response.data.status === 'success') {
-          return true
-        } else {
-          throw new Error(response.data.message || 'Registration failed')
-        }
-      } catch (error) {
-        this.error = error.response?.data?.message || error.message || 'Registration failed'
         throw error
       } finally {
         this.loading = false
@@ -93,6 +93,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       this.token = null
       localStorage.removeItem('authToken')
+      useRouter().push('/login')
     },
     
     async resetPasswordRequest(email) {
