@@ -13,6 +13,11 @@ router = APIRouter(prefix="/books", tags=["Books"])
 async def get_books():
     data, err = db_handler.getBooks()
     answer = []
+    if err:
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "message": str(err)
+        })
     if data:
         for book in data:
             answer.append(BookData(id=book.id,
@@ -35,6 +40,11 @@ async def get_book(book_id: int):
         pass
     data, err = db_handler.getBook(book_id=book_id)
     answer = []
+    if err:
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "message": str(err)
+        })
     if data:
         for book in data:
             answer.append(BookData(id=book.id,
