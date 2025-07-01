@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from models.reviews import ReviewRequest, ReviewResponse, ReviewData
-from models.base_response import BaseResponse
-from models.user import UserRequest
-from database.db_instance import db_handler
+from src.models.reviews import ReviewRequest, ReviewResponse, ReviewData
+from src.models.base_response import BaseResponse
+from src.models.user import UserRequest
+from src.database.db_instance import db_handler
 from uuid import UUID
 
 router = APIRouter(tags=["Reviews"])
@@ -63,7 +63,7 @@ async def update_review(request: ReviewRequest, book_id: UUID):
 async def delete_review(request: UserRequest, book_id: UUID):
     if not book_id:
         raise HTTPException(status_code=404, detail="Book id not found")
-    err = db_handler.deleteReview(user_id=request.user_id book_id=book_id)
+    err = db_handler.deleteReview(user_id=request.user_id, book_id=book_id)
     return {
         "status": "success",
         "message": "Review deleted"

@@ -11,4 +11,4 @@ RUN chmod +x wait-for-it.sh
 
 ENTRYPOINT ["./wait-for-it.sh", "database:5432", "--timeout=30", "--strict", "--"]
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Response, APIRouter, Request
 from fastapi.responses import JSONResponse
 import sys
-sys.path.append('..')
-from database.db_instance import db_handler
-from models.base_response import BaseResponse
-from models.books import BookData, BookResponse
+sys.path.append('../..')
+from src.database.db_instance import db_handler
+from src.models.base_response import BaseResponse
+from src.models.books import BookData, BookResponse
 router = APIRouter(prefix="/books", tags=["Books"])
 
 

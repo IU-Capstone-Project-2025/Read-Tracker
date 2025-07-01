@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field
 from uuid import UUID
 from datetime import datetime
-from models.base_response import BaseResponse
-from models.user import UserRequest
+from src.models.base_response import BaseResponse
+from src.models.user import UserRequest
 from typing import List, Optional
 
 

@@ -4,10 +4,10 @@ import sys
 from typing import Optional
 from uuid import UUID
 
-sys.path.append('..')
-from models.base_response import BaseResponse
-from models.tracker import TrackerRequest, TrackerResponse, TrackerData
-from database.db_instance import db_handler
+sys.path.append('../..')
+from src.models.base_response import BaseResponse
+from src.models.tracker import TrackerRequest, TrackerResponse, TrackerData
+from src.database.db_instance import db_handler
 
 router = APIRouter(prefix="/me", tags=["Me"])
 

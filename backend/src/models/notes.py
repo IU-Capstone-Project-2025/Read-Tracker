@@ -2,8 +2,8 @@ from pydantic import BaseModel, Field, field_validator
 from uuid import UUID
 from datetime import datetime
 from typing import List, Optional
-from models.base_response import BaseResponse
-from models.user import UserRequest
+from src.models.base_response import BaseResponse
+from src.models.user import UserRequest
 
 class NoteData(BaseModel):
     id: UUID

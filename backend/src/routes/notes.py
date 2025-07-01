@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from models.notes import NoteResponse, NoteRequest, NoteData
-from models.base_response import BaseResponse
-from models.user import UserRequest
-from database.db_instance import db_handler
+from src.models.notes import NoteResponse, NoteRequest, NoteData
+from src.models.base_response import BaseResponse
+from src.models.user import UserRequest
+from src.database.db_instance import db_handler
 from uuid import UUID
 
 router = APIRouter(tags=["Notes"])

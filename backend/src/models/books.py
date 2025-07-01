@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from uuid import UUID
 from typing import List, Optional
-from models.base_response import BaseResponse
+from src.models.base_response import BaseResponse
 
 
 class BookData(BaseModel):
