@@ -3,8 +3,10 @@ from typing import Tuple, List, Optional
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date
-from database.models import Users, Book, Review, Note, Streak, Base
-from database.database import engine
+from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem
+from src.database.database import engine
+import bcrypt
+
 
 class DBHandler:
     def __init__(self, engine):
@@ -233,5 +235,227 @@ class DBHandler:
             return books, None
         except SQLAlchemyError as e:
             return [], e
+        finally:
+            session.close()
+
+    def registerUser(self, name: str, email: str, password: str) -> Optional[Exception]:
+        session = self.Session()
+        try:
+            # Check if email exists
+            if session.query(Users).filter_by(mail=email).first():
+                return ValueError("Email already exists")
+            hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+            hashed_password_str = hashed_password.decode()
+            user = Users(name=name, mail=email, password=hashed_password_str)
+            session.add(user)
+            session.commit()
+            return None
+        except IntegrityError as e:
+            session.rollback()
+            return ValueError(f"Database integrity error: {str(e)}")
+        except SQLAlchemyError as e:
+            session.rollback()
+            return e
+        finally:
+            session.close()
+
+    def loginUser(self, mail: str, password: str) -> Tuple[Optional[uuid.UUID], Optional[Exception]]:
+        session = self.Session()
+        try:
+            user = session.query(Users).filter_by(mail=mail).first()
+            if not user:
+                return None, ValueError("No user found with this email")
+            if not bcrypt.checkpw(password.encode(), user.password.encode()):
+                return None, ValueError("Password mismatch")
+            return user.id, None
+        except SQLAlchemyError as e:
+            return None, e
+        finally:
+            session.close()
+
+    def resetPassword(self, user_id: Optional[uuid.UUID] = None, password: str = None) -> Optional[Exception]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        session = self.Session()
+        try:
+            user = session.query(Users).get(user_id)
+            if not user:
+                return ValueError("User not found")
+            hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+            hashed_password_str = hashed_password.decode()
+            user.password = hashed_password_str
+            session.commit()
+            return None
+        except SQLAlchemyError as e:
+            session.rollback()
+            return e
+        finally:
+            session.close()
+
+    def getUser(self, user_id: Optional[uuid.UUID] = None) -> Tuple[Optional[Users], Optional[Exception]]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        session = self.Session()
+        try:
+            user = session.query(Users).get(user_id)
+            if not user:
+                return None, ValueError("User not found")
+            return user, None
+        except SQLAlchemyError as e:
+            return None, e
+        finally:
+            session.close()
+
+    def updateAvatar(self, user_id: Optional[uuid.UUID] = None, avatar: str = None) -> Optional[Exception]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        session = self.Session()
+        try:
+            user = session.query(Users).get(user_id)
+            if not user:
+                return ValueError("User not found")
+            user.avatar = avatar
+            session.commit()
+            return None
+        except SQLAlchemyError as e:
+            session.rollback()
+            return e
+        finally:
+            session.close()
+
+    def getCollections(self, user_id: Optional[uuid.UUID] = None) -> Tuple[List[Collection], Optional[Exception]]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        session = self.Session()
+        try:
+            collections = session.query(Collection).filter_by(user_id=user_id).all()
+            return collections, None
+        except SQLAlchemyError as e:
+            return [], e
+        finally:
+            session.close()
+
+    def getCollection(self, collection_id: uuid.UUID) -> Tuple[Optional[Collection], Optional[Exception]]:
+        session = self.Session()
+        try:
+            collection = session.query(Collection).get(collection_id)
+            if not collection:
+                return None, ValueError("Collection not found")
+            return collection, None
+        except SQLAlchemyError as e:
+            return None, e
+        finally:
+            session.close()
+
+    def addCollection(self, user_id: Optional[uuid.UUID] = None, title: str = None, description: str = None,
+                      cover: str = None, is_private: bool = False) -> Optional[Exception]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        session = self.Session()
+        try:
+            # Verify user exists
+            if not session.query(Users).get(user_id):
+                return ValueError("User not found")
+            collection = Collection(user_id=user_id, title=title, description=description, cover=cover,
+                                    is_private=is_private)
+            session.add(collection)
+            session.commit()
+            return None
+        except IntegrityError as e:
+            session.rollback()
+            return ValueError(f"Database integrity error: {str(e)}")
+        except SQLAlchemyError as e:
+            session.rollback()
+            return e
+        finally:
+            session.close()
+
+    def updateCollection(self, collection_id: uuid.UUID, title: str = None, description: str = None,
+                         cover: str = None, is_private: bool = None) -> Optional[Exception]:
+        session = self.Session()
+        try:
+            collection = session.query(Collection).get(collection_id)
+            if not collection:
+                return ValueError("Collection not found")
+            if title is not None:
+                collection.title = title
+            if description is not None:
+                collection.description = description
+            if cover is not None:
+                collection.cover = cover
+            if is_private is not None:
+                collection.is_private = is_private
+            session.commit()
+            return None
+        except SQLAlchemyError as e:
+            session.rollback()
+            return e
+        finally:
+            session.close()
+
+    def deleteCollection(self, collection_id: uuid.UUID) -> Optional[Exception]:
+        session = self.Session()
+        try:
+            collection = session.query(Collection).get(collection_id)
+            if not collection:
+                return ValueError("Collection not found")
+            session.delete(collection)
+            session.commit()
+            return None
+        except SQLAlchemyError as e:
+            session.rollback()
+            return e
+        finally:
+            session.close()
+
+    def addBookToCollection(self, collection_id: uuid.UUID, book_id: uuid.UUID) -> Optional[Exception]:
+        session = self.Session()
+        try:
+            # Verify collection and book exist
+            if not session.query(Collection).get(collection_id):
+                return ValueError("Collection not found")
+            if not session.query(Book).get(book_id):
+                return ValueError("Book not found")
+            # Check if book is already in collection
+            if session.query(CollectionItem).filter_by(collection_id=collection_id, book_id=book_id).first():
+                return ValueError("Book already in collection")
+            collection_item = CollectionItem(collection_id=collection_id, book_id=book_id)
+            session.add(collection_item)
+            session.commit()
+            return None
+        except IntegrityError as e:
+            session.rollback()
+            return ValueError(f"Database integrity error: {str(e)}")
+        except SQLAlchemyError as e:
+            session.rollback()
+            return e
+        finally:
+            session.close()
+
+    def deleteBookFromCollection(self, collection_id: uuid.UUID, book_id: uuid.UUID) -> Optional[Exception]:
+        session = self.Session()
+        try:
+            collection_item = session.query(CollectionItem).filter_by(collection_id=collection_id,
+                                                                      book_id=book_id).first()
+            if not collection_item:
+                return ValueError("Book not found in collection")
+            session.delete(collection_item)
+            session.commit()
+            return None
+        except SQLAlchemyError as e:
+            session.rollback()
+            return e
+        finally:
+            session.close()
+
+    def getBook(self, book_id: uuid.UUID) -> Tuple[Optional[Book], Optional[Exception]]:
+        session = self.Session()
+        try:
+            book = session.query(Book).get(book_id)
+            if not book:
+                return None, ValueError("Book not found")
+            return book, None
+        except SQLAlchemyError as e:
+            return None, e
         finally:
             session.close()
