@@ -11,6 +11,10 @@ class CollectionRequest(BaseModel):
     cover: Optional[HttpUrl] = None
 
 
+class CollectionRequestWithUserID(CollectionRequest):
+    user_id: UUID
+
+
 class CollectionData(BaseModel):
     id: UUID
     title: str
@@ -25,6 +29,7 @@ class CollectionResponse(BaseModel):
     status: str
     message: str
     data: List[CollectionData]
+
 
 class AddBookToCollectionRequest(BaseModel):
     book_id: UUID

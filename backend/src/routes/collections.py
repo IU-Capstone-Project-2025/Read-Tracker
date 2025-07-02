@@ -1,23 +1,34 @@
-
 from fastapi import APIRouter, HTTPException
 from src.models.collections import (
     CollectionRequest,
     CollectionResponse,
     CollectionData,
+    CollectionRequestWithUserID,
     AddBookToCollectionRequest,
 )
+from src.models.user import UserRequest
 from src.models.base_response import BaseResponse
 from src.database.db_instance import db_handler
+from src.models.books import BookData
 from uuid import UUID
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 router = APIRouter(prefix="/me/collections", tags=["Collections"])
 
 
 @router.get("", response_model=CollectionResponse, status_code=200)
-async def get_collections():
-    data, err = db_handler.getCollections()
+async def get_collections(request: UserRequest):
+    logging.info(f"Function get_collections is called")
+    data, err = db_handler.getCollections(request.user_id)
     result = []
-
+    if err:
+        logging.info(f"Database returned error: {err}")
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "message": str(err)
+        })
     if data:
         for collection in data:
             result.append(CollectionData(
@@ -29,7 +40,7 @@ async def get_collections():
                 created_at=collection.created_at,
                 user_id=collection.user_id,
             ))
-
+    logging.info("Function completed successfully")
     return {
         "status": "success",
         "message": "Collections retrieved successfully",
@@ -42,7 +53,13 @@ async def get_collection(collection_id: UUID):
     collection, err = db_handler.getCollection(collection_id)
     if not collection:
         raise HTTPException(status_code=404, detail="Collection not found")
-
+    if err:
+        logging.info(f"Database returned error: {err}")
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "message": str(err)
+        })
+    logging.info("Function completed successfully")
     return {
         "status": "success",
         "message": "Collection fetched successfully",
@@ -59,8 +76,9 @@ async def get_collection(collection_id: UUID):
 
 
 @router.post("", response_model=BaseResponse, status_code=200)
-async def create_collection(request: CollectionRequest):
+async def create_collection(request: CollectionRequestWithUserID):
     err = db_handler.addCollection(
+        user_id=request.user_id,
         title=request.title,
         description=request.description,
         is_private=request.is_private,
@@ -69,6 +87,7 @@ async def create_collection(request: CollectionRequest):
     if err:
         print(err)
         raise HTTPException(status_code=500, detail="Failed to create collection")
+    logging.info("Function completed successfully")
     return {
         "status": "success",
         "message": "Collection created"
@@ -77,6 +96,7 @@ async def create_collection(request: CollectionRequest):
 
 @router.put("/{collection_id}", response_model=BaseResponse, status_code=200)
 async def update_collection(request: CollectionRequest, collection_id: UUID):
+    logging.info("Function update_collection is called")
     err = db_handler.updateCollection(
         collection_id=collection_id,
         title=request.title,
@@ -87,6 +107,7 @@ async def update_collection(request: CollectionRequest, collection_id: UUID):
     if err:
         print(err)
         raise HTTPException(status_code=500, detail="Failed to update the collection")
+    logging.info("Function completed successfully")
     return {
         "status": "success",
         "message": "Collection updated"
@@ -99,6 +120,7 @@ async def delete_collection(collection_id: UUID):
     if err:
         print(err)
         raise HTTPException(status_code=500, detail="Failed to delete collection")
+    logging.info("Function completed successfully")
     return {
         "status": "success",
         "message": "Collection deleted"
@@ -114,6 +136,7 @@ async def add_book_to_collection(request: AddBookToCollectionRequest, collection
     if err:
         print(err)
         raise HTTPException(status_code=500, detail="Failed to add book to collection")
+    logging.info("Function completed successfully")
     return {
         "status": "success",
         "message": "Book added to the collection"
@@ -129,6 +152,7 @@ async def delete_book_from_collection(collection_id: UUID, book_id: UUID):
     if err:
         print(err)
         raise HTTPException(status_code=500, detail="Failed to delete book from collection")
+    logging.info("Function completed successfully")
     return {
         "status": "success",
         "message": "Book deleted from the collection"
