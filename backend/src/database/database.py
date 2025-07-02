@@ -1,6 +1,5 @@
-from sqlalchemy import create_engine, Column, Integer, String, text
-from sqlalchemy.orm import declarative_base, sessionmaker
-import database.models
+from sqlalchemy import create_engine
+from src.database.models import Base
 import os
 
 # postgresql://postgres:password@database:5432/reader_library_db
@@ -14,4 +13,4 @@ engine = create_engine(
     echo=False
 )
 
-database.models.Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)

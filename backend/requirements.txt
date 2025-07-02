@@ -4,3 +4,5 @@ uvicorn
 pydantic[all]
 sqlalchemy
 psycopg2
+bcrypt
+pytest[all]

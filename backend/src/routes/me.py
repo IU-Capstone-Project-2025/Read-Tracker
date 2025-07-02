@@ -4,10 +4,10 @@ import sys
 from typing import Optional
 from uuid import UUID
 
-sys.path.append('..')
-from models.base_response import BaseResponse
-from models.tracker import TrackerRequest, TrackerResponse, TrackerData
-from database.db_instance import db_handler
+sys.path.append('../..')
+from src.models.base_response import BaseResponse
+from src.models.tracker import TrackerRequest, TrackerResponse, TrackerData
+from src.database.db_instance import db_handler
 
 router = APIRouter(prefix="/me", tags=["Me"])
 
@@ -103,49 +103,4 @@ async def delete_user_book(request: Request, book_id: UUID):
     return JSONResponse(content={
         "status": "success",
         "message": "User book deleted successfully"
-    })
-
-
-@router.get("/reviews/{review_id}", status_code=200)
-async def get_review(review_id: UUID):
-    # TODO: Implement get review by review_id
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Review retrieved",
-        "data": {
-            "id": str(review_id),
-            "content_type": "good_review",
-            "user_id": "some_user_id",
-            "rate": 5,
-            "text": "Great read!",
-            "book_id": "some_book_id"
-        }
-    })
-
-'''
-@router.put("/reviews/{review_id}", status_code=200)
-async def update_review(review_id: UUID):
-    # TODO: Implement update review by review_id
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Review updated"
-    })
-'''
-
-
-@router.delete("/reviews/{review_id}", status_code=200)
-async def delete_review(review_id: UUID):
-    # TODO: Implement delete review by review_id
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Review deleted"
-    })
-
-
-@router.post("/reviews", status_code=200)
-async def create_review():
-    # TODO: Implement create review
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Review created"
     })

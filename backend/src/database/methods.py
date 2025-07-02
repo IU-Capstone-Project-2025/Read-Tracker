@@ -3,8 +3,8 @@ from typing import Tuple, List, Optional
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date
-from database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem
-from database.database import engine
+from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem
+from src.database.database import engine
 import bcrypt
 
 
@@ -267,7 +267,7 @@ class DBHandler:
                 return None, ValueError("No user found with this email")
             if not bcrypt.checkpw(password.encode(), user.password.encode()):
                 return None, ValueError("Password mismatch")
-            return user.ID, None
+            return user.id, None
         except SQLAlchemyError as e:
             return None, e
         finally:
@@ -328,7 +328,7 @@ class DBHandler:
             user_id = self.fixed_user_id
         session = self.Session()
         try:
-            collections = session.query(Collection).filter_by(user_ID=user_id).all()
+            collections = session.query(Collection).filter_by(user_id=user_id).all()
             return collections, None
         except SQLAlchemyError as e:
             return [], e
@@ -356,7 +356,7 @@ class DBHandler:
             # Verify user exists
             if not session.query(Users).get(user_id):
                 return ValueError("User not found")
-            collection = Collection(user_ID=user_id, title=title, description=description, cover=cover,
+            collection = Collection(user_id=user_id, title=title, description=description, cover=cover,
                                     is_private=is_private)
             session.add(collection)
             session.commit()
@@ -417,9 +417,9 @@ class DBHandler:
             if not session.query(Book).get(book_id):
                 return ValueError("Book not found")
             # Check if book is already in collection
-            if session.query(CollectionItem).filter_by(collection_ID=collection_id, book_ID=book_id).first():
+            if session.query(CollectionItem).filter_by(collection_id=collection_id, book_id=book_id).first():
                 return ValueError("Book already in collection")
-            collection_item = CollectionItem(collection_ID=collection_id, book_ID=book_id)
+            collection_item = CollectionItem(collection_id=collection_id, book_id=book_id)
             session.add(collection_item)
             session.commit()
             return None
@@ -435,8 +435,8 @@ class DBHandler:
     def deleteBookFromCollection(self, collection_id: uuid.UUID, book_id: uuid.UUID) -> Optional[Exception]:
         session = self.Session()
         try:
-            collection_item = session.query(CollectionItem).filter_by(collection_ID=collection_id,
-                                                                      book_ID=book_id).first()
+            collection_item = session.query(CollectionItem).filter_by(collection_id=collection_id,
+                                                                      book_id=book_id).first()
             if not collection_item:
                 return ValueError("Book not found in collection")
             session.delete(collection_item)

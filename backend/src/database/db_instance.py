@@ -1,4 +1,3 @@
-import database.methods
-import database.database
-
-db_handler = database.methods.DBHandler(database.database.engine)
+import src.database.database
+import src.database.methods
+db_handler = src.database.methods.DBHandler(src.database.database.engine)

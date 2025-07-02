@@ -1,93 +1,159 @@
-from fastapi import FastAPI, Response, APIRouter, Request
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException
+from src.models.collections import (
+    CollectionRequest,
+    CollectionResponse,
+    CollectionData,
+    CollectionRequestWithUserID,
+    AddBookToCollectionRequest,
+)
+from src.models.user import UserRequest
+from src.models.base_response import BaseResponse
+from src.database.db_instance import db_handler
+from src.models.books import BookData
+from uuid import UUID
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 router = APIRouter(prefix="/me/collections", tags=["Collections"])
 
 
-# TODO: implement
-@router.get("/", status_code=200)
-async def get_collections():
-    return JSONResponse(content={
+@router.get("", response_model=CollectionResponse, status_code=200)
+async def get_collections(request: UserRequest):
+    logging.info(f"Function get_collections is called")
+    data, err = db_handler.getCollections(request.user_id)
+    result = []
+    if err:
+        logging.info(f"Database returned error: {err}")
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "message": str(err)
+        })
+    if data:
+        for collection in data:
+            result.append(CollectionData(
+                id=collection.id,
+                title=collection.title,
+                description=collection.description,
+                cover=collection.cover,
+                is_private=collection.is_private,
+                created_at=collection.created_at,
+                user_id=collection.user_id,
+            ))
+    logging.info("Function completed successfully")
+    return {
         "status": "success",
-        "message": "collections retrieved successfully",
-        "data": []
-    })
+        "message": "Collections retrieved successfully",
+        "data": result
+    }
 
 
-# TODO: implement
-@router.get("/{collection_id}", status_code=200)
-async def get_collection(collection_id: int):
-    if collection_id:
-        pass
-    return JSONResponse(content={
+@router.get("/{collection_id}", response_model=CollectionResponse, status_code=200)
+async def get_collection(collection_id: UUID):
+    collection, err = db_handler.getCollection(collection_id)
+    if not collection:
+        raise HTTPException(status_code=404, detail="Collection not found")
+    if err:
+        logging.info(f"Database returned error: {err}")
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "message": str(err)
+        })
+    logging.info("Function completed successfully")
+    return {
         "status": "success",
         "message": "Collection fetched successfully",
-        "data":
-            {
-                "collection_id": 123,
-                "title": "Collection",
-                "description": "descriptions",
-                "cover": "https://...",
-                "user_id": 123,
-                "username": "username",
-                "is_private": False,
-                "created_at": 123,
-            }
-    })
+        "data": [CollectionData(
+            id=collection.id,
+            title=collection.title,
+            description=collection.description,
+            cover=collection.cover,
+            is_private=collection.is_private,
+            created_at=collection.created_at,
+            user_id=collection.user_id,
+        )]
+    }
 
 
-# TODO: implement
-@router.post("/", status_code=200)
-async def create_collection(request: Request):
-    if request:
-        pass
-    return JSONResponse(content={
-      "status": "success",
-      "message": "Collection created"
-    })
+@router.post("", response_model=BaseResponse, status_code=200)
+async def create_collection(request: CollectionRequestWithUserID):
+    err = db_handler.addCollection(
+        user_id=request.user_id,
+        title=request.title,
+        description=request.description,
+        is_private=request.is_private,
+        cover=request.cover,
+    )
+    if err:
+        print(err)
+        raise HTTPException(status_code=500, detail="Failed to create collection")
+    logging.info("Function completed successfully")
+    return {
+        "status": "success",
+        "message": "Collection created"
+    }
 
 
-# TODO: implement
-@router.put("/{collection_id}", status_code=200)
-async def update_collection(request: Request, collection_id: int):
-    if collection_id and request:
-        pass
-    return JSONResponse(content={
-        "title": "new title",
-        "description": "new description",
-        "is_private": false,
-        "cover": "https://..."
-    })
+@router.put("/{collection_id}", response_model=BaseResponse, status_code=200)
+async def update_collection(request: CollectionRequest, collection_id: UUID):
+    logging.info("Function update_collection is called")
+    err = db_handler.updateCollection(
+        collection_id=collection_id,
+        title=request.title,
+        description=request.description,
+        is_private=request.is_private,
+        cover=request.cover
+    )
+    if err:
+        print(err)
+        raise HTTPException(status_code=500, detail="Failed to update the collection")
+    logging.info("Function completed successfully")
+    return {
+        "status": "success",
+        "message": "Collection updated"
+    }
 
 
-# TODO: implement
-@router.delete("/{collection_id}", status_code=200)
-async def delete_collection(collection_id: int):
-    if collection_id:
-        pass
-    return JSONResponse(content={
+@router.delete("/{collection_id}", response_model=BaseResponse, status_code=200)
+async def delete_collection(collection_id: UUID):
+    err = db_handler.deleteCollection(collection_id)
+    if err:
+        print(err)
+        raise HTTPException(status_code=500, detail="Failed to delete collection")
+    logging.info("Function completed successfully")
+    return {
         "status": "success",
         "message": "Collection deleted"
-    })
+    }
 
 
-# TODO: implement
-@router.post("/{collection_id}/books", status_code=200)
-async def add_book_to_collection(request: Request, collection_id: int):
-    if request and collection_id:
-        pass
-    return JSONResponse(content={
+@router.post("/{collection_id}/books", response_model=BaseResponse, status_code=200)
+async def add_book_to_collection(request: AddBookToCollectionRequest, collection_id: UUID):
+    err = db_handler.addBookToCollection(
+        collection_id=collection_id,
+        book_id=request.book_id
+    )
+    if err:
+        print(err)
+        raise HTTPException(status_code=500, detail="Failed to add book to collection")
+    logging.info("Function completed successfully")
+    return {
         "status": "success",
         "message": "Book added to the collection"
-    })
+    }
 
 
-# TODO: implement
-@router.delete("/{collection_id}/books/{book_id}", status_code=200)
-async def delete_book_from_collection(request: Request, collection_id: int, book_id: int):
-    if request and collection_id and book_id:
-        pass
-    return JSONResponse(content={
+@router.delete("/{collection_id}/books/{book_id}", response_model=BaseResponse, status_code=200)
+async def delete_book_from_collection(collection_id: UUID, book_id: UUID):
+    err = db_handler.removeBookFromCollection(
+        collection_id=collection_id,
+        book_id=book_id
+    )
+    if err:
+        print(err)
+        raise HTTPException(status_code=500, detail="Failed to delete book from collection")
+    logging.info("Function completed successfully")
+    return {
         "status": "success",
         "message": "Book deleted from the collection"
-    })
+    }
