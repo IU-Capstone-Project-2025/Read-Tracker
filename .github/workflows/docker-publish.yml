@@ -35,7 +35,7 @@ jobs:
         host: ${{ secrets.STAGING_HOST }}
         username: ${{ secrets.STAGING_USER }}
         key: ${{ secrets.STAGING_SSH_KEY }}
-        script:
+        script: |
           cd ${{ secrets.DOCKER_STAGING_DIR }}
           docker-compose pull
           docker-compose up -d
