@@ -36,7 +36,10 @@ jobs:
         username: ${{ secrets.STAGING_USER }}
         key: ${{ secrets.STAGING_SSH_KEY }}
         passphrase: ${{ secrets.STAGING_SSH_PASSPHRASE }}
+        envs: STAGING_DIR
         script: |
-          cd ${{ secrets.STAGING_DIR }}
-          docker-compose pull
-          docker-compose up -d
+          cd $STAGING_DIR
+          docker compose pull
+          docker compose up -d
+      env:
+        STAGING_DIR: ${{ secrets.STAGING_DIR }}
