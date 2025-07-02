@@ -3,7 +3,7 @@ name: Build and Publish Docker Image
 on:
   push:
     branches:
-      - main
+      - pipeline
 
 jobs:
   build:
@@ -38,6 +38,7 @@ jobs:
         passphrase: ${{ secrets.STAGING_SSH_PASSPHRASE }}
         envs: STAGING_DIR
         script: |
+          echo "$STAGING_DIR"
           cd $STAGING_DIR
           docker compose pull
           docker compose up -d
