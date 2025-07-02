@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
 from typing import List, Optional
-from models.base_response import BaseResponse
+from src.models.base_response import BaseResponse
 from datetime import date
 
 

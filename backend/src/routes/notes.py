@@ -1,18 +1,19 @@
 from fastapi import APIRouter, HTTPException
-from models.notes import NoteResponse, NoteRequest, NoteData
-from models.base_response import BaseResponse
-from database.db_instance import db_handler
+from src.models.notes import NoteResponse, NoteRequest, NoteData
+from src.models.base_response import BaseResponse
+from src.models.user import UserRequest
+from src.database.db_instance import db_handler
 from uuid import UUID
 
 router = APIRouter(tags=["Notes"])
 
 
 @router.get("/me/books/{book_id}/notes", response_model=NoteResponse, status_code=200)
-async def get_notes(book_id: UUID):
+async def get_notes(request: UserRequest, book_id: UUID):
     try:
         if not book_id:
             raise HTTPException(status_code=404, detail="Book id not found")
-        data, err = db_handler.getNotes(book_id=book_id)
+        data, err = db_handler.getNotes(user_id=request.user_id, book_id=book_id)
         answer = []
         if data:
             for note in data:
@@ -38,7 +39,7 @@ async def get_notes(book_id: UUID):
 async def add_note(request: NoteRequest, book_id: UUID):
     if not book_id:
         raise HTTPException(status_code=404, detail="Book id not found")
-    err = db_handler.addNote(book_id=book_id, text=request.text)
+    err = db_handler.addNote(book_id=book_id, user_id=request.user_id, text=request.text)
     if err:
         print(err)
         raise HTTPException(status_code=500, detail="Failed to add note")
