@@ -4,7 +4,7 @@ import sys
 from typing import Optional
 from uuid import UUID
 
-sys.path.append('..')
+sys.path.append('../..')
 from models.base_response import BaseResponse
 from models.tracker import TrackerRequest, TrackerResponse, TrackerData
 from database.db_instance import db_handler

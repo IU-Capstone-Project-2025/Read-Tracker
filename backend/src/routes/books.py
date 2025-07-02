@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Response, APIRouter, Request
 from fastapi.responses import JSONResponse
 import sys
-sys.path.append('..')
+sys.path.append('../..')
 from database.db_instance import db_handler
 from models.base_response import BaseResponse
 from models.books import BookData, BookResponse

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import auth, books, collections, feed, me, notes, subscriptions, reviews
-
+from backend.src.routes import collections
+from backend.src.routes import subscriptions, notes, feed, reviews, me, books, auth
 
 app = FastAPI()
 
