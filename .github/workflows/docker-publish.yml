@@ -28,3 +28,14 @@ jobs:
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/reader-diary:frontend
         docker push ${{ secrets.DOCKER_USERNAME }}/reader-diary:backend
+
+    - name: Deploy on staging server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.STAGING_HOST }}
+        username: ${{ secrets.STAGING_USER }}
+        key: ${{ secrets.STAGING_SSH_KEY }}
+        script: |
+          cd ${{ secrets.STAGING_DIR }}
+          docker-compose pull
+          docker-compose up -d
