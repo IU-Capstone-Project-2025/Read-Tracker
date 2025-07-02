@@ -1,11 +1,12 @@
 import pytest
 import requests
+import os
 
+PORT = 8000 # os.getenv("BACKEND_PORT")
 
 # Doesn't consider case when email already exist
 def test_register():
-    global test_uuid
-    url = "http://localhost:8000/auth/register"
+    url = f"http://localhost:{PORT}/auth/register"
     header = {
         "Content-Type": "application/json"
     }
@@ -19,11 +20,11 @@ def test_register():
     if response.status_code == 400 and response.json()["detail"]["message"] == "Email already exists":
         assert True
     else:
-        assert response.status_code in 201
+        assert response.status_code == 201
 
 
 def test_bad_register():
-    url = "http://localhost:8000/auth/register"
+    url = f"http://localhost:{PORT}/auth/register"
     header = {
         "Content-Type": "application/json"
     }
@@ -38,7 +39,7 @@ def test_bad_register():
 
 
 def test_login():
-    url = "http://localhost:8000/auth/login"
+    url = f"http://localhost:{PORT}/auth/login"
     header = {
         "Content-Type": "application/json"
     }
@@ -52,7 +53,7 @@ def test_login():
 
 
 def test_bad_login():
-    url = "http://localhost:8000/auth/login"
+    url = f"http://localhost:{PORT}/auth/login"
     header = {
         "Content-Type": "application/json"
     }
@@ -66,7 +67,7 @@ def test_bad_login():
 
 
 def test_get_profile():
-    url = "http://localhost:8000/auth/profile"
+    url = f"http://localhost:{PORT}/auth/profile"
     header = {
         "Content-Type": "application/json"
     }
@@ -79,7 +80,7 @@ def test_get_profile():
 
 
 def test_invalid_profile_id():
-    url = "http://localhost:8000/auth/profile"
+    url = f"http://localhost:{PORT}/auth/profile"
     header = {
         "Content-Type": "application/json"
     }
@@ -92,7 +93,7 @@ def test_invalid_profile_id():
 
 
 def test_update_avatar():
-    url = "http://localhost:8000/auth/profile/avatar"
+    url = f"http://localhost:{PORT}/auth/profile/avatar"
     header = {
         "Content-Type": "application/json"
     }
@@ -106,7 +107,7 @@ def test_update_avatar():
 
 
 def test_invalid_avatar_id():
-    url = "http://localhost:8000/auth/profile/avatar"
+    url = f"http://localhost:{PORT}/auth/profile/avatar"
     header = {
         "Content-Type": "application/json"
     }
@@ -120,7 +121,7 @@ def test_invalid_avatar_id():
 
 
 def test_valid_password_restore():
-    url = "http://localhost:8000/auth/profile/password"
+    url = f"http://localhost:{PORT}/auth/profile/password"
     header = {
         "Content-Type": "application/json"
     }
@@ -134,7 +135,7 @@ def test_valid_password_restore():
 
 
 def test_invalid_password_restore():
-    url = "http://localhost:8000/auth/profile/password"
+    url = f"http://localhost:{PORT}/auth/profile/password"
     header = {
         "Content-Type": "application/json"
     }
