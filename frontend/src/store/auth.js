@@ -1,13 +1,21 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { 
+  registerUser, 
+  loginUser, 
+  fetchUserProfile, 
+  requestPasswordReset,
+  resetPassword,
+  updateUserAvatar,
+  updateUserPassword,
+  updateUserVisibility
+} from '@/api/users'
+import config from '@/config'
 import { useRouter } from 'vue-router'
-
-const API_URL = 'http://localhost:8000'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
-    token: localStorage.getItem('authToken') || null,
+    token: localStorage.getItem(config.app.authTokenStorageKey) || null,
     loading: false,
     error: null
   }),
@@ -19,16 +27,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        const response = await axios.post(`${API_URL}/auth/register`, {
-          email: userData.email,
-          password: userData.password
-        })
-        
-        if (response.data.status === 'success') {
-          return true
-        } else {
-          throw new Error(response.data.message || 'Registration failed')
-        }
+        await registerUser(userData)
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Registration failed'
         throw error
@@ -41,21 +40,15 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        const response = await axios.post(`${API_URL}/auth/login`, {
-          mail: credentials.email,
-          password: credentials.password
-        })
-        
-        if (response.data.status === 'success') {
-          this.token = response.data.token
-          localStorage.setItem('authToken', this.token)
+        const response = await loginUser(credentials)
+        if (response.status === 'success') {
+          this.token = response.token
+          localStorage.setItem(config.app.authTokenStorageKey, this.token)
           
           // Fetch user profile
           await this.fetchProfile()
-          
-          return true
         } else {
-          throw new Error(response.data.message || 'Login failed')
+          throw new Error(response.message || 'Login failed')
         }
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Login failed'
@@ -69,17 +62,11 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        const response = await axios.get(`${API_URL}/auth/profile`, {
-          headers: {
-            Authorization: `Bearer ${this.token}`
-          }
-        })
-        
-        if (response.data.status === 'success') {
-          this.user = response.data.data
-          return this.user
+        const response = await fetchUserProfile(this.token)
+        if (response.status === 'success') {
+          this.user = response.data
         } else {
-          throw new Error(response.data.message || 'Failed to fetch profile')
+          throw new Error(response.message || 'Failed to fetch profile')
         }
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Failed to fetch profile'
@@ -90,25 +77,18 @@ export const useAuthStore = defineStore('auth', {
     },
     
     logout() {
+      const router = useRouter()
       this.user = null
       this.token = null
-      localStorage.removeItem('authToken')
-      useRouter().push('/login')
+      localStorage.removeItem(config.app.authTokenStorageKey)
+      router.push('/login')
     },
     
-    async resetPasswordRequest(email) {
+    async requestPasswordReset(email) {
       this.loading = true
       this.error = null
       try {
-        const response = await axios.post(`${API_URL}/auth/forgot_password`, {
-          mail: email
-        })
-        
-        if (response.data.status === 'success') {
-          return true
-        } else {
-          throw new Error(response.data.message || 'Password reset request failed')
-        }
+        await requestPasswordReset(email)
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Password reset request failed'
         throw error
@@ -117,22 +97,64 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     
-    async resetPassword(token, newPassword) {
+    async completePasswordReset(token, newPassword) {
       this.loading = true
       this.error = null
       try {
-        const response = await axios.post(`${API_URL}/auth/reset_password`, {
-          token: token,
-          new_password: newPassword
-        })
-        
-        if (response.data.status === 'success') {
-          return true
-        } else {
-          throw new Error(response.data.message || 'Password reset failed')
-        }
+        await resetPassword(token, newPassword)
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Password reset failed'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async changeAvatar(avatarUrl) {
+      if (!this.user) throw new Error('User not authenticated')
+      
+      this.loading = true
+      this.error = null
+      try {
+        const response = await updateUserAvatar(this.user.id, avatarUrl, this.token)
+        if (response.status === 'success') {
+          // Update local user data
+          await this.fetchProfile()
+        }
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message || 'Avatar update failed'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async changePassword(currentPassword, newPassword) {
+      if (!this.user) throw new Error('User not authenticated')
+      
+      this.loading = true
+      this.error = null
+      try {
+        await updateUserPassword(this.user.id, currentPassword, newPassword, this.token)
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message || 'Password change failed'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async changeVisibility(isVisible) {
+      if (!this.user) throw new Error('User not authenticated')
+      
+      this.loading = true
+      this.error = null
+      try {
+        await updateUserVisibility(this.user.id, isVisible, this.token)
+        // Update local user data
+        this.user.isVisible = isVisible
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message || 'Visibility update failed'
         throw error
       } finally {
         this.loading = false

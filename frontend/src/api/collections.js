@@ -1,11 +1,10 @@
 import axios from 'axios'
+import config from '@/config'
 import { useAuthStore } from '@/store/auth'
 
-const API_URL = 'http://localhost:8000'
-
-// Create axios instance with auth header
+// Create axios instance with base URL
 const api = axios.create({
-  baseURL: API_URL
+  baseURL: config.api.baseUrl
 })
 
 // Add request interceptor to include auth token
@@ -15,8 +14,6 @@ api.interceptors.request.use(config => {
     config.headers.Authorization = `Bearer ${authStore.token}`
   }
   return config
-}, error => {
-  return Promise.reject(error)
 })
 
 export async function fetchCollections() {
@@ -30,41 +27,15 @@ export async function fetchCollections() {
         bookCount: collection.book_count || 0,
         createdAt: collection.created_at,
         isPrivate: collection.is_private,
-        cover: collection.cover || null
+        cover: collection.cover || null,
+        userId: collection.user_id
       }))
     } else {
       throw new Error(response.data.message || 'Failed to fetch collections')
     }
   } catch (error) {
     console.error('API error:', error)
-    throw error
-  }
-}
-
-export async function createCollection(collectionData) {
-  try {
-    const response = await api.post('/collections/', {
-      title: collectionData.title,
-      description: collectionData.description,
-      is_private: collectionData.isPrivate || false
-    })
-    
-    if (response.data.status === 'success') {
-      return {
-        id: response.data.data.collection_id,
-        title: response.data.data.title,
-        description: response.data.data.description,
-        bookCount: 0,
-        createdAt: response.data.data.created_at,
-        isPrivate: response.data.data.is_private,
-        cover: response.data.data.cover || null
-      }
-    } else {
-      throw new Error(response.data.message || 'Failed to create collection')
-    }
-  } catch (error) {
-    console.error('API error:', error)
-    throw error
+    return []
   }
 }
 
@@ -81,8 +52,8 @@ export async function fetchCollection(collectionId) {
           bookCount: data.books ? data.books.length : 0,
           createdAt: data.created_at,
           isPrivate: data.is_private,
-          userId: data.user_id,
-          cover: data.cover || null
+          cover: data.cover || null,
+          userId: data.user_id
         },
         books: data.books || []
       }
@@ -95,9 +66,44 @@ export async function fetchCollection(collectionId) {
   }
 }
 
+export async function createCollection(collectionData) {
+  try {
+    const response = await api.post('/collections/', {
+      title: collectionData.title,
+      description: collectionData.description,
+      is_private: collectionData.isPrivate || false
+    })
+    
+    if (response.data.status === 'success') {
+      const newCollection = response.data.data
+      return {
+        id: newCollection.collection_id,
+        title: newCollection.title,
+        description: newCollection.description,
+        bookCount: 0,
+        createdAt: newCollection.created_at,
+        isPrivate: newCollection.is_private,
+        cover: newCollection.cover || null,
+        userId: newCollection.user_id
+      }
+    } else {
+      throw new Error(response.data.message || 'Failed to create collection')
+    }
+  } catch (error) {
+    console.error('API error:', error)
+    throw error
+  }
+}
+
 export async function updateCollection(collectionId, updateData) {
   try {
-    const response = await api.put(`/collections/${collectionId}`, updateData)
+    const response = await api.put(`/collections/${collectionId}`, {
+      title: updateData.title,
+      description: updateData.description,
+      is_private: updateData.isPrivate,
+      cover: updateData.cover
+    })
+    
     if (response.data.status === 'success') {
       return response.data.data
     } else {
@@ -128,6 +134,7 @@ export async function addBookToCollection(collectionId, bookId) {
     const response = await api.post(`/collections/${collectionId}/books`, {
       book_id: bookId
     })
+    
     if (response.data.status === 'success') {
       return true
     } else {
@@ -150,5 +157,35 @@ export async function removeBookFromCollection(collectionId, bookId) {
   } catch (error) {
     console.error('API error:', error)
     throw error
+  }
+}
+
+export async function fetchPublicCollections(limit = 10, offset = 0, userId = null) {
+  try {
+    const params = { limit, offset }
+    if (userId) params.user_id = userId
+    
+    const response = await api.get('/explore/collections', { params })
+    
+    if (response.data.status === 'success') {
+      return {
+        items: response.data.data.items.map(collection => ({
+          id: collection.collection_id,
+          title: collection.title,
+          description: collection.description,
+          bookCount: collection.book_count || 0,
+          createdAt: collection.created_at,
+          cover: collection.cover || null,
+          userId: collection.user_id,
+          userName: collection.username
+        })),
+        pagination: response.data.data.pagination
+      }
+    } else {
+      throw new Error(response.data.message || 'Failed to fetch public collections')
+    }
+  } catch (error) {
+    console.error('API error:', error)
+    return { items: [], pagination: { limit, offset, total: 0 } }
   }
 }
