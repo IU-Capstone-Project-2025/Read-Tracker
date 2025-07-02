@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "build": "vue-cli-service build",
-    "serve": "vue-cli-service serve"
+    "serve": "vue-cli-service serve",
+    "test:unit": "vue-cli-service test:unit",
+    "test:unit:watch": "vue-cli-service test:unit --watch"
   },
   "dependencies": {
     "pinia": "^3.0.3",
