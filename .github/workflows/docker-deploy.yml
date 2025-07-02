@@ -45,4 +45,4 @@ jobs:
           docker compose pull
           docker compose up -d
       env:
-        STAGING_DIR: ${{ secrets.PROD_DIR }}
+        PROD_DIR: ${{ secrets.PROD_DIR }}
