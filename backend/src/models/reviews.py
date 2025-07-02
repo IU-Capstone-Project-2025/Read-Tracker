@@ -15,7 +15,7 @@ class ReviewData(BaseModel):
     user_id: UUID
     book_id: UUID
     rate: int = Field(ge=1, le=10)
-    text: Optional[str]
+    text: Optional[str
     created_at: datetime
 
 
