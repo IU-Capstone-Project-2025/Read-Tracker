@@ -4,6 +4,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     restart: unless-stopped
+    env_file:
+      - .env.frontend
     networks:
       - front_net
     ports:
@@ -22,7 +24,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
-      - .env
+      - .env.backend
     networks:
       - front_net
       - back_net
@@ -42,7 +44,7 @@ services:
     image: postgres:15
     restart: unless-stopped
     env_file:
-      - .env
+      - .env.backend
     networks:
       - back_net
       - db_net

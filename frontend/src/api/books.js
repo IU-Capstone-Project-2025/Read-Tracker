@@ -1,5 +1,5 @@
 import axios from 'axios'
-import config from '@/config'
+import config from '@/runtimeConfig'
 import { useAuthStore } from '@/store/auth'
 
 // Create axios instance with base URL

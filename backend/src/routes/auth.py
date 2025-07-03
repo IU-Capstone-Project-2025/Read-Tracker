@@ -38,6 +38,7 @@ async def register_user(request: RegisterRequest):
 @router.post("/login", response_model=LoginResponse, status_code=200)
 async def login_user(request: LoginRequest):
     logging.info("Function login_user from auth.py is called")
+    logging.debug(f"Login payload: {request}")
 
     data, err = db_handler.loginUser(mail=request.email,
                                      password=request.password)
@@ -61,7 +62,7 @@ async def login_user(request: LoginRequest):
     }
 
 
-@router.get("/profile", status_code=200)
+@router.post("/profile", status_code=200)
 async def get_user_profile(request: UserRequest):
     logging.info("Function get_user_profile from auth.py is called")
     data, err = db_handler.getUser(request.user_id)
