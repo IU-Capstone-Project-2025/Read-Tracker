@@ -84,7 +84,7 @@ async function handleLogin() {
   try {
     const success = await authStore.login(credentials.value)
     if (success) {
-      router.push('/')
+      router.push('/recommendations')
     }
   } catch (err) {
     error.value = err.message || 'Login failed'

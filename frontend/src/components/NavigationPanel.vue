@@ -60,7 +60,7 @@
         <span class="menu-text">Settings</span>
       </div>
 
-      <div class="menu-item">
+      <div class="menu-item" @click="handleLogout">
         <span class="menu-icon"><i class="fas fa-sign-out-alt"></i></span>
         <span class="menu-text">Log Out</span>
       </div>
@@ -69,8 +69,20 @@
 </template>
 
 <script setup>
-defineProps({
+import { defineProps } from 'vue'
+import { useAuthStore } from '@/store/auth'
+import { useRouter } from 'vue-router'
+
+const props = defineProps({
   isCollapsed: Boolean,
   currentPage: String
 })
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+function handleLogout() {
+  authStore.logout(router)
+  router.push('/login')
+}
 </script>

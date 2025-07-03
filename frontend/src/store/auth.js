@@ -9,7 +9,7 @@ import {
   updateUserPassword,
   updateUserVisibility
 } from '@/api/users'
-import config from '@/config'
+import config from '@/runtimeConfig'
 import { useRouter } from 'vue-router'
 
 export const useAuthStore = defineStore('auth', {
@@ -28,6 +28,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         await registerUser(userData)
+        return true
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Registration failed'
         throw error
@@ -42,11 +43,12 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await loginUser(credentials)
         if (response.status === 'success') {
-          this.token = response.token
+          this.token = response.user_id
           localStorage.setItem(config.app.authTokenStorageKey, this.token)
           
           // Fetch user profile
           await this.fetchProfile()
+          return true
         } else {
           throw new Error(response.message || 'Login failed')
         }
@@ -76,8 +78,7 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     
-    logout() {
-      const router = useRouter()
+    logout(router) {
       this.user = null
       this.token = null
       localStorage.removeItem(config.app.authTokenStorageKey)

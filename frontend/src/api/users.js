@@ -1,5 +1,5 @@
 import axios from 'axios'
-import config from '@/config'
+import config from '@/runtimeConfig'
 
 const api = axios.create({
   baseURL: config.api.baseUrl
@@ -8,6 +8,7 @@ const api = axios.create({
 export const registerUser = async (userData) => {
   try {
     const response = await api.post('/auth/register', {
+      name: "Ivan Isakov",
       email: userData.email,
       password: userData.password
     })
@@ -21,7 +22,7 @@ export const registerUser = async (userData) => {
 export const loginUser = async (credentials) => {
   try {
     const response = await api.post('/auth/login', {
-      mail: credentials.email,
+      email: credentials.email,
       password: credentials.password
     })
     return response.data
@@ -33,10 +34,8 @@ export const loginUser = async (credentials) => {
 
 export const fetchUserProfile = async (token) => {
   try {
-    const response = await api.get('/auth/profile', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+    const response = await api.post('/auth/profile', {
+      user_id: token
     })
     return response.data
   } catch (error) {
@@ -48,7 +47,7 @@ export const fetchUserProfile = async (token) => {
 export const requestPasswordReset = async (email) => {
   try {
     const response = await api.post('/auth/forgot_password', {
-      mail: email
+      email: email
     })
     return response.data
   } catch (error) {
@@ -60,7 +59,7 @@ export const requestPasswordReset = async (email) => {
 export const resetPassword = async (token, newPassword) => {
   try {
     const response = await api.post('/auth/reset_password', {
-      token,
+      user_id: token,
       new_password: newPassword
     })
     return response.data

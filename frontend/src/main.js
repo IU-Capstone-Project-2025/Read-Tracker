@@ -4,7 +4,8 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import './assets/styles.css'
 
-// Import components
+import config from './runtimeConfig'
+
 import LoginPage from './components/pages/LoginPage.vue'
 import RegistrationPage from './components/pages/RegistrationPage.vue'
 import ForgotPasswordPage from './components/pages/ForgotPasswordPage.vue'
@@ -16,6 +17,7 @@ import ReviewsPage from './components/pages/ReviewsPage.vue'
 import CollectionsPage from './components/pages/CollectionsPage.vue'
 import BookProfilePage from './components/pages/BookProfilePage.vue'
 import CollectionDetailPage from './components/pages/CollectionDetailPage.vue'
+import { useAuthStore } from './store/auth'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -35,7 +37,6 @@ const router = createRouter({
   ]
 })
 
-// Navigation guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
@@ -51,6 +52,10 @@ router.beforeEach((to, from, next) => {
 const pinia = createPinia()
 const app = createApp(App)
 
+app.config.globalProperties.$config = config
+
 app.use(router)
 app.use(pinia)
 app.mount('#app')
+
+console.log('Runtime config loaded:', config)
