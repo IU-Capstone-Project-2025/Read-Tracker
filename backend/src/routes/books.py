@@ -8,7 +8,6 @@ from src.models.books import BookData, BookResponse
 router = APIRouter(prefix="/books", tags=["Books"])
 
 
-# TODO: Replace mockup
 @router.get("", response_model=BookResponse, status_code=200)
 async def get_books():
     data, err = db_handler.getBooks()
@@ -33,7 +32,6 @@ async def get_books():
     }
 
 
-# TODO: Replace mockup, 404 error
 @router.get("/{book_id}", response_model=BookResponse, status_code=200)
 async def get_book(book_id: int):
     if book_id:
@@ -53,11 +51,11 @@ async def get_book(book_id: int):
                                    language=book.language,
                                    description=book.description,
                                    cover=book.cover))
-    return JSONResponse(content={
+    return {
         "status": "success",
         "message": "Book details retrieved",
         "data": answer
-    })
+    }
 
 
 # TODO: Replace mockup; Code validation steps, 400, 404 errors
