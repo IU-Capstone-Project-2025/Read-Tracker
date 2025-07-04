@@ -12,7 +12,10 @@ router = APIRouter(tags=["Notes"])
 async def get_notes(request: UserRequest, book_id: UUID):
     try:
         if not book_id:
-            raise HTTPException(status_code=404, detail="Book id not found")
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "Book id not found"
+            })
         data, err = db_handler.getNotes(user_id=request.user_id, book_id=book_id)
         answer = []
         if data:
@@ -35,14 +38,20 @@ async def get_notes(request: UserRequest, book_id: UUID):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@router.post("/me/books/{book_id}/notes", response_model=BaseResponse, status_code=200)
+@router.put("/me/books/{book_id}/notes", response_model=BaseResponse, status_code=200)
 async def add_note(request: NoteRequest, book_id: UUID):
     if not book_id:
-        raise HTTPException(status_code=404, detail="Book id not found")
+        raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "Book id not found"
+        })
     err = db_handler.addNote(book_id=book_id, user_id=request.user_id, text=request.text)
     if err:
         print(err)
-        raise HTTPException(status_code=500, detail="Failed to add note")
+        raise HTTPException(status_code=500, detail={
+                "status": "error",
+                "message": "Failed to add note"
+        })
     return {
         "status": "success",
         "message": "Note added",
@@ -52,7 +61,10 @@ async def add_note(request: NoteRequest, book_id: UUID):
 @router.get("/me/notes/{note_id}", response_model=NoteResponse, status_code=200)
 async def get_note(note_id: UUID):
     if not note_id:
-        raise HTTPException(status_code=404, detail="Note id not found")
+        raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "Note id not found"
+        })
     data, err = db_handler.getNote(note_id=note_id)
     answer = []
     if data:
@@ -73,13 +85,22 @@ async def get_note(note_id: UUID):
 @router.put("/me/notes/{note_id}", response_model=BaseResponse, status_code=200)
 async def update_note(request: NoteRequest, note_id: UUID):
     if not note_id:
-        raise HTTPException(status_code=404, detail="Note id not found")
+        raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "Note id not found"
+        })
     if not request or not request.text:
-        raise HTTPException(status_code=400, detail="Invalid note")
+        raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "message": "Invalid note"
+        })
     err = db_handler.updateNote(note_id=note_id, text=request.text)
     if err:
         print(err)
-        raise HTTPException(status_code=500, detail="Failed to update note")
+        raise HTTPException(status_code=500, detail={
+                "status": "error",
+                "message": "Failed to update note"
+        })
     return {
         "status": "success",
         "message": "Note updated",
@@ -89,11 +110,17 @@ async def update_note(request: NoteRequest, note_id: UUID):
 @router.delete("/me/notes/{note_id}", response_model=BaseResponse, status_code=200)
 async def delete_note(note_id: UUID):
     if not note_id:
-        raise HTTPException(status_code=404, detail="Note id not found")
+        raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "Note id not found"
+        })
     err = db_handler.deleteNote(note_id=note_id)
     if err:
         print(err)
-        raise HTTPException(status_code=500, detail="Failed to delete note")
+        raise HTTPException(status_code=500, detail={
+                "status": "error",
+                "message": "Failed to delete note"
+        })
     return {
         "status": "success",
         "message": "Note deleted",

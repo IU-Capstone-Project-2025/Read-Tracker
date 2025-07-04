@@ -28,7 +28,7 @@ async def get_reviews(request: UserRequest):
     }
 
 
-@router.post("/reviews/{book_id}", response_model=ReviewResponse, status_code=200)
+@router.post("/me/reviews/{book_id}", response_model=ReviewResponse, status_code=200)
 async def get_review(request: UserRequest, book_id: UUID):
     data, err = db_handler.getReview(user_id=request.user_id, book_id=book_id)
     answer = []
@@ -70,7 +70,7 @@ async def delete_review(request: UserRequest, book_id: UUID):
     }
 
 
-@router.post("/me/reviews/{book_id}", response_model=BaseResponse, status_code=200)
+@router.post("/me/reviews/{book_id}/new", response_model=BaseResponse, status_code=200)
 async def create_review(request: ReviewRequest, book_id: UUID):
     if not book_id:
         raise HTTPException(status_code=404, detail="Book id not found")

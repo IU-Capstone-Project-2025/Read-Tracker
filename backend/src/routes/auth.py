@@ -90,7 +90,6 @@ async def get_user_profile(request: UserRequest):
     }
 
 
-# TODO: 400, 401 error
 @router.put("/profile/avatar", response_model=BaseResponse, status_code=200)
 async def update_avatar(request: UpdateAvatarRequest):
     logging.info("Function update_avatar from auth.py is called")
@@ -114,7 +113,6 @@ async def update_avatar(request: UpdateAvatarRequest):
     }
 
 
-# TODO: 400, 401 error
 @router.put("/profile/password", response_model=BaseResponse, status_code=200)
 async def change_password(request: PasswordRestoreRequest):
     logging.info("Function change_password from auth.py is called")

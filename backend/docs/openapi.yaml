@@ -66,50 +66,12 @@ paths:
                     type: string
                   message:
                     type: string
-                  token:
-                    type: string
                   user_id:
                     type: integer
         '401':
           description: Unauthorized (e.g., invalid credentials)
         '404':
           description: Not Found (e.g., user not found)
-
-  /auth/validate:
-    post:
-      summary: Validate an authentication token
-      responses:
-        '200':
-          description: Token is valid
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  message:
-                    type: string
-        '404':
-          description: Not Found (e.g., token not found or invalid)
-
-  /auth/refresh:
-    post:
-      summary: Refresh an authentication token
-      responses:
-        '200':
-          description: Token refreshed successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  token:
-                    type: string
-        '404':
-          description: Not Found (e.g., refresh token invalid)
 
   /auth/forgot_password:
     post:
@@ -151,7 +113,7 @@ paths:
             schema:
               type: object
               properties:
-                token:
+                user_id:
                   type: string
                 new_password:
                   type: string
@@ -168,7 +130,7 @@ paths:
                   message:
                     type: string
         '400':
-          description: Bad Request (e.g., invalid token or password)
+          description: Bad Request (e.g., invalid user_id or password)
 
   /auth/profile:
     get:
@@ -467,9 +429,51 @@ paths:
                     type: array
                     items: {}
 
-  /collections/:
-    get:
+  /me/collections:
+    post:
+      summary: Create a new collection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                is_private:
+                  type: boolean
+                cover:
+                  type: string
+      responses:
+        '200':
+          description: Collection created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+
+  /me/collections/all:
+    post:
       summary: Get all collections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
       responses:
         '200':
           description: A list of collections
@@ -485,22 +489,8 @@ paths:
                   data:
                     type: array
                     items: {}
-    post:
-      summary: Create a new collection
-      responses:
-        '200':
-          description: Collection created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  message:
-                    type: string
 
-  /collections/{collection_id}:
+  /me/collections/{collection_id}:
     get:
       summary: Get a single collection by ID
       parameters:
@@ -549,6 +539,21 @@ paths:
           required: true
           schema:
             type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                is_private:
+                  type: boolean
+                cover:
+                  type: string
       responses:
         '200':
           description: Collection updated successfully
@@ -587,11 +592,16 @@ paths:
                   message:
                     type: string
 
-  /collections/{collection_id}/books:
+  /me/collections/{collection_id}/books/{book_id}:
     post:
       summary: Add a book to a collection
       parameters:
         - name: collection_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: book_id
           in: path
           required: true
           schema:
@@ -608,8 +618,6 @@ paths:
                     type: string
                   message:
                     type: string
-
-  /collections/{collection_id}/books/{book_id}:
     delete:
       summary: Remove a book from a collection
       parameters:
@@ -636,27 +644,18 @@ paths:
                   message:
                     type: string
 
-  /explore/collections:
-    get:
-      summary: Get collections with pagination
+  /me/books/{book_id}/notes:
+    post:
+      summary: Get all notes from a book
       parameters:
-        - name: limit
-          in: query
+        - name: book_id
+          in: path
           required: true
           schema:
-            type: integer
-        - name: offset
-          in: query
-          required: true
-          schema:
-            type: integer
-        - name: user_id
-          in: query
-          schema:
-            type: integer
+            type: string
       responses:
         '200':
-          description: A paginated list of collections
+          description: A list of notes
           content:
             application/json:
               schema:
@@ -667,42 +666,68 @@ paths:
                   message:
                     type: string
                   data:
-                    type: object
-                    properties:
-                      items:
-                        type: array
-                        items: {}
-                      pagination:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                          offset:
-                            type: integer
-                          total:
-                            type: integer
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          id: string
+                        text:
+                          type: string
+                        book_id:
+                          type: string
+                        user_id:
+                          type: string
+                        created_at:
+                          type: datetime
+    put:
+      summary: Add Note
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                text:
+                  type: string
+      responses:
+        '200':
+          description: Note added to the book successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Failed to add note
+        '404':
+          description: Not Found
 
-  /explore/reviews:
+  /me/notes/{note_id}:
     get:
-      summary: Get reviews with pagination
+      summary: Get note by its id
       parameters:
-        - name: limit
-          in: query
+        - name: note_id
+          in: path
           required: true
           schema:
-            type: integer
-        - name: offset
-          in: query
-          required: true
-          schema:
-            type: integer
-        - name: user_id
-          in: query
-          schema:
-            type: integer
+            type: string
       responses:
         '200':
-          description: A paginated list of reviews
+          description: A note data
           content:
             application/json:
               schema:
@@ -713,17 +738,66 @@ paths:
                   message:
                     type: string
                   data:
-                    type: object
-                    properties:
-                      items:
-                        type: array
-                        items: {}
-                      pagination:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                          offset:
-                            type: integer
-                          total:
-                            type: integer
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          id: string
+                        text:
+                          type: string
+                        book_id:
+                          type: string
+                        user_id:
+                          type: string
+                        created_at:
+                          type: datetime
+    put:
+      summary: update note by its id
+      parameters:
+        - name: note_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    delete:
+      summary: delete note by its id
+      parameters:
+        - name: note_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
