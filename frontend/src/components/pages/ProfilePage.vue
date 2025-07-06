@@ -10,7 +10,7 @@
         <i class="fas fa-user"></i>
       </div>
       <div class="profile-info">
-        <h2 class="profile-name">Alex Johnson</h2>
+        <h2 class="profile-name"> {{ authStore.user.username }} </h2>
         <p>125 books read • Member since 2020</p>
 
         <div class="profile-stats">
@@ -78,6 +78,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import { useAuthStore } from '@/store/auth'
+
+const authStore = useAuthStore()
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -200,6 +203,7 @@ const calculateStreakLength = (startDate, endDate = null) => {
 
 
 onMounted(() => {
+  console.log(authStore.user)
   loadStreaks()
 })
 </script>
