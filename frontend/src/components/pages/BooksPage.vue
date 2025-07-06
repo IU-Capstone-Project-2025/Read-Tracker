@@ -85,16 +85,7 @@ const statusFilter = ref('all')
 const sortBy = ref('title')
 
 onMounted(async () => {
-  const loadedBooks = await booksStore.fetchBooks()
-  if (booksStore.books.length === 0) {
-    booksStore.initializeBooks(
-      loadedBooks.map(book => ({
-        ...book,
-        status: 'to-read',       
-        addedDate: Date.now() 
-      }))
-    )
-  }
+  await booksStore.fetchBooks()
 })
 
 const filteredBooks = computed(() => {
