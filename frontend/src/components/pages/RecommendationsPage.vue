@@ -5,18 +5,17 @@
       <p class="page-subtitle">Based on your subscriptions</p>
     </div>
 
-    <div class="recommendations-grid">
+    <div class="recommendations-feed">
       <div 
-        class="recommendation-card" 
-        v-for="book in books" 
-        :key="book.id"
-        @click="goToBookProfile(book.id)"
+        class="review-card" 
+        v-for="(review, index) in reviewsWithBooks" 
+        :key="index"
       >
         <div class="book-cover-container">
           <img 
-            v-if="book.cover" 
-            :src="book.cover" 
-            :alt="book.title" 
+            v-if="review.book.cover" 
+            :src="review.book.cover" 
+            :alt="review.book.title" 
             class="book-cover"
           />
           <img 
@@ -26,11 +25,13 @@
             class="book-cover"
           />
         </div>
-        <div class="book-details">
-          <h3 class="book-title">{{ book.title }}</h3>
-          <span class="book-author">{{ book.author }}</span>
-          <p class="book-info">{{ book.description }}</p>
-          <button class="reviews-button">See Details</button>
+        
+        <div class="review-content">
+          <h3 class="book-title">{{ review.book.title }}</h3>
+          <p class="book-author">{{ review.book.author }}</p>
+          <div class="review-text">
+            <p>{{ review.text }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -38,28 +39,133 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
 import { useBooksStore } from '@/store/books'
+import { useReviewsStore } from '@/store/reviews'
 
-const router = useRouter()
 const booksStore = useBooksStore()
+const reviewsStore = useReviewsStore()
 
-const books = computed(() => booksStore.books)
+// Fetch data when component is mounted
+onMounted(async () => {
+  await reviewsStore.fetchMyReviews()
+})
 
-const goToBookProfile = (bookId) => {
-  router.push({ name: 'bookProfile', params: { id: bookId } })
-}
+// Combine reviews with book data
+const reviewsWithBooks = computed(() => {
+  return reviewsStore.reviews.map(review => {
+    const book = booksStore.books.find(b => b.id === review.book_id) || {}
+    return {
+      ...review,
+      book: {
+        id: book.id || review.book_id,
+        title: book.title || 'Unknown Book',
+        author: book.author || 'Unknown Author',
+        cover: book.cover || ''
+      }
+    }
+  })
+})
 </script>
 
 <style scoped>
-.recommendation-card {
-  cursor: pointer;
+.page-content {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.page-title {
+  font-size: 32px;
+  color: #764ba2;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  color: #666;
+  font-size: 18px;
+}
+
+.recommendations-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.review-card {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.recommendation-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+.review-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.book-cover-container {
+  width: 150px;
+  height: 200px;
+  flex-shrink: 0;
+}
+
+.book-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.review-content {
+  padding: 25px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.book-author {
+  color: #667eea;
+  font-size: 16px;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+.review-text {
+  color: #444;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .review-card {
+    flex-direction: column;
+  }
+  
+  .book-cover-container {
+    width: 100%;
+    height: 250px;
+  }
+  
+  .review-content {
+    padding: 20px;
+  }
 }
 </style>

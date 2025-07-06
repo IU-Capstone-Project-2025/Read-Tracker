@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
 
-
 const API_BASE = 'http://localhost:8000'
-
 
 export const useReviewsStore = defineStore('reviews', {
   state: () => ({
