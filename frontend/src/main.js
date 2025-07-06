@@ -39,20 +39,27 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const userStore = useAuthStore()
-
+  
   if (userStore.token && !userStore.isInitialized) {
     try {
       await userStore.fetchProfile()
-      next()
     } catch (e) {
       console.error('Failed to init user:', e)
-      next('/login')
+      userStore.logout()
+      return next('/login')
     }
-  } else {
-    next()
   }
-})
 
+  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+    return next('/login')
+  }
+
+  if (to.meta.requiresGuest && userStore.isAuthenticated) {
+    return next('/')
+  }
+
+  next()
+})
 const pinia = createPinia()
 const app = createApp(App)
 
