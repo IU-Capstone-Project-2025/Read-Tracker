@@ -21,7 +21,7 @@ export const getMyReviews = async (userId) => {
 
 export const getBookReviews = async (userId, bookId) => {
   try {
-    const response = await api.post(`/reviews/${bookId}`, {
+    const response = await api.post(`me/reviews/${bookId}`, {
       user_id: userId,
     })
     return response.data
