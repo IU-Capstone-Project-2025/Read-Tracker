@@ -28,7 +28,7 @@ async def get_reviews(request: UserRequest):
     }
 
 
-@router.post("/me/reviews/{book_id}", response_model=ReviewResponse, status_code=200)
+@router.post("/reviews/{book_id}", response_model=ReviewResponse, status_code=200)
 async def get_review(request: UserRequest, book_id: UUID):
     data, err = db_handler.getReview(user_id=request.user_id, book_id=book_id)
     answer = []
