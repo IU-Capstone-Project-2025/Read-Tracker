@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { 
-  fetchBooks,
-  fetchBook,
-  createBook
+  apiFetchBooks,
+  apiFetchBook,
+  apiCreateBook
 } from '@/api/books'
 
 export const useBooksStore = defineStore('books', {
@@ -15,28 +15,23 @@ export const useBooksStore = defineStore('books', {
     async init(userId) {
       this.userId = userId
     },
+
+    async fetchBook(bookId) {
+      const bookData = await apiFetchBook(bookId)
+      return bookData
+    },
     
-    async initializeBooks() {
-      const booksData = await fetchBooks()
+    async fetchBooks() {
+      const booksData = await apiFetchBooks()
       this.books = booksData.map(book => ({
         ...book,
         status: 'to-read',
         addedDate: Date.now()
       }))
       this.persistBooks()
+      return booksData
     },
 
-    async fetchBooks(bookId) {
-      try {
-        const data = getNotes(this.userId, bookId)
-        this.notes = data.data
-        this.persistNotes()
-      }
-      catch (e) {
-        console.error('fetchNotes error:', e)
-      }
-    },
-    
     async updateBookStatus(bookId, newStatus) {
       const book = this.books.find(b => b.id === bookId)
       if (book) {

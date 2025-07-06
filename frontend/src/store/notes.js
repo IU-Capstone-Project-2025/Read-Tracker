@@ -42,17 +42,17 @@ export const useNotesStore = defineStore('notes', {
     
     async updateNote(noteData, noteText) {
       try {
-        await updateNote(this.userId, noteData.note_id, noteText)
+        await updateNote(this.userId, noteData, noteText)
         await this.fetchNotes(bookId)
       } catch (e) {
         console.error('updateReview error:', e)
       }
     },
 
-    async deleteReview(noteData) {
+    async deleteNote(bookId, noteData) {
       try {
-        await deleteReview(this.userId, noteData.note_id)
-        await this.fetchMyReviews()
+        await deleteNote(this.userId, noteData)
+        await this.fetchNotes(bookId)
       } catch (e) {
         console.error('deleteReview error:', e)
       }

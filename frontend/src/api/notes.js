@@ -21,9 +21,9 @@ export const getNotes = async (userId, bookId) => {
 
 export const createNote = async (userId, bookId, text) => {
   try {
-    const response = await api.put(`me/books/${bookId}/notes`, {
+    const response = await api.put(`/me/books/${bookId}/notes`, {
       user_id: userId,
-      text: text
+      text: text.text
     })
     return response.data
   } catch (error) {
@@ -50,7 +50,7 @@ export const updateNote = async (userId, noteId, text) => {
   try {
     const response = await api.put(`me/notes/${noteId}`, {
       user_id: userId,
-      text: text
+      text: text.text
     })
     return response.data
   } catch (error) {

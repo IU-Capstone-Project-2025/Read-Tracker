@@ -52,8 +52,8 @@ const userReviews = computed(() => reviewsStore.reviews)
 
 onMounted(async () => {
   if (!booksStore.books.length) {
-    const booksData = await useBooksStore.fetchBooks()
-    booksStore.initializeBooks(booksData)
+    const booksData = await booksStore.fetchBooks()
+    await booksStore.initializeBooks(booksData)
   }
   await reviewsStore.fetchMyReviews()
 })

@@ -23,7 +23,6 @@ export const getBookReviews = async (userId, bookId) => {
   try {
     const response = await api.post(`/reviews/${bookId}`, {
       user_id: userId,
-      book_id: bookId
     })
     return response.data
   } catch (error) {
@@ -34,9 +33,8 @@ export const getBookReviews = async (userId, bookId) => {
 
 export const createReview = async (userId, bookId, rate, review) => {
   try {
-    const response = await api.post(`/me/reviews/${bookId}`, {
+    const response = await api.post(`/me/reviews/${bookId}/new`, {
       user_id: userId,
-      book_id: bookId,
       rate: rate,
       text: review
     })
@@ -51,7 +49,6 @@ export const updateReview = async (userId, bookId, rate, review) => {
   try {
     const response = await api.put(`/me/reviews/${bookId}`, {
       user_id: userId,
-      book_id: bookId,
       rate: rate,
       text: review
     })

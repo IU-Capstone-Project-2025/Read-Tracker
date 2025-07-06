@@ -38,18 +38,18 @@ export const useReviewsStore = defineStore('reviews', {
       }
     },
 
-    async addReview(newReview) {
+    async addReview(bookId, newReview) {
       try {
-        await createReview(this.userId, newReview.book_id, newReview.rate, newReview.text)
+        await createReview(this.userId, bookId, newReview.rate, newReview.text)
         await this.fetchMyReviews()
       } catch (e) {
         console.error('addReview error:', e)
       }
     },
 
-    async updateReview(updatedReview) {
+    async updateReview(bookId, updatedReview) {
       try {
-        await updateReview(this.userId, updatedReview.book_id, updatedReview.rate, updatedReview.text)
+        await updateReview(this.userId, bookId, updatedReview.rate, updatedReview.text)
         await this.fetchMyReviews()
       } catch (e) {
         console.error('updateReview error:', e)

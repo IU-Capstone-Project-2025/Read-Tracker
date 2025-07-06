@@ -20,10 +20,11 @@ export const useAuthStore = defineStore('auth', {
     user: null,
     token: localStorage.getItem(config.app.authTokenStorageKey) || null,
     loading: false,
-    error: null
+    error: null,
+    isInitialized: false
   }),
   getters: {
-    isAuthenticated: (state) => !!state.token
+    isAuthenticated: (state) => state.isInitialized
   },
   actions: {
     async register(userData) {
@@ -71,11 +72,20 @@ export const useAuthStore = defineStore('auth', {
           const collectionsStore = useCollectionsStore()
           const notesStore = useNotesStore()
           const reviewsStore = useReviewsStore()
+
           this.user = response.data
-          booksStore.init(this.user.id)
-          collectionsStore.init(this.user.id)
-          notesStore.init(this.user.id)
-          reviewsStore.init(this.user.id)
+
+          await booksStore.init(this.user.id)
+          await collectionsStore.init(this.user.id)
+          await notesStore.init(this.user.id)
+          await reviewsStore.init(this.user.id)
+
+          await Promise.all([
+            booksStore.fetchBooks(),
+            collectionsStore.fetchCollections(),
+            reviewsStore.fetchMyReviews()
+          ])
+          this.isInitialized = true
         } else {
           throw new Error(response.message || 'Failed to fetch profile')
         }
@@ -161,7 +171,6 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         await updateUserVisibility(this.user.id, isVisible, this.token)
-        // Update local user data
         this.user.isVisible = isVisible
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Visibility update failed'

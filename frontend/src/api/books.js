@@ -2,12 +2,11 @@ import axios from 'axios'
 import config from '@/runtimeConfig'
 import { useAuthStore } from '@/store/auth'
 
-// Create axios instance with base URL
 const api = axios.create({
   baseURL: config.api.baseUrl
 })
 
-export async function fetchBooks() {
+export async function apiFetchBooks() {
   try {
     const response = await api.get('/books/')
     if (response.data.status === 'success') {
@@ -29,7 +28,7 @@ export async function fetchBooks() {
   }
 }
 
-export async function fetchBook(bookId) {
+export async function apiFetchBook(bookId) {
   try {
     const response = await api.get(`/books/${bookId}`)
     if (response.data.status === 'success') {
@@ -52,7 +51,7 @@ export async function fetchBook(bookId) {
   }
 }
 
-export async function createBook(bookData) {
+export async function apiCreateBook(bookData) {
   try {
     const response = await api.post('/books/', {
       title: bookData.title,
@@ -80,7 +79,7 @@ export async function createBook(bookData) {
   }
 }
 
-export async function updateBook(bookId, bookData) {
+export async function apiUpdateBook(bookId, bookData) {
   try {
     const response = await api.put(`/books/${bookId}`, {
       title: bookData.title,
@@ -101,7 +100,7 @@ export async function updateBook(bookId, bookData) {
   }
 }
 
-export async function deleteBook(bookId) {
+export async function apiDeleteBook(bookId) {
   try {
     const response = await api.delete(`/books/${bookId}`)
     if (response.data.status === 'success') {
