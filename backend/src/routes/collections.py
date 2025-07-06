@@ -18,7 +18,34 @@ logging.basicConfig(level=logging.DEBUG)
 router = APIRouter(prefix="/me/collections", tags=["Collections"])
 
 
-@router.get("", response_model=CollectionResponse, status_code=200)
+@router.get("/{collection_id}", response_model=CollectionResponse, status_code=200)
+async def get_collection(collection_id: UUID):
+    collection, err = db_handler.getCollection(collection_id)
+    if not collection:
+        raise HTTPException(status_code=404, detail="Collection not found")
+    if err:
+        logging.info(f"Database returned error: {err}")
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "message": str(err)
+        })
+    logging.info("Function completed successfully")
+    return {
+        "status": "success",
+        "message": "Collection fetched successfully",
+        "data": [CollectionData(
+            id=collection.id,
+            title=collection.title,
+            description=collection.description,
+            cover=collection.cover,
+            is_private=collection.is_private,
+            created_at=collection.created_at,
+            user_id=collection.user_id,
+        )]
+    }
+
+
+@router.post("/all", response_model=CollectionResponse, status_code=200)
 async def get_collections(request: UserRequest):
     logging.info(f"Function get_collections is called")
     data, err = db_handler.getCollections(request.user_id)
@@ -46,34 +73,7 @@ async def get_collections(request: UserRequest):
         "message": "Collections retrieved successfully",
         "data": result
     }
-
-
-@router.get("/{collection_id}", response_model=CollectionResponse, status_code=200)
-async def get_collection(collection_id: UUID):
-    collection, err = db_handler.getCollection(collection_id)
-    if not collection:
-        raise HTTPException(status_code=404, detail="Collection not found")
-    if err:
-        logging.info(f"Database returned error: {err}")
-        raise HTTPException(status_code=400, detail={
-            "status": "error",
-            "message": str(err)
-        })
-    logging.info("Function completed successfully")
-    return {
-        "status": "success",
-        "message": "Collection fetched successfully",
-        "data": [CollectionData(
-            id=collection.id,
-            title=collection.title,
-            description=collection.description,
-            cover=collection.cover,
-            is_private=collection.is_private,
-            created_at=collection.created_at,
-            user_id=collection.user_id,
-        )]
-    }
-
+    
 
 @router.post("", response_model=BaseResponse, status_code=200)
 async def create_collection(request: CollectionRequestWithUserID):
@@ -127,11 +127,11 @@ async def delete_collection(collection_id: UUID):
     }
 
 
-@router.post("/{collection_id}/books", response_model=BaseResponse, status_code=200)
-async def add_book_to_collection(request: AddBookToCollectionRequest, collection_id: UUID):
+@router.post("/{collection_id}/books/{book_id}", response_model=BaseResponse, status_code=200)
+async def add_book_to_collection(collection_id: UUID, book_id: UUID):
     err = db_handler.addBookToCollection(
         collection_id=collection_id,
-        book_id=request.book_id
+        book_id=book_id
     )
     if err:
         print(err)

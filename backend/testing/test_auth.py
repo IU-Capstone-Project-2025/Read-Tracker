@@ -75,7 +75,7 @@ def test_get_profile():
         "user_id": "00000000-0000-0000-0000-000000000001"
     }
 
-    response = requests.get(url, headers=header, json=data)
+    response = requests.post(url, headers=header, json=data)
     assert response.status_code == 200
 
 
@@ -88,7 +88,7 @@ def test_invalid_profile_id():
         "user_id": "00000000-0000-0000-1000-000000000001"
     }
 
-    response = requests.get(url, headers=header, json=data)
+    response = requests.post(url, headers=header, json=data)
     assert response.status_code == 400
 
 

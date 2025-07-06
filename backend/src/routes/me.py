@@ -35,7 +35,7 @@ async def end_streak(request: TrackerRequest):
     }
 
 
-@router.get("/streaks", response_model=TrackerResponse, status_code=200)
+@router.post("/streaks", response_model=TrackerResponse, status_code=200)
 async def get_streaks():
     data, err = db_handler.getStreaks()
     answer = []

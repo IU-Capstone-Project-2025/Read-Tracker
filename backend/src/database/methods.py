@@ -3,7 +3,7 @@ from typing import Tuple, List, Optional
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date
-from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem
+from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem, UserBook
 from src.database.database import engine
 import bcrypt
 
@@ -459,3 +459,148 @@ class DBHandler:
             return None, e
         finally:
             session.close()
+
+    def getUserBooks(self, user_id: Optional[uuid.UUID] = None) -> Tuple[List[Book], Optional[Exception]]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        session = self.Session()
+        try:
+            user_books = session.query(UserBook).filter_by(user_id=user_id).all()
+            books = []
+            for ub in user_books:
+                book = ub.book
+                if book:
+                    books.append(book)
+                else:
+                    print(f"Book with ID {ub.book_id} not found for user {user_id}")
+            return books, None
+        except SQLAlchemyError as e:
+            return [], e
+        finally:
+            session.close()
+
+    def getUserBook(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None) -> Tuple[Optional[Book], Optional[Exception]]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        if book_id is None:
+            return None, ValueError("book_id must be provided")
+        session = self.Session()
+        try:
+            user_book = session.query(UserBook).filter_by(user_id=user_id, book_id=book_id).first()
+            if not user_book:
+                return None, ValueError(f"No association found for user {user_id} and book {book_id}")
+            book = user_book.book
+            if not book:
+                return None, ValueError(f"Book {book_id} not found")
+            return book, None
+        except SQLAlchemyError as e:
+            return None, e
+        finally:
+            session.close()
+
+    def updateUserBook(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, status: str = None) -> \
+    Optional[Exception]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        if book_id is None or status is None:
+            return ValueError("book_id and status must be provided")
+        session = self.Session()
+        try:
+            user_book = session.query(UserBook).filter_by(user_id=user_id, book_id=book_id).first()
+            if not user_book:
+                return ValueError(f"No association found for user {user_id} and book {book_id}")
+            if status not in ['want to read', 'reading now', 'have read']:
+                return ValueError(f"Invalid status: {status}")
+            user_book.status = status
+            if status == 'reading now':
+                user_book.start_date = date.today()
+                user_book.end_date = None
+            elif status == 'have read':
+                user_book.end_date = date.today()
+            session.commit()
+            return None
+        except SQLAlchemyError as e:
+            session.rollback()
+            return e
+        finally:
+            session.close()
+
+    def deleteUserBook(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None) -> Optional[Exception]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        if book_id is None:
+            return ValueError("book_id must be provided")
+        session = self.Session()
+        try:
+            user_book = session.query(UserBook).filter_by(user_id=user_id, book_id=book_id).first()
+            if not user_book:
+                return ValueError(f"No association found for user {user_id} and book {book_id}")
+            session.delete(user_book)
+            session.commit()
+            return None
+        except SQLAlchemyError as e:
+            session.rollback()
+            return e
+        finally:
+            session.close()
+
+    def getCollectionItems(self, collection_id: uuid.UUID = None) -> Tuple[List[Book], Optional[Exception]]:
+        if collection_id is None:
+            return [], ValueError("collection_id must be provided")
+        session = self.Session()
+        try:
+            collection_items = session.query(CollectionItem).filter_by(collection_id=collection_id).all()
+            books = []
+            for ci in collection_items:
+                book = ci.book
+                if book:
+                    books.append(book)
+                else:
+                    print(f"Book with ID {ci.book_id} not found in collection {collection_id}")
+            return books, None
+        except SQLAlchemyError as e:
+            return [], e
+        finally:
+            session.close()
+
+    def addUserBook(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, status: str = None) -> \
+    Optional[Exception]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        if book_id is None or status is None:
+            return ValueError("book_id and status must be provided")
+        session = self.Session()
+        try:
+            # Verify user and book exist
+            if not session.query(Users).get(user_id):
+                return ValueError(f"User {user_id} not found")
+            if not session.query(Book).get(book_id):
+                return ValueError(f"Book {book_id} not found")
+            # Check if user_book already exists
+            if session.query(UserBook).filter_by(user_id=user_id, book_id=book_id).first():
+                return ValueError(f"User {user_id} already has book {book_id}")
+            # Validate status
+            if status not in ['want to read', 'reading now', 'have read']:
+                return ValueError(f"Invalid status: {status}")
+            # Create new user_book entry
+            user_book = UserBook(
+                user_id=user_id,
+                book_id=book_id,
+                status=status,
+                start_date=date.today() if status == 'reading now' else None,
+                end_date=date.today() if status == 'have read' else None
+            )
+            session.add(user_book)
+            session.commit()
+            return None
+        except IntegrityError as e:
+            session.rollback()
+            print(f"Database integrity error adding user book {book_id} for user {user_id}: {str(e)}")
+            return ValueError(f"Database integrity error: {str(e)}")
+        except SQLAlchemyError as e:
+            session.rollback()
+            print(f"Error adding user book {book_id} for user {user_id}: {str(e)}")
+            return e
+        finally:
+            session.close()
+
