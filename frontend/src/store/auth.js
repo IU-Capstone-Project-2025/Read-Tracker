@@ -9,8 +9,11 @@ import {
   updateUserPassword,
   updateUserVisibility
 } from '@/api/users'
+import { useBooksStore } from './books'
+import { useCollectionsStore } from './collections'
+import { useNotesStore } from './notes'
+import { useReviewsStore } from './reviews'
 import config from '@/runtimeConfig'
-import { useRouter } from 'vue-router'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -45,8 +48,6 @@ export const useAuthStore = defineStore('auth', {
         if (response.status === 'success') {
           this.token = response.user_id
           localStorage.setItem(config.app.authTokenStorageKey, this.token)
-          
-          // Fetch user profile
           await this.fetchProfile()
           return true
         } else {
@@ -66,7 +67,15 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await fetchUserProfile(this.token)
         if (response.status === 'success') {
+          const booksStore = useBooksStore()
+          const collectionsStore = useCollectionsStore()
+          const notesStore = useNotesStore()
+          const reviewsStore = useReviewsStore()
           this.user = response.data
+          booksStore.init(this.user.id)
+          collectionsStore.init(this.user.id)
+          notesStore.init(this.user.id)
+          reviewsStore.init(this.user.id)
         } else {
           throw new Error(response.message || 'Failed to fetch profile')
         }
@@ -78,7 +87,7 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     
-    logout(router) {
+    async logout(router) {
       this.user = null
       this.token = null
       localStorage.removeItem(config.app.authTokenStorageKey)

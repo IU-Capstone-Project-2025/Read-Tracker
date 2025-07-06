@@ -8,7 +8,7 @@ from uuid import UUID
 router = APIRouter(tags=["Notes"])
 
 
-@router.get("/me/books/{book_id}/notes", response_model=NoteResponse, status_code=200)
+@router.post("/me/books/{book_id}/notes", response_model=NoteResponse, status_code=200)
 async def get_notes(request: UserRequest, book_id: UUID):
     try:
         if not book_id:

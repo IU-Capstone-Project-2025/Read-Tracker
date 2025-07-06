@@ -34,15 +34,9 @@ const booksStore = useBooksStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 onMounted(() => {
-  // Initialize user if token exists
   if (authStore.token) {
-    authStore.fetchProfile().catch(() => {
-      // Handle token expiration or invalid token
-      authStore.logout()
-    })
+    authStore.fetchProfile()
   }
-  
-  // Load books if not already loaded
   if (!booksStore.books.length && isAuthenticated.value) {
     loadBooks()
   }

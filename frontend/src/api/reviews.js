@@ -1,21 +1,77 @@
 import axios from 'axios'
+import config from '@/runtimeConfig'
 
-export const getMyReviews = () => {
-  return axios.get('http://localhost:8000/reviews')
+
+const api = axios.create({
+  baseURL: config.api.baseUrl
+})
+
+
+export const getMyReviews = async (userId) => {
+  try {
+    const response = await api.post('/me/reviews', {
+      user_id: userId
+    })
+    return response.data
+  } catch (error) {
+    console.error('Failed to fetch all reviews:', error)
+    throw error
+  }
 }
 
-export const getBookReviews = (bookId) => {
-  return axios.get(`http://localhost:8000/reviews/${bookId}`)
+export const getBookReviews = async (userId, bookId) => {
+  try {
+    const response = await api.post(`/reviews/${bookId}`, {
+      user_id: userId,
+      book_id: bookId
+    })
+    return response.data
+  } catch (error) {
+    console.error(`Failed to fetch reviews for book ${bookId}: `, error)
+    throw error
+  }
 }
 
-export const createReview = (bookId, review) => {
-  return axios.post(`http://localhost:8000/me/reviews/${bookId}`, review)
+export const createReview = async (userId, bookId, rate, review) => {
+  try {
+    const response = await api.post(`/me/reviews/${bookId}`, {
+      user_id: userId,
+      book_id: bookId,
+      rate: rate,
+      text: review
+    })
+    return response.data
+  } catch (error) {
+    console.error(`Failed to create review for book ${bookId}: `, error)
+    throw error
+  }
 }
 
-export const updateReview = (bookId, review) => {
-  return axios.put(`http://localhost:8000/me/reviews/${bookId}`, review)
+export const updateReview = async (userId, bookId, rate, review) => {
+  try {
+    const response = await api.put(`/me/reviews/${bookId}`, {
+      user_id: userId,
+      book_id: bookId,
+      rate: rate,
+      text: review
+    })
+    return response.data
+  } catch (error) {
+    console.error(`Failed to update review for book ${bookId}: `, error)
+    throw error
+  }
 }
 
-export const deleteReview = (bookId) => {
-  return axios.delete(`http://localhost:8000/me/reviews/${bookId}`)
+export const deleteReview = async (userId, bookId) => {
+  try {
+    const response = await api.delete(`/me/reviews/${bookId}`, {
+      data: {
+        user_id: userId
+      }
+    })
+    return response.data
+  } catch (error) {
+    console.error(`Failed to delete review for book ${bookId}: `, error)
+    throw error
+  }
 }
