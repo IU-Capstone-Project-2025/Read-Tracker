@@ -8,6 +8,17 @@
       
       <form @submit.prevent="handleRegister" class="auth-form">
         <div class="form-group">
+          <label>Username</label>
+          <input 
+            type="text" 
+            v-model="userData.username" 
+            placeholder="Choose a username"
+            required
+          >
+          <i class="fas fa-user"></i>
+        </div>
+        
+        <div class="form-group">
           <label>Email Address</label>
           <input 
             type="email" 
@@ -65,7 +76,6 @@
       </div>
     </div>
     
-    <!-- Added decoration panel -->
     <div class="auth-decoration">
       <div class="decoration-content">
         <div class="logo">
@@ -87,6 +97,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const userData = ref({
+  username: '',
   email: '',
   password: '',
   confirmPassword: ''
@@ -119,6 +130,7 @@ async function handleRegister() {
   
   try {
     const success = await authStore.register({
+      username: userData.value.username,
       email: userData.value.email,
       password: userData.value.password
     })
@@ -135,7 +147,6 @@ async function handleRegister() {
 </script>
 
 <style scoped>
-/* Added all auth styles */
 .auth-page {
   display: flex;
   min-height: 100vh;

@@ -8,7 +8,7 @@ const api = axios.create({
 export const registerUser = async (userData) => {
   try {
     const response = await api.post('/auth/register', {
-      name: "Ivan Isakov",
+      name: userData.username,
       email: userData.email,
       password: userData.password
     })

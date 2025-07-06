@@ -139,8 +139,6 @@ async function handleResetPassword() {
 </script>
 
 <style scoped>
-
-/* Add !important to override global styles */
 .auth-page {
   display: flex !important;
   min-height: 100vh !important;
@@ -148,7 +146,6 @@ async function handleResetPassword() {
   width: 100% !important;
 }
 
-/* Ensure the container takes full width */
 .auth-container {
   flex: 1;
   display: flex;
@@ -157,90 +154,23 @@ async function handleResetPassword() {
   padding: 40px;
   max-width: 500px;
   margin: 0 auto;
-}
-
-/* Force the decorative panel to show correctly */
-.auth-decoration {
-  flex: 1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  display: none;
-}
-
-@media (min-width: 992px) {
-  .auth-decoration {
-    display: flex !important;
-  }
-}
-
-/* Add z-index to ensure it's above the global background */
-.auth-form {
-  background: white !important;
-  padding: 30px !important;
-  border-radius: 20px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
-  position: relative !important;
-  z-index: 10 !important;
-}
-/* Fixed styles - added missing root classes */
-.auth-page {
-  display: flex;
-  min-height: 100vh;
-  background: #f8f9ff;
-}
-
-.auth-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 40px;
-  max-width: 500px;
-  margin: 0 auto;
+  z-index: 2;
 }
 
 .auth-decoration {
-  flex: 1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
   display: none;
 }
 
 @media (min-width: 992px) {
   .auth-decoration {
     display: flex;
+    flex: 1;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
   }
-}
-
-.decoration-content {
-  max-width: 500px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 30px;
-}
-
-.logo i {
-  margin-right: 15px;
-  font-size: 40px;
-}
-
-.decoration-content p {
-  font-size: 18px;
-  line-height: 1.6;
-  opacity: 0.9;
 }
 
 .auth-header {
@@ -260,10 +190,12 @@ async function handleResetPassword() {
 }
 
 .auth-form {
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: white !important;
+  padding: 30px !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  position: relative;
+  z-index: 10;
 }
 
 .form-group {
@@ -412,5 +344,11 @@ async function handleResetPassword() {
 .password-rules li.valid:before {
   background: #4caf50;
   color: white;
+}
+
+:deep(.main-content.full-width) {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
 }
 </style>
