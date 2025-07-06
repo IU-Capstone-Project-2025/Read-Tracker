@@ -77,7 +77,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBooksStore } from '@/store/books'
-import { fetchBooks } from '@/api/books'
 
 const router = useRouter()
 const booksStore = useBooksStore()
@@ -86,7 +85,7 @@ const statusFilter = ref('all')
 const sortBy = ref('title')
 
 onMounted(async () => {
-  const loadedBooks = await fetchBooks()
+  const loadedBooks = await booksStore.fetchBooks()
   if (booksStore.books.length === 0) {
     booksStore.initializeBooks(
       loadedBooks.map(book => ({

@@ -603,4 +603,3 @@ class DBHandler:
             return e
         finally:
             session.close()
-

@@ -63,13 +63,14 @@ import ReviewEditor from '@/components/reviews/ReviewEditor.vue'
 import ReviewDisplay from '@/components/reviews/ReviewDisplay.vue'
 import { useNotesStore } from '@/store/notes'
 import { useReviewsStore } from '@/store/reviews'
-import { fetchBooks } from '@/api/books'
+import { useBooksStore } from '@/store/books'
 
 const route = useRoute()
 const bookId = route.params.id
 
 const notesStore = useNotesStore()
 const reviewsStore = useReviewsStore()
+const booksStore = useBooksStore()
 
 const book = ref(null)
 const loading = ref(true)
@@ -77,7 +78,7 @@ const editingReview = ref(false)
 
 onMounted(async () => {
   try {
-    const loadedBooks = await fetchBooks()
+    const loadedBooks = await booksStore.fetchBooks()
     const found = loadedBooks.find(b => b.id === bookId)
     book.value = found || {
       id: bookId,
@@ -113,7 +114,7 @@ const refreshNotes = async () => {
 
 const deleteNote = async (noteId) => {
   try {
-    await notesStore.deleteNote(noteId)
+    await notesStore.deleteNote(bookId, noteId)
     await refreshNotes()
   } catch (e) {
     console.error('Failed to delete note:', e)

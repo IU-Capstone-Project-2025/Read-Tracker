@@ -37,13 +37,17 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
-  
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
-  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next('/')
+router.beforeEach(async (to, from, next) => {
+  const userStore = useAuthStore()
+
+  if (userStore.token && !userStore.isInitialized) {
+    try {
+      await userStore.fetchProfile()
+      next()
+    } catch (e) {
+      console.error('Failed to init user:', e)
+      next('/login')
+    }
   } else {
     next()
   }
