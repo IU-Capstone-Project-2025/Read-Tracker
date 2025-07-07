@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date
 from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem, UserBook
-from src.database.database import engine
+
 import bcrypt
 
 

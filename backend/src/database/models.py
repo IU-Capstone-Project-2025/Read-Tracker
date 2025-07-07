@@ -76,7 +76,7 @@ class Collection(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     user = relationship("Users", back_populates="collections")
-    items = relationship("CollectionItem", back_populates="collection")
+    items = relationship("CollectionItem", back_populates="collection", cascade="all, delete-orphan")
 
 
 class CollectionItem(Base):
