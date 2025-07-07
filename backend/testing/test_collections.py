@@ -29,25 +29,25 @@ def test_get_collections():
     data = {
         "user_id": "00000000-0000-0000-0000-000000000001"
     }
-
     response = requests.post(url, headers=header, json=data)
     assert response.status_code == 200
 
 
 def test_get_collection():
-    url = f"http://localhost:{PORT}/me/collections/all"
     header = {
         "Content-Type": "application/json"
     }
+
+    collections_url = f"http://localhost:{PORT}/me/collections/all"
+
     data = {
         "user_id": "00000000-0000-0000-0000-000000000001"
     }
+    collection_id = requests.post(collections_url, headers=header, json=data).json()["data"][0]["id"]
 
-    response = requests.post(url, headers=header, json=data).json()["data"][0]["id"]
+    collection_url = f"http://localhost:{PORT}/me/collections/{collection_id}"
 
-    url = f"http://localhost:{PORT}/me/collections/{response}"
-
-    response = requests.get(url, headers=header)
+    response = requests.get(collection_url, headers=header)
 
     assert response.status_code == 200
 
@@ -81,49 +81,82 @@ def test_update_collection():
     assert response1.status_code == 200
     assert response2.json()['data'][0]["title"] == "Collection 2 test"
 
-"""
+
 def test_add_book_to_collection():
-    collection_url = f"http://localhost:{PORT}/me/collections/"
     header = {
         "Content-Type": "application/json"
     }
+
+    collection_url = f"http://localhost:{PORT}/me/collections/all"
+
     data_collection = {
         "user_id": "00000000-0000-0000-0000-000000000001"
     }
 
-    collection_id = requests.get(collection_url, headers=header, json=data_collection).json()["data"][0]["id"]
+    collection_id = requests.post(collection_url, headers=header, json=data_collection).json()["data"][0]["id"]
 
     books_url = f"http://localhost:{PORT}/books"
     book_id = requests.get(books_url, headers=header).json()["data"][0]["id"]
 
-    url = f"http://localhost:{PORT}/me/collections/{collection_id}/books"
-    data_for_adding_book = {
-        "book_id": book_id
-    }
-    response_adding = requests.post(url, headers=header, json=data_for_adding_book)
+    url = f"http://localhost:{PORT}/me/collections/{collection_id}/{book_id}"
+    response_adding = requests.post(url, headers=header)
 
-    collection_response = requests.get(collection_url, headers=header, json=data_collection)
-    assert response_adding.status_code == 200
+    collection_url = f"http://localhost:{PORT}/me/collections/{collection_id}"
+
+    collection_response = requests.get(collection_url, headers=header)
+
+    assert response_adding.status_code == 200 or (response_adding.status_code == 400 \
+                                                  and response_adding.json()['detail']['message'] == 'Book already in collection')
     assert collection_response.json()['data'][0]['items'] != []
 
 
-def test_delete_collection():
-    url = f"http://localhost:{PORT}/me/collections/"
+def test_delete_book_from_collection():
     header = {
         "Content-Type": "application/json"
     }
+
+    collection_url = f"http://localhost:{PORT}/me/collections/all"
+
+    data_collection = {
+        "user_id": "00000000-0000-0000-0000-000000000001"
+    }
+
+    collection_id = requests.post(collection_url, headers=header, json=data_collection).json()["data"][0]["id"]
+
+    books_url = f"http://localhost:{PORT}/books"
+    book_id = requests.get(books_url, headers=header).json()["data"][0]["id"]
+
+    url = f"http://localhost:{PORT}/me/collections/{collection_id}/{book_id}"
+    response_adding = requests.delete(url, headers=header)
+
+    collection_url = f"http://localhost:{PORT}/me/collections/{collection_id}"
+
+    collection_response = requests.get(collection_url, headers=header)
+
+    assert response_adding.status_code == 200 or (response_adding.status_code == 400 \
+                                                  and response_adding.json()['detail']['message'] == 'Book already in collection')
+    print(f"Collection response: {collection_response.json()}")
+    assert collection_response.json()['data'][0]['items'] == []
+
+
+def test_delete_collection():
+    header = {
+        "Content-Type": "application/json"
+    }
+
+    url = f"http://localhost:{PORT}/me/collections/all"
+
     data = {
         "user_id": "00000000-0000-0000-0000-000000000001"
     }
 
-    response = requests.get(url, headers=header, json=data)
+    response = requests.post(url, headers=header, json=data)
 
     url = f"http://localhost:{PORT}/me/collections/{response.json()['data'][0]['id']}"
 
-    response1 = requests.delete(url, headers=header, json=data)
+    response1 = requests.delete(url, headers=header)
 
-    url = f"http://localhost:{PORT}/me/collections/{response.json()['data'][0]['id']}"
-    response2 = requests.get(url, headers=header)
+    url = f"http://localhost:{PORT}/me/collections/all"
+    response2 = requests.post(url, headers=header, json=data)
     assert response1.status_code == 200
     assert response2.status_code == 404
-"""
