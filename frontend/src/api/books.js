@@ -7,7 +7,6 @@ const api = axios.create({
   baseURL: config.api.baseUrl
 })
 
-// Add request interceptor to include auth token
 api.interceptors.request.use(config => {
   const authStore = useAuthStore()
   if (authStore.token) {
@@ -18,8 +17,10 @@ api.interceptors.request.use(config => {
 
 export async function fetchBooks() {
   try {
+    console.log('[API] Fetching books...')
     const response = await api.get('/books/')
     if (response.data.status === 'success') {
+      console.log(`[API] Successfully fetched ${response.data.data.length} books`)
       return response.data.data.map(book => ({
         id: book.id,
         title: book.title,
@@ -30,18 +31,24 @@ export async function fetchBooks() {
         status: book.status || 'not started'
       }))
     } else {
-      throw new Error(response.data.message || 'Failed to fetch books')
+      const errorMsg = response.data.message || 'Failed to fetch books. Please try again later.'
+      console.error('[API] fetchBooks error:', errorMsg)
+      throw new Error(errorMsg)
     }
   } catch (error) {
-    console.error('API error:', error)
-    return []
+    const errorMsg = error.response?.data?.message || 
+                    'Failed to load books. Please check your connection and try again.'
+    console.error('[API] fetchBooks exception:', errorMsg, error)
+    throw new Error(errorMsg)
   }
 }
 
 export async function fetchBook(bookId) {
   try {
+    console.log(`[API] Fetching book with ID: ${bookId}`)
     const response = await api.get(`/books/${bookId}`)
     if (response.data.status === 'success') {
+      console.log(`[API] Successfully fetched book: ${response.data.data.title}`)
       const book = response.data.data
       return {
         id: book.id,
@@ -53,11 +60,15 @@ export async function fetchBook(bookId) {
         status: book.status || 'not started'
       }
     } else {
-      throw new Error(response.data.message || 'Failed to fetch book')
+      const errorMsg = response.data.message || 'Failed to fetch book details. Please try again.'
+      console.error('[API] fetchBook error:', errorMsg)
+      throw new Error(errorMsg)
     }
   } catch (error) {
-    console.error('API error:', error)
-    throw error
+    const errorMsg = error.response?.data?.message || 
+                    'Failed to load book details. The book may not exist or you may not have access.'
+    console.error('[API] fetchBook exception:', errorMsg, error)
+    throw new Error(errorMsg)
   }
 }
 
