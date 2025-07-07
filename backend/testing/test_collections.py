@@ -150,13 +150,13 @@ def test_delete_collection():
         "user_id": "00000000-0000-0000-0000-000000000001"
     }
 
-    response = requests.post(url, headers=header, json=data)
+    collection_id = requests.post(url, headers=header, json=data).json()['data'][0]['id']
 
-    url = f"http://localhost:{PORT}/me/collections/{response.json()['data'][0]['id']}"
+    url = f"http://localhost:{PORT}/me/collections/{collection_id}"
 
-    response1 = requests.delete(url, headers=header)
+    delete_response = requests.delete(url, headers=header)
 
-    url = f"http://localhost:{PORT}/me/collections/all"
-    response2 = requests.post(url, headers=header, json=data)
-    assert response1.status_code == 200
-    assert response2.status_code == 404
+    collection_response = requests.get(url, headers=header)
+
+    assert delete_response.status_code == 200
+    assert collection_response.status_code == 404

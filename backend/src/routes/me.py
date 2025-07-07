@@ -1,3 +1,6 @@
+import logging
+import datetime
+
 from fastapi import FastAPI, Response, APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
 from typing import Optional
@@ -11,35 +14,38 @@ from src.models.user_books import UserBookResponse, UserBookData, UserBookReques
 from src.database.db_instance import db_handler
 
 router = APIRouter(prefix="/me", tags=["Me"])
+logging.basicConfig(level=logging.DEBUG)
 
 
 @router.post("/check_in", response_model=BaseResponse, status_code=200)
-async def create_streak(request: TrackerRequest):
-    if not request:
-        raise HTTPException(status_code=400, detail="Invalid request")
-    err = db_handler.startStreak(check_date=request.date)
+async def update_streak(request: TrackerRequest):
+    logging.info("Function update_streak from me.py is called")
+    data, err = db_handler.getStreaks()
     if err:
         raise HTTPException(status_code=400, detail={
             "status": "error",
             "message": str(err)
         })
-    return {
-        "status": "success",
-        "message": "Streak started"
-    }
-
-
-@router.put("/check_in", response_model=BaseResponse, status_code=200)
-async def end_streak(request: TrackerRequest):
-    err = db_handler.endStreak(close_date=request.date)
+    if data and not (data[-1].end_date or abs(datetime.datetime.now().date() - data[-1].last_marked.date()) <= 1):
+        err = db_handler.endStreak(user_id=request.user_id)
+        if err:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "message": str(err)
+            })
+    err = db_handler.startStreak(user_id=request.user_id)
     if err:
         raise HTTPException(status_code=400, detail={
             "status": "error",
             "message": str(err)
         })
+    logging.debug(data)
+    for i in data:
+        logging.debug(i.json())
+    logging.info("Function register_user succeeded")
     return {
         "status": "success",
-        "message": "Streak ended"
+        "message": "Checked in successfully"
     }
 
 
@@ -53,7 +59,8 @@ async def get_streaks():
                 id=streak.id,
                 user_id=streak.user_id,
                 start_date=streak.start_date,
-                end_date=streak.end_date
+                end_date=streak.end_date,
+                last_marked=streak.last_marked
             ))
     return {
         "status": "success",

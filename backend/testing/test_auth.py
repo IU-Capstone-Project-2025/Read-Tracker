@@ -2,7 +2,8 @@ import pytest
 import requests
 import os
 
-PORT = 8000 # os.getenv("BACKEND_PORT")
+PORT = 8000  # os.getenv("BACKEND_PORT")
+
 
 # Doesn't consider case when email already exist
 def test_register():
@@ -17,6 +18,7 @@ def test_register():
     }
 
     response = requests.post(url, headers=header, json=data)
+    print(response.json())
     if response.status_code == 400 and response.json()["detail"]["message"] == "Email already exists":
         assert True
     else:
