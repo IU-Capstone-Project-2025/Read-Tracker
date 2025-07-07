@@ -183,18 +183,28 @@ class DBHandler:
             user_id = self.fixed_user_id
         session = self.Session()
         try:
+            if not session.query(Users).get(user_id):
+                return ValueError(f"User {user_id} not found")
             open_streak = session.query(Streak).filter_by(user_id=user_id, end_date=None).first()
             if open_streak:
-                return None
-            streak = Streak(user_id=user_id, start_date=check_date or date.today())
-            session.add(streak)
+                open_streak.last_marked = date.today()
+            else:
+                new_streak = Streak(
+                    user_id=user_id,
+                    start_date=check_date or date.today(),
+                    last_marked=check_date or date.today(),
+                    end_date=None
+                )
+                session.add(new_streak)
             session.commit()
             return None
         except IntegrityError as e:
             session.rollback()
+            print(f"Database integrity error starting streak for user {user_id}: {str(e)}")
             return ValueError(f"Database integrity error: {str(e)}")
         except SQLAlchemyError as e:
             session.rollback()
+            print(f"Error starting streak for user {user_id}: {str(e)}")
             return e
         finally:
             session.close()
