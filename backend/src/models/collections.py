@@ -2,6 +2,7 @@ from pydantic import BaseModel, HttpUrl
 from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
+from src.models.books import BookData
 
 
 class CollectionRequest(BaseModel):
@@ -17,12 +18,14 @@ class CollectionRequestWithUserID(CollectionRequest):
 
 class CollectionData(BaseModel):
     id: UUID
+    user_id: UUID
     title: str
     description: Optional[str]
     cover: Optional[str]
     is_private: bool
     created_at: datetime
-    user_id: UUID
+    items: Optional[List[BookData]] = []
+
 
 
 class CollectionResponse(BaseModel):
