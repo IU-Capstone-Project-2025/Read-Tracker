@@ -8,12 +8,10 @@ from uuid import UUID
 
 from src.models.base_response import BaseResponse
 from src.models.books import BookData
-from src.models.books import BookData
 from src.models.tracker import TrackerRequest, TrackerResponse, TrackerData
 from src.models.user import UserRequest
 from src.models.user_books import UserBookResponse, UserBookData, UserBookRequest
-from src.models.user import UserRequest
-from src.models.user_books import UserBookResponse, UserBookData, UserBookRequest
+
 from src.database.db_instance import db_handler
 
 router = APIRouter(prefix="/me", tags=["Me"])
