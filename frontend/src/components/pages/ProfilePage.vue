@@ -77,11 +77,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
 import { useAuthStore } from '@/store/auth'
 import { useBooksStore } from '@/store/books'
 import { useReviewsStore } from '@/store/reviews'
 import { useCollectionsStore } from '@/store/collections'
+import { apiLoadStreaks, apiCheckIn } from '@/api/streaks'
 
 const authStore = useAuthStore()
 const booksStore = useBooksStore()
@@ -102,7 +102,7 @@ const todayMarked = ref(false)
 
 const loadStreaks = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/me/streaks')
+    const res = await apiLoadStreaks(authStore.user.id)
     const streaks = res.data?.data
 
     if (Array.isArray(streaks)) {
@@ -140,13 +140,9 @@ const loadStreaks = async () => {
 
 const markAsRead = async () => {
   if (!todayMarked.value) {
-    const today = new Date().toISOString().split('T')[0]
-
     try {
-      await axios.post('http://localhost:8000/me/check_in', {
-        date: today
-      })
-
+      const today = new Date().toISOString().split('T')[0]
+      await apiCheckIn(authStore.user.id)
       readingData.value[today] = true
       currentStreak.value++
       todayMarked.value = true

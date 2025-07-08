@@ -51,18 +51,19 @@ async def update_streak(request: TrackerRequest):
 
 
 @router.post("/streaks", response_model=TrackerResponse, status_code=200)
-async def get_streaks():
+async def get_streaks(request: TrackerRequest):
     data, err = db_handler.getStreaks()
     answer = []
     if data:
         for streak in data:
-            answer.append(TrackerData(
-                id=streak.id,
-                user_id=streak.user_id,
-                start_date=streak.start_date,
-                end_date=streak.end_date,
-                last_marked=streak.last_marked
-            ))
+            if streak.user_id == request.user_id:
+                answer.append(TrackerData(
+                    id=streak.id,
+                    user_id=streak.user_id,
+                    start_date=streak.start_date,
+                    end_date=streak.end_date,
+                    last_marked=streak.last_marked
+                ))
     return {
         "status": "success",
         "message": "Streaks retrieved",
