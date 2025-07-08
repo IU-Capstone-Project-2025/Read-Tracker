@@ -25,9 +25,6 @@
         <button class="action-btn primary" @click="addBooksToCollection">
           <i class="fas fa-plus"></i> Add Books
         </button>
-        <button class="action-btn" @click="editCollection">
-          <i class="fas fa-edit"></i> Edit Collection
-        </button>
       </div>
     </div>
     
@@ -52,17 +49,7 @@
         :key="book.id" 
         class="book-card"
       >
-        <div class="book-cover" @click="viewBook(book.id)">
-          <img 
-            v-if="book.cover" 
-            :src="book.cover" 
-            alt="Book cover"
-          >
-          <div v-else class="placeholder-cover">
-            <i class="fas fa-book"></i>
-          </div>
-        </div>
-        
+ 
         <div class="book-details">
           <h3 class="book-title" @click="viewBook(book.id)">{{ book.title }}</h3>
           <p class="book-author">{{ book.author }}</p>
@@ -79,7 +66,6 @@
       </div>
     </div>
     
-    <!-- Add Books Modal -->
     <div v-if="showAddBooksModal" class="modal">
       <div class="modal-content">
         <span class="close" @click="showAddBooksModal = false">&times;</span>
@@ -149,12 +135,13 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { fetchBooks } from '@/api/books'
+import { useBooksStore } from '@/store/books'
 import { useCollectionsStore } from '@/store/collections'
 
 const route = useRoute()
 const router = useRouter()
 const collectionsStore = useCollectionsStore()
+const booksStore = useBooksStore()
 
 const collection = ref({
   id: route.params.id,
@@ -172,7 +159,6 @@ const searchResults = ref([])
 const searchLoading = ref(false)
 const searchError = ref(null)
 
-// Track which books are already in the collection
 const collectionBooks = computed(() => {
   return new Set(books.value.map(book => book.id))
 })
@@ -186,7 +172,7 @@ async function loadCollection() {
   try {
     const data = await collectionsStore.fetchCollection(route.params.id)
     collection.value = data.collection
-    books.value = data.books
+    books.value = data.collection.books
   } catch (error) {
     console.error('Error loading collection:', error)
   } finally {
@@ -208,7 +194,6 @@ async function removeFromCollection(bookId) {
     try {
       await collectionsStore.removeBookFromCollection(collection.value.id, bookId)
       books.value = books.value.filter(book => book.id !== bookId)
-      collection.value.bookCount -= 1
     } catch (error) {
       console.error('Error removing book from collection:', error)
     }
@@ -232,11 +217,12 @@ async function searchBooks() {
   searchError.value = null
   
   try {
-    const allBooks = await fetchBooks()
-    searchResults.value = allBooks.filter(book => 
-      book.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchQuery.value.toLowerCase())
-    ).slice(0, 10) // Limit to 10 results
+    const allBooks = await booksStore.books
+    searchResults.value = allBooks.filter(book =>
+      (book.title ?? '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (book.author ?? '').toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
+    .slice(0, 10)
   } catch (error) {
     searchError.value = 'Failed to search books'
     console.error(error)
@@ -252,18 +238,10 @@ async function addBook(bookId) {
     const bookToAdd = searchResults.value.find(b => b.id === bookId)
     if (bookToAdd) {
       books.value.push(bookToAdd)
-      collection.value.bookCount += 1
     }
   } catch (error) {
     console.error('Error adding book to collection:', error)
   }
-}
-
-function editCollection() {
-  router.push({
-    name: 'editCollection',
-    params: { id: collection.value.id }
-  })
 }
 </script>
 
@@ -296,6 +274,7 @@ function editCollection() {
 
 .page-subtitle {
   color: #666;
+  text-align: left;
   font-size: 18px;
   margin-bottom: 25px;
   line-height: 1.6;

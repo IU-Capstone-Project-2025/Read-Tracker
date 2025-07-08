@@ -26,7 +26,7 @@ export const useCollectionsStore = defineStore('collections', {
       this.loading = true
       this.error = null
       try {
-        this.collections = await fetchCollections()
+        this.collections = await fetchCollections(this.userId)
       } catch (error) {
         this.error = error.message || 'Failed to load collections'
         console.error('Error fetching collections:', error)
@@ -55,9 +55,8 @@ export const useCollectionsStore = defineStore('collections', {
       this.loading = true
       this.error = null
       try {
-        const newCollection = await createCollection(collectionData)
-        this.collections.push(newCollection)
-        return newCollection
+        await createCollection(this.userId, collectionData)
+        await this.fetchCollections()
       } catch (error) {
         this.error = error.message || 'Failed to create collection'
         console.error('Error creating collection:', error)
@@ -71,26 +70,8 @@ export const useCollectionsStore = defineStore('collections', {
       this.loading = true
       this.error = null
       try {
-        const updatedCollection = await updateCollection(collectionId, updateData)
-        
-        // Update in collections list
-        const index = this.collections.findIndex(c => c.id === collectionId)
-        if (index !== -1) {
-          this.collections[index] = { 
-            ...this.collections[index],
-            ...updatedCollection
-          }
-        }
-        
-        // Update current collection if it's the one being edited
-        if (this.currentCollection && this.currentCollection.id === collectionId) {
-          this.currentCollection = { 
-            ...this.currentCollection,
-            ...updatedCollection
-          }
-        }
-        
-        return updatedCollection
+        await updateCollection(collectionId, updateData)
+        await this.fetchCollections()
       } catch (error) {
         this.error = error.message || 'Failed to update collection'
         console.error('Error updating collection:', error)
@@ -105,10 +86,7 @@ export const useCollectionsStore = defineStore('collections', {
       this.error = null
       try {
         await deleteCollection(collectionId)
-        this.collections = this.collections.filter(c => c.id !== collectionId)
-        if (this.currentCollection && this.currentCollection.id === collectionId) {
-          this.currentCollection = null
-        }
+        await this.fetchCollections()
       } catch (error) {
         this.error = error.message || 'Failed to delete collection'
         console.error('Error deleting collection:', error)
@@ -122,7 +100,6 @@ export const useCollectionsStore = defineStore('collections', {
       try {
         await addBookToCollection(collectionId, bookId)
         
-        // Update local state
         const collection = this.collections.find(c => c.id === collectionId)
         if (collection) {
           collection.bookCount += 1
@@ -143,7 +120,6 @@ export const useCollectionsStore = defineStore('collections', {
       try {
         await removeBookFromCollection(collectionId, bookId)
         
-        // Update local state
         const collection = this.collections.find(c => c.id === collectionId)
         if (collection && collection.bookCount > 0) {
           collection.bookCount -= 1

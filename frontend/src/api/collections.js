@@ -1,26 +1,28 @@
 import axios from 'axios'
 import config from '@/runtimeConfig'
 
-// Create axios instance with base URL
 const api = axios.create({
   baseURL: config.api.baseUrl
 })
 
-export async function fetchCollections() {
+export async function fetchCollections(userId) {
   try {
     console.log('[API] Fetching collections...')
-    const response = await api.get('/collections/')
+    const response = await api.post('me/collections/all', {
+      user_id: userId
+    })
     if (response.data.status === 'success') {
       console.log(`[API] Successfully fetched ${response.data.data.length} collections`)
       return response.data.data.map(collection => ({
-        id: collection.collection_id,
+        id: collection.id,
         title: collection.title,
+        userId: collection.user_id,
         description: collection.description,
-        bookCount: collection.book_count || 0,
         createdAt: collection.created_at,
         isPrivate: collection.is_private,
         cover: collection.cover || null,
-        userId: collection.user_id
+        books: [],
+        bookCount: 0
       }))
     } else {
       const errorMsg = response.data.message || 'Failed to load collections. Please try again later.'
@@ -37,21 +39,22 @@ export async function fetchCollections() {
 
 export async function fetchCollection(collectionId) {
   try {
-    const response = await api.get(`/collections/${collectionId}`)
+    const response = await api.get(`me/collections/${collectionId}`)
     if (response.data.status === 'success') {
-      const data = response.data.data
+      const dataArray = response.data.data
+      const data = Array.isArray(dataArray) ? dataArray[0] : dataArray
       return {
         collection: {
-          id: data.collection_id,
+          id: data.id,
           title: data.title,
+          userId: data.user_id,
           description: data.description,
-          bookCount: data.books ? data.books.length : 0,
+          bookCount: data.items.length || 0,
           createdAt: data.created_at,
           isPrivate: data.is_private,
           cover: data.cover || null,
-          userId: data.user_id
-        },
-        books: data.books || []
+          books: data.items || []
+        }
       }
     } else {
       throw new Error(response.data.message || 'Failed to fetch collection')
@@ -62,26 +65,17 @@ export async function fetchCollection(collectionId) {
   }
 }
 
-export async function createCollection(collectionData) {
+export async function createCollection(userId, collectionData) {
   try {
-    const response = await api.post('/collections/', {
+    const response = await api.post('me/collections/', {
+      user_id: userId,
       title: collectionData.title,
       description: collectionData.description,
       is_private: collectionData.isPrivate || false
     })
     
     if (response.data.status === 'success') {
-      const newCollection = response.data.data
-      return {
-        id: newCollection.collection_id,
-        title: newCollection.title,
-        description: newCollection.description,
-        bookCount: 0,
-        createdAt: newCollection.created_at,
-        isPrivate: newCollection.is_private,
-        cover: newCollection.cover || null,
-        userId: newCollection.user_id
-      }
+      return response.data
     } else {
       throw new Error(response.data.message || 'Failed to create collection')
     }
@@ -93,7 +87,7 @@ export async function createCollection(collectionData) {
 
 export async function updateCollection(collectionId, updateData) {
   try {
-    const response = await api.put(`/collections/${collectionId}`, {
+    const response = await api.put(`me/collections/${collectionId}`, {
       title: updateData.title,
       description: updateData.description,
       is_private: updateData.isPrivate,
@@ -101,7 +95,7 @@ export async function updateCollection(collectionId, updateData) {
     })
     
     if (response.data.status === 'success') {
-      return response.data.data
+      return response.data
     } else {
       throw new Error(response.data.message || 'Failed to update collection')
     }
@@ -113,7 +107,7 @@ export async function updateCollection(collectionId, updateData) {
 
 export async function deleteCollection(collectionId) {
   try {
-    const response = await api.delete(`/collections/${collectionId}`)
+    const response = await api.delete(`me/collections/${collectionId}`)
     if (response.data.status === 'success') {
       return true
     } else {
@@ -127,7 +121,7 @@ export async function deleteCollection(collectionId) {
 
 export async function addBookToCollection(collectionId, bookId) {
   try {
-    const response = await api.post(`/collections/${collectionId}/books`, {
+    const response = await api.post(`me/collections/${collectionId}/${bookId}`, {
       book_id: bookId
     })
     
@@ -144,7 +138,7 @@ export async function addBookToCollection(collectionId, bookId) {
 
 export async function removeBookFromCollection(collectionId, bookId) {
   try {
-    const response = await api.delete(`/collections/${collectionId}/books/${bookId}`)
+    const response = await api.delete(`me/collections/${collectionId}/${bookId}`)
     if (response.data.status === 'success') {
       return true
     } else {
