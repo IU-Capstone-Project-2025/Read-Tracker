@@ -21,8 +21,9 @@ export const useReviewsStore = defineStore('reviews', {
 
     async fetchMyReviews() {
       try {
-        const data = await getMyReviews(this.userId)
-        this.reviews = data.data || []
+        // Fix: Remove userId parameter
+        const data = await getMyReviews()
+        this.reviews = data || []
       } catch (e) {
         console.error('fetchMyReviews error:', e)
       }

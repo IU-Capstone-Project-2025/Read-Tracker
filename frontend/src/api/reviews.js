@@ -5,20 +5,19 @@ const api = axios.create({
   baseURL: config.api.baseUrl
 })
 
-export const getMyReviews = async (userId) => {
+export const getMyReviews = async () => {
   try {
     console.log('[API] Fetching user reviews...')
-    const response = await api.post('/me/reviews', {
-      user_id: userId
-    })
+    // Fix: Change to GET request without body
+    const response = await api.get('/reviews')
     
-    if (response.data.status !== 'success') {
+    if (response.data.status === 'success') {
+      console.log(`[API] Successfully fetched ${response.data.data.length} reviews`)
+      return response.data.data
+    } else {
       const errorMsg = response.data.message || 'Failed to load your reviews. Please try again.'
-      console.error('[API] getMyReviews error:', errorMsg)
       throw new Error(errorMsg)
     }
-    console.log(`[API] Successfully fetched ${response.data.data.length} reviews`)
-    return response.data
   } catch (error) {
     const errorMsg = error.response?.data?.message || 
                     'Failed to load reviews. Please check your connection and try again.'

@@ -42,16 +42,28 @@
 import { ref, computed, onMounted } from 'vue'
 import { useBooksStore } from '@/store/books'
 import { useReviewsStore } from '@/store/reviews'
+import { useAuthStore } from '@/store/auth'
 
+const authStore = useAuthStore()
 const booksStore = useBooksStore()
 const reviewsStore = useReviewsStore()
+const loading = ref(true)
 
-// Fetch data when component is mounted
 onMounted(async () => {
-  await reviewsStore.fetchMyReviews()
+  try {
+    loading.value = true
+
+    // Only fetch if not already initialized
+    if (!reviewsStore.reviews.length) {
+      await reviewsStore.fetchMyReviews()
+    }
+  } catch (error) {
+    console.error('Failed to load recommendations:', error)
+  } finally {
+    loading.value = false
+  }
 })
 
-// Combine reviews with book data
 const reviewsWithBooks = computed(() => {
   return reviewsStore.reviews.map(review => {
     const book = booksStore.books.find(b => b.id === review.book_id) || {}
@@ -158,12 +170,12 @@ const reviewsWithBooks = computed(() => {
   .review-card {
     flex-direction: column;
   }
-  
+
   .book-cover-container {
     width: 100%;
     height: 250px;
   }
-  
+
   .review-content {
     padding: 20px;
   }

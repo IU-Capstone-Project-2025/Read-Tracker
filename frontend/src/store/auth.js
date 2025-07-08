@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', {
     isInitialized: false
   }),
   getters: {
-    isAuthenticated: (state) => state.isInitialized
+    isAuthenticated: (state) => !!state.token && state.isInitialized
   },
   actions: {
     async register(userData) {
@@ -51,7 +51,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await loginUser(credentials)
         if (response.status === 'success') {
-          this.token = response.user_id
+          this.token = response.token
           localStorage.setItem(config.app.authTokenStorageKey, this.token)
           await this.fetchProfile()
           return true
@@ -70,7 +70,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        const response = await fetchUserProfile(this.token)
+        const response = await fetchUserProfile()
         if (response.status === 'success') {
           const booksStore = useBooksStore()
           const collectionsStore = useCollectionsStore()
@@ -142,7 +142,6 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await updateUserAvatar(this.user.id, avatarUrl, this.token)
         if (response.status === 'success') {
-          // Update local user data
           await this.fetchProfile()
         }
       } catch (error) {

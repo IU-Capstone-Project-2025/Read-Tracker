@@ -58,13 +58,11 @@ export const loginUser = async (credentials) => {
   }
 }
 
-export const fetchUserProfile = async (token) => {
+export const fetchUserProfile = async () => {
   try {
     console.log('[API] Fetching user profile...')
-    const response = await api.post('/auth/profile', {
-      user_id: token
-    })
-
+    // Fix: Change to GET request without body
+    const response = await api.get('/auth/profile')
     console.log('[API] User profile fetched successfully')
     return response.data
   } catch (error) {
