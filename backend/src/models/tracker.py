@@ -7,14 +7,15 @@ from datetime import date
 
 
 class TrackerRequest(BaseModel):
-    date: datetime
+    user_id: UUID
 
 
 class TrackerData(BaseModel):
     id: int
     user_id: UUID
     start_date: datetime
-    end_date: Optional[date] 
+    end_date: Optional[date]
+    last_marked: datetime
 
 
 class TrackerResponse(BaseResponse):

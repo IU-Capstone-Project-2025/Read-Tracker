@@ -17,6 +17,7 @@ class Users(Base):
     mail = Column(Text, nullable=False, unique=True)
     password = Column(Text, nullable=False)
     avatar = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
 
     collections = relationship("Collection", back_populates="user")
     reviews = relationship("Review", back_populates="user")
@@ -76,7 +77,7 @@ class Collection(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     user = relationship("Users", back_populates="collections")
-    items = relationship("CollectionItem", back_populates="collection")
+    items = relationship("CollectionItem", back_populates="collection", cascade="all, delete-orphan")
 
 
 class CollectionItem(Base):
@@ -144,6 +145,7 @@ class Streak(Base):
     user_id = Column(UUID, ForeignKey("users.id", ondelete="CASCADE"))
     start_date = Column(Date)
     end_date = Column(Date)
+    last_marked = Column(Date)
 
     user = relationship("Users", back_populates="streaks")
 

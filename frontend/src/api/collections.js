@@ -1,19 +1,9 @@
 import axios from 'axios'
 import config from '@/runtimeConfig'
-import { useAuthStore } from '@/store/auth'
 
 // Create axios instance with base URL
 const api = axios.create({
   baseURL: config.api.baseUrl
-})
-
-// Add request interceptor to include auth token
-api.interceptors.request.use(config => {
-  const authStore = useAuthStore()
-  if (authStore.token) {
-    config.headers.Authorization = `Bearer ${authStore.token}`
-  }
-  return config
 })
 
 export async function fetchCollections() {

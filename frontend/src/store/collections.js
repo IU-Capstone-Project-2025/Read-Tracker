@@ -14,9 +14,14 @@ export const useCollectionsStore = defineStore('collections', {
     collections: [],
     currentCollection: null,
     loading: false,
-    error: null
+    error: null,
+    userId: null
   }),
   actions: {
+    async init(userId) {
+      this.userId = userId
+    },
+    
     async fetchCollections() {
       this.loading = true
       this.error = null

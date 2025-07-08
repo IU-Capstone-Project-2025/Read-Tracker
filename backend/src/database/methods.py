@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date
 from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem, UserBook
-from src.database.database import engine
+
 import bcrypt
 
 
@@ -183,18 +183,28 @@ class DBHandler:
             user_id = self.fixed_user_id
         session = self.Session()
         try:
+            if not session.query(Users).get(user_id):
+                return ValueError(f"User {user_id} not found")
             open_streak = session.query(Streak).filter_by(user_id=user_id, end_date=None).first()
             if open_streak:
-                return None
-            streak = Streak(user_id=user_id, start_date=check_date or date.today())
-            session.add(streak)
+                open_streak.last_marked = date.today()
+            else:
+                new_streak = Streak(
+                    user_id=user_id,
+                    start_date=check_date or date.today(),
+                    last_marked=check_date or date.today(),
+                    end_date=None
+                )
+                session.add(new_streak)
             session.commit()
             return None
         except IntegrityError as e:
             session.rollback()
+            print(f"Database integrity error starting streak for user {user_id}: {str(e)}")
             return ValueError(f"Database integrity error: {str(e)}")
         except SQLAlchemyError as e:
             session.rollback()
+            print(f"Error starting streak for user {user_id}: {str(e)}")
             return e
         finally:
             session.close()
@@ -498,6 +508,47 @@ class DBHandler:
         finally:
             session.close()
 
+    def addUserBook(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, status: str = None) -> \
+            Optional[Exception]:
+        if user_id is None:
+            user_id = self.fixed_user_id
+        if book_id is None or status is None:
+            return ValueError("book_id and status must be provided")
+        session = self.Session()
+        try:
+            # Verify user and book exist
+            if not session.query(Users).get(user_id):
+                return ValueError(f"User {user_id} not found")
+            if not session.query(Book).get(book_id):
+                return ValueError(f"Book {book_id} not found")
+            # Check if user_book already exists
+            if session.query(UserBook).filter_by(user_id=user_id, book_id=book_id).first():
+                return ValueError(f"User {user_id} already has book {book_id}")
+            # Validate status
+            if status not in ['want to read', 'reading now', 'have read']:
+                return ValueError(f"Invalid status: {status}")
+            # Create new user_book entry
+            user_book = UserBook(
+                user_id=user_id,
+                book_id=book_id,
+                status=status,
+                start_date=date.today() if status == 'reading now' else None,
+                end_date=date.today() if status == 'have read' else None
+            )
+            session.add(user_book)
+            session.commit()
+            return None
+        except IntegrityError as e:
+            session.rollback()
+            print(f"Database integrity error adding user book {book_id} for user {user_id}: {str(e)}")
+            return ValueError(f"Database integrity error: {str(e)}")
+        except SQLAlchemyError as e:
+            session.rollback()
+            print(f"Error adding user book {book_id} for user {user_id}: {str(e)}")
+            return e
+        finally:
+            session.close()
+
     def updateUserBook(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, status: str = None) -> \
     Optional[Exception]:
         if user_id is None:
@@ -551,6 +602,7 @@ class DBHandler:
         try:
             collection_items = session.query(CollectionItem).filter_by(collection_id=collection_id).all()
             books = []
+            print(f"Collection items: {collection_items}")
             for ci in collection_items:
                 book = ci.book
                 if book:
@@ -603,4 +655,3 @@ class DBHandler:
             return e
         finally:
             session.close()
-

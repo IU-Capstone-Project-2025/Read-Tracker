@@ -6,7 +6,8 @@ CREATE TABLE users (
     name TEXT NOT NULL,
     mail TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL, 
-    avatar TEXT
+    avatar TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 /*
 password will be stored as hashed with pgcrypto
@@ -101,7 +102,8 @@ CREATE TABLE streak (
     id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     start_date DATE,
-    end_date DATE
+    end_date DATE,
+    last_marked DATE
 );
 
 -- 11. subscription

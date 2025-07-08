@@ -1,19 +1,27 @@
 import { defineStore } from 'pinia'
-
-const API_BASE = 'http://localhost:8000'
+import {
+  getMyReviews,
+  getBookReviews,
+  createReview,
+  updateReview,
+  deleteReview
+} from '@/api/reviews'
 
 export const useReviewsStore = defineStore('reviews', {
   state: () => ({
     reviews: [],
-    editingReviewId: null
+    editingReviewId: null,
+    userId: null
   }),
 
   actions: {
+    async init(userId) {
+      this.userId = userId
+    },
+
     async fetchMyReviews() {
       try {
-        const res = await fetch(`${API_BASE}/me/reviews`)
-        if (!res.ok) throw new Error('Failed to fetch my reviews')
-        const data = await res.json()
+        const data = await getMyReviews(this.userId)
         this.reviews = data.data || []
       } catch (e) {
         console.error('fetchMyReviews error:', e)
@@ -22,9 +30,7 @@ export const useReviewsStore = defineStore('reviews', {
 
     async fetchReviews(bookId) {
       try {
-        const res = await fetch(`${API_BASE}/reviews/${bookId}`)
-        if (!res.ok) throw new Error('Failed to fetch reviews')
-        const data = await res.json()
+        const data = await getBookReviews(this.userId, bookId)
         this.reviews = data.data || []
       } catch (e) {
         console.error('fetchReviews error:', e)
@@ -33,15 +39,7 @@ export const useReviewsStore = defineStore('reviews', {
 
     async addReview(bookId, newReview) {
       try {
-        const res = await fetch(`${API_BASE}/me/reviews/${bookId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            rate: newReview.rate,
-            text: newReview.text
-          })
-        })
-        if (!res.ok) throw new Error('Failed to add review')
+        await createReview(this.userId, bookId, newReview.rate, newReview.text)
         await this.fetchMyReviews()
       } catch (e) {
         console.error('addReview error:', e)
@@ -50,27 +48,16 @@ export const useReviewsStore = defineStore('reviews', {
 
     async updateReview(bookId, updatedReview) {
       try {
-        const res = await fetch(`${API_BASE}/me/reviews/${bookId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            rate: updatedReview.rate,
-            text: updatedReview.text
-          })
-        })
-        if (!res.ok) throw new Error('Failed to update review')
+        await updateReview(this.userId, bookId, updatedReview.rate, updatedReview.text)
         await this.fetchMyReviews()
       } catch (e) {
         console.error('updateReview error:', e)
       }
     },
 
-    async deleteReview(bookId) {
+    async deleteReview(review) {
       try {
-        const res = await fetch(`${API_BASE}/me/reviews/${bookId}`, {
-          method: 'DELETE'
-        })
-        if (!res.ok) throw new Error('Failed to delete review')
+        await deleteReview(this.userId, review.book_id)
         await this.fetchMyReviews()
       } catch (e) {
         console.error('deleteReview error:', e)

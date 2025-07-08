@@ -43,28 +43,24 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useReviewsStore } from '@/store/reviews'
 import { useBooksStore } from '@/store/books'
-import { fetchBooks } from '@/api/books'
 
 const router = useRouter()
 const reviewsStore = useReviewsStore()
 const booksStore = useBooksStore()
-
 const books = computed(() => booksStore.books)
 const userReviews = computed(() => reviewsStore.reviews)
+
+onMounted(async () => {
+  if (!booksStore.books.length) {
+    booksStore.fetchBooks()
+  }
+  await reviewsStore.fetchMyReviews()
+})
 
 const getBookTitle = (bookId) => {
   const book = books.value.find(b => b.id === bookId)
   return book ? book.title : `Book ${bookId}`
 }
-
-onMounted(async () => {
-  if (!booksStore.books.length) {
-    const booksData = await fetchBooks()
-    booksStore.initializeBooks(booksData)
-  }
-
-  await reviewsStore.fetchMyReviews()
-})
 
 const goToBookProfile = (bookId) => {
   router.push({ name: 'bookProfile', params: { id: bookId } })

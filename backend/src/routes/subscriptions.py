@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
 
 
-# TODO: implement code, 404
+#TODO: implement code, 404
 @router.post("/", status_code=200)
 async def subscribe(request: Request):
     if request:
@@ -15,7 +15,7 @@ async def subscribe(request: Request):
     })
 
 
-# TODO: implement code, 404
+#TODO: implement code, 404
 @router.delete("/{subscribed_id}", status_code=200)
 async def unsubscribe(request: Request, subscribed_id: int):
     if request and subscribed_id:
@@ -26,7 +26,7 @@ async def unsubscribe(request: Request, subscribed_id: int):
     })
 
 
-# TODO: Replace mockup
+#TODO: Replace mockup
 @router.get("/{subscribed_id}/reviews", status_code=200)
 async def get_reviews(subscribed_id: int):
     if subscribed_id:

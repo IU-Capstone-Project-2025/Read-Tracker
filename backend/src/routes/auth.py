@@ -78,6 +78,7 @@ async def get_user_profile(request: UserRequest):
                 "message": str(err)
             })
     logging.info("Function get_user_profile succeeded")
+    logging.debug(data.created_at)
     return {
         "status": "success",
         "message": "User fetched successfully",
@@ -85,7 +86,8 @@ async def get_user_profile(request: UserRequest):
             "id": data.id,
             "username": data.name,
             "email": data.mail,
-            "avatar": data.avatar
+            "avatar": data.avatar,
+            "created_at": data.created_at
         }
     }
 
