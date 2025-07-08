@@ -3,7 +3,7 @@ from typing import Tuple, List, Optional
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date
-from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem, UserBook
+from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem, UserBook, Subscription
 
 import bcrypt
 
@@ -251,7 +251,6 @@ class DBHandler:
     def registerUser(self, name: str, email: str, password: str) -> Optional[Exception]:
         session = self.Session()
         try:
-            # Check if email exists
             if session.query(Users).filter_by(mail=email).first():
                 return ValueError("Email already exists")
             hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
@@ -363,7 +362,6 @@ class DBHandler:
             user_id = self.fixed_user_id
         session = self.Session()
         try:
-            # Verify user exists
             if not session.query(Users).get(user_id):
                 return ValueError("User not found")
             collection = Collection(user_id=user_id, title=title, description=description, cover=cover,
@@ -581,18 +579,14 @@ class DBHandler:
             return ValueError("book_id and status must be provided")
         session = self.Session()
         try:
-            # Verify user and book exist
             if not session.query(Users).get(user_id):
                 return ValueError(f"User {user_id} not found")
             if not session.query(Book).get(book_id):
                 return ValueError(f"Book {book_id} not found")
-            # Check if user_book already exists
             if session.query(UserBook).filter_by(user_id=user_id, book_id=book_id).first():
                 return ValueError(f"User {user_id} already has book {book_id}")
-            # Validate status
             if status not in ['want to read', 'reading now', 'have read']:
                 return ValueError(f"Invalid status: {status}")
-            # Create new user_book entry
             user_book = UserBook(
                 user_id=user_id,
                 book_id=book_id,
@@ -611,6 +605,82 @@ class DBHandler:
             session.rollback()
             print(f"Error adding user book {book_id} for user {user_id}: {str(e)}")
             return e
+        finally:
+            session.close()
+
+    def addSubscription(self, follower_id: Optional[uuid.UUID] = None, subscribed_id: uuid.UUID = None) -> Optional[
+        Exception]:
+        if follower_id is None:
+            follower_id = self.fixed_user_id
+        if subscribed_id is None:
+            return ValueError("subscribed_id must be provided")
+        session = self.Session()
+        try:
+            if not session.query(Users).get(follower_id):
+                return ValueError(f"Follower user {follower_id} not found")
+            if not session.query(Users).get(subscribed_id):
+                return ValueError(f"Subscribed user {subscribed_id} not found")
+            if session.query(Subscription).filter_by(follower_id=follower_id, subscribed_id=subscribed_id).first():
+                return ValueError(
+                    f"Subscription already exists for follower {follower_id} and subscribed {subscribed_id}")
+            if follower_id == subscribed_id:
+                return ValueError("Users cannot subscribe to themselves")
+            subscription = Subscription(follower_id=follower_id, subscribed_id=subscribed_id)
+            session.add(subscription)
+            session.commit()
+            return None
+        except IntegrityError as e:
+            session.rollback()
+            print(
+                f"Database integrity error adding subscription for follower {follower_id} to subscribed {subscribed_id}: {str(e)}")
+            return ValueError(f"Database integrity error: {str(e)}")
+        except SQLAlchemyError as e:
+            session.rollback()
+            print(
+                f"Error adding subscription for follower {follower_id} to subscribed {subscribed_id}: {str(e)}")
+            return e
+        finally:
+            session.close()
+
+    def deleteSubscription(self, follower_id: Optional[uuid.UUID] = None, subscribed_id: uuid.UUID = None) -> Optional[
+        Exception]:
+        if follower_id is None:
+            follower_id = self.fixed_user_id
+        if subscribed_id is None:
+            return ValueError("subscribed_id must be provided")
+        session = self.Session()
+        try:
+            subscription = session.query(Subscription).filter_by(follower_id=follower_id,
+                                                                 subscribed_id=subscribed_id).first()
+            if not subscription:
+                return ValueError(f"No subscription found for follower {follower_id} and subscribed {subscribed_id}")
+            session.delete(subscription)
+            session.commit()
+            return None
+        except SQLAlchemyError as e:
+            session.rollback()
+            print(
+                f"Error deleting subscription for follower {follower_id} and subscribed {subscribed_id}: {str(e)}")
+            return e
+        finally:
+            session.close()
+
+    def getAllReviews(self, follower_id: Optional[uuid.UUID] = None) -> Tuple[List[Review], Optional[Exception]]:
+        if follower_id is None:
+            follower_id = self.fixed_user_id
+        session = self.Session()
+        try:
+            if not session.query(Users).get(follower_id):
+                return [], ValueError(f"Follower user {follower_id} not found")
+            subscriptions = session.query(Subscription).filter_by(follower_id=follower_id).all()
+            subscribed_ids = [sub.subscribed_id for sub in subscriptions]
+            if not subscribed_ids:
+                return [], None
+            reviews = session.query(Review).filter(Review.user_id.in_(subscribed_ids)).all()
+            return reviews, None
+        except SQLAlchemyError as e:
+            print(f"Error retrieving reviews for follower {follower_id}: {str(e)}")
+            return [], e
         finally:
             session.close()
 
