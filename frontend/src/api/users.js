@@ -1,18 +1,8 @@
 import axios from 'axios'
 import config from '@/runtimeConfig'
-import { useAuthStore } from '@/store/auth'
 
 const api = axios.create({
   baseURL: config.api.baseUrl
-})
-
-// Add request interceptor to include auth token
-api.interceptors.request.use(config => {
-  const authStore = useAuthStore()
-  if (authStore.token) {
-    config.headers.Authorization = `Bearer ${authStore.token}`
-  }
-  return config
 })
 
 export const registerUser = async (userData) => {
@@ -29,13 +19,13 @@ export const registerUser = async (userData) => {
   } catch (error) {
     let errorMsg = 'Registration failed. Please try again.'
     
-    if (error.response?.data?.message) {
-      if (error.response.data.message.includes('email')) {
+    if (error.response?.message) {
+      if (error.response.message.includes('email')) {
         errorMsg = 'This email is already registered. Please use a different email.'
-      } else if (error.response.data.message.includes('name')) {
+      } else if (error.response.message.includes('name')) {
         errorMsg = 'This username is already taken. Please choose a different username.'
       } else {
-        errorMsg = error.response.data.message
+        errorMsg = error.response.message
       }
     }
 

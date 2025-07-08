@@ -13,16 +13,16 @@ export const getNotes = async (userId, bookId) => {
       user_id: userId
     })
     
-    if (response.status !== 'success') {
-      const errorMsg = response.message || 'Failed to load notes. Please try again.'
+    if (response.data.status !== 'success') {
+      const errorMsg = response.data.message || 'Failed to load notes. Please try again.'
       console.error('[API] fetchBookNotes error:', errorMsg)
       throw new Error(errorMsg)
     }
 
-    console.log(`[API] Successfully fetched ${response.data.length} notes for book ID: ${bookId}`)
+    console.log(`[API] Successfully fetched ${response.data.data.length} notes for book ID: ${bookId}`)
     return response.data
   } catch (error) {
-    const errorMsg = error.response?.message || 
+    const errorMsg = error.response?.data?.message || 
                     'Failed to load notes. Please check your connection and try again.'
     console.error('[API] fetchBookNotes exception:', errorMsg, error)
     throw new Error(errorMsg)
@@ -37,8 +37,8 @@ export const createNote = async (userId, bookId, text) => {
       text: text.text
     })
     
-    if (response.status !== 'success') {
-      const errorMsg = response.message || 'Failed to create your note. Please try again.'
+    if (response.data.status !== 'success') {
+      const errorMsg = response.data.message || 'Failed to create your note. Please try again.'
       console.error('[API] saveNoteApi error:', errorMsg)
       throw new Error(errorMsg)
     }
@@ -46,7 +46,7 @@ export const createNote = async (userId, bookId, text) => {
     console.log(`[API] Note created successfully for book ID: ${bookId}`)
     return response.data
   } catch (error) {
-    const errorMsg = error.response?.message || 
+    const errorMsg = error.response?.data?.message || 
                     'Failed to create note. Please check your connection and try again.'
     console.error('[API] saveNoteApi exception:', errorMsg, error)
     throw new Error(errorMsg)
@@ -62,8 +62,8 @@ export const deleteNote = async (userId, noteId) => {
       }
     })
     
-    if (response.status !== 'success') {
-      const errorMsg = response.message || 'Failed to delete note. Please try again.'
+    if (response.data.status !== 'success') {
+      const errorMsg = response.data.message || 'Failed to delete note. Please try again.'
       console.error('[API] deleteNoteApi error:', errorMsg)
       throw new Error(errorMsg)
     }
@@ -71,7 +71,7 @@ export const deleteNote = async (userId, noteId) => {
     console.log(`[API] Note deleted successfully: ${noteId}`)
     return response.data
   } catch (error) {
-    const errorMsg = error.response?.message || 
+    const errorMsg = error.response?.data?.message || 
                     'Failed to delete note. Please check your connection and try again.'
     console.error('[API] deleteNoteApi exception:', errorMsg, error)
     throw new Error(errorMsg)
@@ -80,13 +80,24 @@ export const deleteNote = async (userId, noteId) => {
 
 export const updateNote = async (userId, noteId, text) => {
   try {
+    console.log(`[API] Updating note for book ID: ${bookId}`)
     const response = await api.put(`me/notes/${noteId}`, {
       user_id: userId,
       text: text.text
     })
+
+    if (response.data.status !== 'success') {
+      const errorMsg = response.data.message || 'Failed to update your note. Please try again.'
+      console.error('[API] saveNoteApi error:', errorMsg)
+      throw new Error(errorMsg)
+    }
+
+    console.log(`[API] Note created successfully for book ID: ${bookId}`)
     return response.data
   } catch (error) {
-    console.error(`Failed to update note:`, error)
-    throw error
+    const errorMsg = error.response?.data?.message || 
+                    'Failed to update note. Please check your connection and try again.'
+    console.error('[API] updateNoteApi exception:', errorMsg, error)
+    throw new Error(errorMsg)
   }
 }
