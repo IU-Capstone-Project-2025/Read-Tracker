@@ -1,30 +1,61 @@
 import axios from 'axios'
 import { defineStore } from 'pinia'
+import {
+  getNotes,
+  createNote,
+  deleteNote,
+  updateNote
+} from '@/api/notes'
+
 
 export const useNotesStore = defineStore('notes', {
   state: () => ({
-    notes: JSON.parse(localStorage.getItem('bookNotes')) || []
+    notes: [],
+    userId: null
   }),
   
   actions: {
-    async fetchNotes(bookId) {
-      const response = await axios.get(`http://localhost:8000/me/books/${bookId}/notes`)
-      if (response.data.status !== 'success') throw new Error('Failed to fetch notes')
-      
-      this.notes = response.data.data
-      this.persistNotes()
+    async init(userId) {
+      this.userId = userId
     },
-    
-    async addNote(bookId, noteData) {
-      const postResponse = await axios.post(`http://localhost:8000/me/books/${bookId}/notes`, noteData)
-      if (postResponse.data.status !== 'success') throw new Error('Failed to add note')
 
-      await this.fetchNotes(bookId)
+    async fetchNotes(bookId) {
+      try {
+        const data = await getNotes(this.userId, bookId)
+        this.notes = data.data
+        this.persistNotes()
+      }
+      catch (e) {
+        console.error('fetchNotes error:', e)
+      }
     },
     
-    deleteNote(noteId) {
-      this.notes = this.notes.filter(note => note.id !== noteId)
-      this.persistNotes()
+    async addNote(bookId, noteText) {
+      try {
+        await createNote(this.userId, bookId, noteText)
+      await this.fetchNotes(bookId)
+      }
+      catch (e) {
+        console.error('addNote error:', e)
+      }
+    },
+    
+    async updateNote(noteData, noteText) {
+      try {
+        await updateNote(this.userId, noteData, noteText)
+        await this.fetchNotes(bookId)
+      } catch (e) {
+        console.error('updateReview error:', e)
+      }
+    },
+
+    async deleteNote(bookId, noteData) {
+      try {
+        await deleteNote(this.userId, noteData)
+        await this.fetchNotes(bookId)
+      } catch (e) {
+        console.error('deleteReview error:', e)
+      }
     },
     
     persistNotes() {

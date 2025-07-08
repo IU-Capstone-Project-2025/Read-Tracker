@@ -10,20 +10,20 @@
         <i class="fas fa-user"></i>
       </div>
       <div class="profile-info">
-        <h2 class="profile-name">Alex Johnson</h2>
-        <p>125 books read • Member since 2020</p>
+        <h2 class="profile-name"> {{ authStore.user.username }} </h2>
+        <p>Member since 2020</p>
 
         <div class="profile-stats">
           <div class="stat-item">
-            <span class="stat-value">86</span>
+            <span class="stat-value"> {{ booksStore.books.length || 0 }} </span>
             <span class="stat-label">Books Read</span>
           </div>
           <div class="stat-item">
-            <span class="stat-value">42</span>
+            <span class="stat-value"> {{ reviewsStore.reviews.length || 0 }} </span>
             <span class="stat-label">Reviews</span>
           </div>
           <div class="stat-item">
-            <span class="stat-value">7</span>
+            <span class="stat-value"> {{ collectionsStore.collections.length || 0 }} </span>
             <span class="stat-label">Collections</span>
           </div>
         </div>
@@ -78,6 +78,15 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import { useAuthStore } from '@/store/auth'
+import { useBooksStore } from '@/store/books'
+import { useReviewsStore } from '@/store/reviews'
+import { useCollectionsStore } from '@/store/collections'
+
+const authStore = useAuthStore()
+const booksStore = useBooksStore()
+const reviewsStore = useReviewsStore()
+const collectionsStore = useCollectionsStore()
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -200,6 +209,7 @@ const calculateStreakLength = (startDate, endDate = null) => {
 
 
 onMounted(() => {
+  console.log(authStore.user)
   loadStreaks()
 })
 </script>

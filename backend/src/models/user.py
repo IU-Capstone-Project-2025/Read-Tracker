@@ -10,6 +10,7 @@ class UserData(BaseModel):
     name: str
     mail: str
     avatar: Optional[str]
+    created_at: datetime
 
 
 class UserRequest(BaseModel):
