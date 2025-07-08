@@ -8,8 +8,10 @@ const api = axios.create({
 
 export async function fetchCollections() {
   try {
+    console.log('[API] Fetching collections...')
     const response = await api.get('/collections/')
     if (response.data.status === 'success') {
+      console.log(`[API] Successfully fetched ${response.data.data.length} collections`)
       return response.data.data.map(collection => ({
         id: collection.collection_id,
         title: collection.title,
@@ -21,11 +23,15 @@ export async function fetchCollections() {
         userId: collection.user_id
       }))
     } else {
-      throw new Error(response.data.message || 'Failed to fetch collections')
+      const errorMsg = response.data.message || 'Failed to load collections. Please try again later.'
+      console.error('[API] fetchCollections error:', errorMsg)
+      throw new Error(errorMsg)
     }
   } catch (error) {
-    console.error('API error:', error)
-    return []
+    const errorMsg = error.response?.data?.message || 
+                    'Failed to load collections. Please check your connection and try again.'
+    console.error('[API] fetchCollections exception:', errorMsg, error)
+    throw new Error(errorMsg)
   }
 }
 

@@ -31,7 +31,11 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        await registerUser(userData)
+        await registerUser({
+          username: userData.username,
+          email: userData.email,
+          password: userData.password
+        })
         return true
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Registration failed'

@@ -7,7 +7,6 @@ import {
   deleteReview
 } from '@/api/reviews'
 
-
 export const useReviewsStore = defineStore('reviews', {
   state: () => ({
     reviews: [],
