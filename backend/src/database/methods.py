@@ -3,7 +3,8 @@ from typing import Tuple, List, Optional
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date
-from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem, UserBook, Subscription
+from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem, UserBook, Subscription, \
+    BookTag, Tag
 
 import bcrypt
 
@@ -681,6 +682,42 @@ class DBHandler:
         except SQLAlchemyError as e:
             print(f"Error retrieving reviews for follower {follower_id}: {str(e)}")
             return [], e
+        finally:
+            session.close()
+
+    def setTags(self, book_title: str, tags: List[str]) -> Optional[Exception]:
+        if not book_title or not tags:
+            return ValueError("book_name and tags must be provided and non-empty")
+        session = self.Session()
+        try:
+            book = session.query(Book).filter_by(title=book_title).first()
+            if not book:
+                print(f"Book with name '{book_title}' not found")
+                return ValueError(f"Book with name '{book_title}' not found")
+            book_id = book.id
+
+            for tag_name in tags:
+                if not tag_name:
+                    continue
+                tag = session.query(Tag).filter_by(name=tag_name).first()
+                if not tag:
+                    print(f"Tag with name '{tag_name}' not found")
+                    return ValueError(f"Tag with name '{tag_name}' not found")
+                existing_book_tag = session.query(BookTag).filter_by(book_id=book_id, tag_id=tag.id).first()
+                if not existing_book_tag:
+                    book_tag = BookTag(book_id=book_id, tag_id=tag.id)
+                    session.add(book_tag)
+
+            session.commit()
+            return None
+        except IntegrityError as e:
+            session.rollback()
+            print(f"Database integrity error setting tags for book '{book_title}': {str(e)}")
+            return ValueError(f"Database integrity error: {str(e)}")
+        except SQLAlchemyError as e:
+            session.rollback()
+            print(f"Error setting tags for book '{book_title}': {str(e)}")
+            return e
         finally:
             session.close()
 
