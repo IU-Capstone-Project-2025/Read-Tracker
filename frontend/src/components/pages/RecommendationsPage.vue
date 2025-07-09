@@ -46,12 +46,10 @@ import { useReviewsStore } from '@/store/reviews'
 const booksStore = useBooksStore()
 const reviewsStore = useReviewsStore()
 
-// Fetch data when component is mounted
 onMounted(async () => {
   await reviewsStore.fetchMyReviews()
 })
 
-// Combine reviews with book data
 const reviewsWithBooks = computed(() => {
   return reviewsStore.reviews.map(review => {
     const book = booksStore.books.find(b => b.id === review.book_id) || {}
@@ -107,6 +105,8 @@ const reviewsWithBooks = computed(() => {
   overflow: hidden;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s, box-shadow 0.3s;
+  height: 200px;
+  position: relative;
 }
 
 .review-card:hover {
@@ -116,25 +116,32 @@ const reviewsWithBooks = computed(() => {
 
 .book-cover-container {
   width: 150px;
-  height: 200px;
+  height: 100%;
   flex-shrink: 0;
+  position: relative;
 }
 
 .book-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
 .review-content {
-  padding: 25px;
+  padding: 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  max-height: 100%;
+  box-sizing: border-box;
 }
 
 .book-title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
   margin-bottom: 5px;
   color: #333;
@@ -142,30 +149,45 @@ const reviewsWithBooks = computed(() => {
 
 .book-author {
   color: #667eea;
-  font-size: 16px;
-  margin-bottom: 15px;
+  font-size: 14px;
+  margin-bottom: 10px;
   font-style: italic;
 }
 
 .review-text {
   color: #444;
-  font-size: 16px;
-  line-height: 1.6;
-  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 5px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  text-overflow: ellipsis;
+  flex-grow: 1;
 }
 
 @media (max-width: 768px) {
   .review-card {
     flex-direction: column;
+    height: auto;
+    max-height: 400px;
   }
   
   .book-cover-container {
     width: 100%;
-    height: 250px;
+    height: 200px;
   }
   
   .review-content {
-    padding: 20px;
+    padding: 15px;
+    overflow-y: visible;
+  }
+
+  .review-text {
+    -webkit-line-clamp: 6;
+    line-clamp: 6;
   }
 }
 </style>
