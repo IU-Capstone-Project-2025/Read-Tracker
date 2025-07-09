@@ -106,7 +106,6 @@ const reviewsWithBooks = computed(() => {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s, box-shadow 0.3s;
   height: 200px;
-  position: relative;
 }
 
 .review-card:hover {
@@ -115,19 +114,20 @@ const reviewsWithBooks = computed(() => {
 }
 
 .book-cover-container {
-  width: 150px;
-  height: 100%;
+  width: 140px;
+  height: 200px;
   flex-shrink: 0;
-  position: relative;
+  margin: 0; 
+  padding: 0;
+  line-height: 0;
 }
 
 .book-cover {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+  margin: 0;
 }
 
 .review-content {
@@ -136,7 +136,7 @@ const reviewsWithBooks = computed(() => {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  max-height: 100%;
+  max-height: 200px;
   box-sizing: border-box;
 }
 
@@ -172,17 +172,17 @@ const reviewsWithBooks = computed(() => {
   .review-card {
     flex-direction: column;
     height: auto;
-    max-height: 400px;
   }
   
   .book-cover-container {
     width: 100%;
-    height: 200px;
+    height: 220px;
   }
   
   .review-content {
     padding: 15px;
     overflow-y: visible;
+    max-height: none;
   }
 
   .review-text {
