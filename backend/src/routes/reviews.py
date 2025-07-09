@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-
 from src.models.reviews import ReviewRequest, ReviewResponse, ReviewData
 from src.models.base_response import BaseResponse
 from src.models.user import UserRequest
@@ -9,7 +8,7 @@ from uuid import UUID
 router = APIRouter(tags=["Reviews"])
 
 
-@router.post("/me/reviews", response_model=ReviewResponse, status_code=200)
+@router.get("/me/reviews", response_model=ReviewResponse, status_code=200)
 async def get_reviews(request: UserRequest):
     data, err = db_handler.getReview(user_id=request.user_id)
     answer = []
@@ -29,7 +28,7 @@ async def get_reviews(request: UserRequest):
     }
 
 
-@router.post("/me/reviews/{book_id}", response_model=ReviewResponse, status_code=200)
+@router.get("/me/reviews/{book_id}", response_model=ReviewResponse, status_code=200)
 async def get_review(request: UserRequest, book_id: UUID):
     data, err = db_handler.getReview(user_id=request.user_id, book_id=book_id)
     answer = []

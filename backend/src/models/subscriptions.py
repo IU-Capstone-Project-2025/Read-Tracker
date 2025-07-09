@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from uuid import UUID
 
@@ -15,4 +15,7 @@ class SubscriptionReviewsResponse(BaseModel):
 
 
 class SubscriptionReviewsRequest(BaseModel):
-    subscriber_id: UUID
+    subscriber_id: Optional[UUID] = None
+
+class SubscriptionReviewsRequestByPublisher(BaseModel):
+    publisher_id: Optional[UUID] = None
