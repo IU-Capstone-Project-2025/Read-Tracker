@@ -8,7 +8,7 @@ from uuid import UUID
 router = APIRouter(tags=["Reviews"])
 
 
-@router.get("/me/reviews", response_model=ReviewResponse, status_code=200)
+@router.post("/me/reviews", response_model=ReviewResponse, status_code=200)
 async def get_reviews(request: UserRequest):
     data, err = db_handler.getReview(user_id=request.user_id)
     answer = []
@@ -28,7 +28,7 @@ async def get_reviews(request: UserRequest):
     }
 
 
-@router.get("/me/reviews/{book_id}", response_model=ReviewResponse, status_code=200)
+@router.post("/me/reviews/{book_id}", response_model=ReviewResponse, status_code=200)
 async def get_review(request: UserRequest, book_id: UUID):
     data, err = db_handler.getReview(user_id=request.user_id, book_id=book_id)
     answer = []
