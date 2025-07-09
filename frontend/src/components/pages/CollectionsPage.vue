@@ -38,7 +38,6 @@
         <div class="collection-cover" :style="coverStyle(collection)">
           <div class="overlay">
             <h3 class="collection-title">{{ collection.title }}</h3>
-            <p class="book-count">{{ collection.bookCount }} books</p>
           </div>
         </div>
         
@@ -214,6 +213,7 @@ async function handleCreateCollection() {
       description: '',
       isPrivate: false
     }
+    await loadCollections()
   } catch (err) {
     console.error('Error creating collection:', err)
   }
@@ -244,6 +244,7 @@ async function handleUpdateCollection() {
       }
     )
     showEditModal.value = false
+    await loadCollections()
   } catch (err) {
     console.error('Error updating collection:', err)
   }
@@ -253,6 +254,7 @@ async function deleteCollection(collectionId) {
   if (confirm('Are you sure you want to delete this collection? This action cannot be undone.')) {
     try {
       await collectionsStore.deleteCollection(collectionId)
+      await loadCollections()
     } catch (error) {
       console.error('Error deleting collection:', error)
     }

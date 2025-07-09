@@ -3,7 +3,7 @@ openapi: 3.1.0
 info:
   title: Book API
   description: API for managing books, users, collections, and more.
-  version: 1.0.0
+  version: 2.0.0
 servers:
   - url: http://localhost:8000
     description: Development server
@@ -66,50 +66,12 @@ paths:
                     type: string
                   message:
                     type: string
-                  token:
-                    type: string
                   user_id:
                     type: integer
         '401':
           description: Unauthorized (e.g., invalid credentials)
         '404':
           description: Not Found (e.g., user not found)
-
-  /auth/validate:
-    post:
-      summary: Validate an authentication token
-      responses:
-        '200':
-          description: Token is valid
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  message:
-                    type: string
-        '404':
-          description: Not Found (e.g., token not found or invalid)
-
-  /auth/refresh:
-    post:
-      summary: Refresh an authentication token
-      responses:
-        '200':
-          description: Token refreshed successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  token:
-                    type: string
-        '404':
-          description: Not Found (e.g., refresh token invalid)
 
   /auth/forgot_password:
     post:
@@ -151,7 +113,7 @@ paths:
             schema:
               type: object
               properties:
-                token:
+                user_id:
                   type: string
                 new_password:
                   type: string
@@ -168,7 +130,7 @@ paths:
                   message:
                     type: string
         '400':
-          description: Bad Request (e.g., invalid token or password)
+          description: Bad Request (e.g., invalid user_id or password)
 
   /auth/profile:
     get:
@@ -244,7 +206,7 @@ paths:
       summary: Get a list of books
       responses:
         '200':
-          description: A list of books
+          description: Books retrieved
           content:
             application/json:
               schema:
@@ -260,7 +222,8 @@ paths:
                       type: object
                       properties:
                         id:
-                          type: integer
+                          type: string
+                          format: uuid
                         author:
                           type: string
                         title:
@@ -271,8 +234,27 @@ paths:
                           type: string
                         cover:
                           type: string
+                          format: uri
     post:
       summary: Add a new book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                author:
+                  type: string
+                language:
+                  type: string
+                cover:
+                  type: string
+                  format: uri
+                status:
+                  type: string
       responses:
         '200':
           description: Book added successfully
@@ -291,31 +273,31 @@ paths:
                       id:
                         type: string
                         format: uuid
-                      title:
-                        type: string
                       author:
                         type: string
+                      title:
+                        type: string
                       language:
+                        type: string
+                      description:
                         type: string
                       cover:
                         type: string
                         format: uri
-                      status:
-                        type: string
         '400':
-          description: Bad Request (e.g., validation error)
-        '404':
-          description: Not Found
-
+          description: Invalid format of title or author
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
   /books/{book_id}:
     get:
       summary: Get a single book by ID
-      parameters:
-        - name: book_id
-          in: path
-          required: true
-          schema:
-            type: integer
       responses:
         '200':
           description: Book details
@@ -347,14 +329,35 @@ paths:
                         type: string
         '404':
           description: Book not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
     put:
       summary: Update a book
-      parameters:
-        - name: book_id
-          in: path
-          required: true
-          schema:
-            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                author:
+                  type: string
+                language:
+                  type: string
+                cover:
+                  type: string
+                  format: uri
+                status:
+                  type: string
       responses:
         '200':
           description: Book updated successfully
@@ -368,9 +371,27 @@ paths:
                   message:
                     type: string
         '400':
-          description: Bad Request (e.g., validation error)
+          description: Invalid format of title or author
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
         '404':
           description: Book not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
     delete:
       summary: Delete a book
       parameters:
@@ -378,7 +399,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         '200':
           description: Book deleted successfully
@@ -393,19 +414,21 @@ paths:
                     type: string
         '404':
           description: Book not found
-
-  /books/{book_id}/reviews:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /me/reviews:
     get:
-      summary: Get reviews for a book
-      parameters:
-        - name: book_id
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Get all reviews from user
       responses:
         '200':
-          description: A list of reviews
+          description: Reviews retrieved successfully
           content:
             application/json:
               schema:
@@ -417,20 +440,38 @@ paths:
                     type: string
                   data:
                     type: array
-                    items: {}
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        rate:
+                          type: string
+                        text:
+                          type: string
+                        book_id:
+                          type: string
+                          format: uuid
+                        user_id:
+                          type: string
+                          format: uuid
+                        created_at:
+                          type: string
+                          format: date
 
-  /books/{book_id}/notes:
+  /me/reviews/{book_id}:
     get:
-      summary: Get notes for a book
+      summary: Get user review by book_id
       parameters:
         - name: book_id
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         '200':
-          description: A list of notes
+          description: Review retrieved successfully
           content:
             application/json:
               schema:
@@ -441,19 +482,150 @@ paths:
                   message:
                     type: string
                   data:
-                    type: array
-                    items: {}
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      rate:
+                        type: string
+                      text:
+                        type: string
+                      book_id:
+                        type: string
+                        format: uuid
+                      user_id:
+                        type: string
+                        format: uuid
+                      created_at:
+                        type: string
+                        format: date
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    put:
+      summary: Update review
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rate:
+                  type: int optional
+                text:
+                  type: string optional
+      responses:
+        '200':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      rate:
+                        type: string
+                      text:
+                        type: string
+                      book_id:
+                        type: string
+                        format: uuid
+                      user_id:
+                        type: string
+                        format: uuid
+                      created_at:
+                        type: string
+                        format: date
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    delete:
+      summary: Delete review
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Review deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
     post:
-      summary: Add a note to a book
-      parameters:
-        - name: book_id
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Add review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  format: uuid
+                book_id:
+                  type: string
+                  format: uuid
+                rate:
+                  type: string
+                text:
+                  type: boolean
       responses:
         '200':
-          description: Note added successfully
+          description: Review deleted successfully
           content:
             application/json:
               schema:
@@ -463,11 +635,65 @@ paths:
                     type: string
                   message:
                     type: string
-                  data:
-                    type: array
-                    items: {}
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
 
-  /collections/:
+
+  /me/collections:
+    post:
+      summary: Create a new collection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  format: uuid
+                title:
+                  type: string
+                description:
+                  type: string
+                is_private:
+                  type: boolean
+                cover:
+                  type: string
+      responses:
+        '200':
+          description: Collection created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Failed to create collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+
+  /me/collections/:
     get:
       summary: Get all collections
       responses:
@@ -484,12 +710,23 @@ paths:
                     type: string
                   data:
                     type: array
-                    items: {}
-    post:
-      summary: Create a new collection
-      responses:
-        '200':
-          description: Collection created successfully
+                    items:
+                      schema:
+                        type: object
+                        properties:
+                          user_id:
+                            type: string
+                            format: uuid
+                          title:
+                            type: string
+                          description:
+                            type: string
+                          is_private:
+                            type: boolean
+                          cover:
+                            type: string
+        '400':
+          description: Database returned error
           content:
             application/json:
               schema:
@@ -500,7 +737,8 @@ paths:
                   message:
                     type: string
 
-  /collections/{collection_id}:
+
+  /me/collections/{collection_id}:
     get:
       summary: Get a single collection by ID
       parameters:
@@ -508,7 +746,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         '200':
           description: Collection details
@@ -524,8 +762,9 @@ paths:
                   data:
                     type: object
                     properties:
-                      collection_id:
-                        type: integer
+                      id:
+                        type: string
+                        format: uuid
                       title:
                         type: string
                       description:
@@ -534,13 +773,35 @@ paths:
                         type: string
                         format: uri
                       user_id:
-                        type: integer
-                      username:
                         type: string
+                        format: uuid
                       is_private:
                         type: boolean
                       created_at:
-                        type: integer
+                        type: string
+                        format: date
+        '400':
+          description: Database returned error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: Collection not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
     put:
       summary: Update a collection
       parameters:
@@ -549,6 +810,21 @@ paths:
           required: true
           schema:
             type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                is_private:
+                  type: boolean
+                cover:
+                  type: string
       responses:
         '200':
           description: Collection updated successfully
@@ -566,6 +842,28 @@ paths:
                   cover:
                     type: string
                     format: uri
+        '400':
+          description: Database returned error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: Collection not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
     delete:
       summary: Delete a collection
       parameters:
@@ -573,7 +871,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       responses:
         '200':
           description: Collection deleted successfully
@@ -586,8 +885,19 @@ paths:
                     type: string
                   message:
                     type: string
+        '500':
+          description: Failed to delete collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
 
-  /collections/{collection_id}/books:
+  /me/collections/{collection_id}/books/{book_id}:
     post:
       summary: Add a book to a collection
       parameters:
@@ -595,10 +905,17 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
-          description: Book added to collection
+          description: Book added to the collection
           content:
             application/json:
               schema:
@@ -608,8 +925,17 @@ paths:
                     type: string
                   message:
                     type: string
-
-  /collections/{collection_id}/books/{book_id}:
+        '500':
+          description: Failed to add book to collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
     delete:
       summary: Remove a book from a collection
       parameters:
@@ -617,15 +943,28 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
         - name: book_id
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
       responses:
         '200':
-          description: Book removed from collection
+          description: Book deleted from the collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Failed to delete book to the collection
           content:
             application/json:
               schema:
@@ -636,27 +975,19 @@ paths:
                   message:
                     type: string
 
-  /explore/collections:
+  /me/books/{book_id}/notes:
     get:
-      summary: Get collections with pagination
+      summary: Get all notes from a book
       parameters:
-        - name: limit
-          in: query
+        - name: book_id
+          in: path
           required: true
           schema:
-            type: integer
-        - name: offset
-          in: query
-          required: true
-          schema:
-            type: integer
-        - name: user_id
-          in: query
-          schema:
-            type: integer
+            type: string
+            format: uuid
       responses:
         '200':
-          description: A paginated list of collections
+          description: A list of notes
           content:
             application/json:
               schema:
@@ -667,42 +998,119 @@ paths:
                   message:
                     type: string
                   data:
-                    type: object
-                    properties:
-                      items:
-                        type: array
-                        items: {}
-                      pagination:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                          offset:
-                            type: integer
-                          total:
-                            type: integer
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        text:
+                          type: string
+                        book_id:
+                          type: string
+                        user_id:
+                          type: string
+                        created_at:
+                          type: datetime
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: Book id not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    put:
+      summary: Add Note
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                text:
+                  type: string
+      responses:
+        '200':
+          description: Note updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: Book id not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Invalid note
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Failed to update note
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
 
-  /explore/reviews:
+  /me/notes/{note_id}:
     get:
-      summary: Get reviews with pagination
+      summary: Get note by its id
       parameters:
-        - name: limit
-          in: query
+        - name: note_id
+          in: path
           required: true
           schema:
-            type: integer
-        - name: offset
-          in: query
-          required: true
-          schema:
-            type: integer
-        - name: user_id
-          in: query
-          schema:
-            type: integer
+            type: string
       responses:
         '200':
-          description: A paginated list of reviews
+          description: A note data
           content:
             application/json:
               schema:
@@ -713,17 +1121,334 @@ paths:
                   message:
                     type: string
                   data:
-                    type: object
-                    properties:
-                      items:
-                        type: array
-                        items: {}
-                      pagination:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                          offset:
-                            type: integer
-                          total:
-                            type: integer
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          id: string
+                        text:
+                          type: string
+                        book_id:
+                          type: string
+                        user_id:
+                          type: string
+                        created_at:
+                          type: date
+        '404':
+          description: Note id not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    put:
+      summary: Update note by its id
+      parameters:
+        - name: note_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: Note id not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Invalid note
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Failed to update note
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+    delete:
+      summary: Delete note by its id
+      parameters:
+        - name: note_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Note deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+          '404':
+            description: Note id not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                    message:
+                      type: string
+          '500':
+            description: Failed to delete note
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                    message:
+                      type: string
+  /subscriptions/:
+    post:
+      summary: Subscribe to user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                publisher_id:
+                  type: string
+                  format: uuid
+                subscriber_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Subscribed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+          '404':
+            description: User id not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                    message:
+                      type: string
+          '400':
+            description: Database returned error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                    message:
+                      type: string
+
+  /subscriptions/{subscription_id}:
+    delete:
+      summary: Unsubscribe
+      parameters:
+        - name: subscription_id
+          in: path
+          required: true
+          schema:
+            int: string
+            format: uuid
+      responses:
+        '200':
+          description: Unsubscribed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+          '404':
+            description: Subscription not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                    message:
+                      type: string
+          '400':
+            description: Database returned error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                    message:
+                      type: string
+
+  /subscriptions/{subscription_id}/reviews:
+    get:
+      summary: Retrieve reviews from subscription
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        rate:
+                          type: string
+                        text:
+                          type: string
+                        book_id:
+                          type: string
+                          format: uuid
+                        user_id:
+                          type: string
+                          format: uuid
+                        created_at:
+                          type: string
+                          format: date
+        '404':
+          description: Subscription not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Database returned error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /subscriptions/all_reviews:
+    get:
+      summary: Get all reviews from all subscriptions of the user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subscriber_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: All reviews from subscriptions retrieved
+        '400':
+          description: Database returned error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        rate:
+                          type: string
+                        text:
+                          type: string
+                        book_id:
+                          type: string
+                          format: uuid
+                        user_id:
+                          type: string
+                          format: uuid
+                        created_at:
+                          type: string
+                          format: date
