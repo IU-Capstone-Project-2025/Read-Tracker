@@ -3,7 +3,8 @@ from typing import Tuple, List, Optional
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date
-from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem, UserBook, Subscription
+from src.database.models import Users, Book, Review, Note, Streak, Base, Collection, CollectionItem, UserBook, Subscription, \
+    BookTag, Tag
 
 import bcrypt
 
@@ -720,6 +721,64 @@ class DBHandler:
                 return [], None
             reviews = session.query(Review).filter(Review.user_id.in_(subscribed_ids)).all()
             return reviews, None
+        except SQLAlchemyError as e:
+            print(f"Error retrieving reviews for follower {follower_id}: {str(e)}")
+            return [], e
+        finally:
+            session.close()
+
+    def setTags(self, book_title: str, tags: List[str]) -> Optional[Exception]:
+        if not book_title or not tags:
+            return ValueError("book_name and tags must be provided and non-empty")
+        session = self.Session()
+        try:
+            book = session.query(Book).filter_by(title=book_title).first()
+            if not book:
+                print(f"Book with name '{book_title}' not found")
+                return ValueError(f"Book with name '{book_title}' not found")
+            book_id = book.id
+
+            for tag_name in tags:
+                if not tag_name:
+                    continue
+                tag = session.query(Tag).filter_by(name=tag_name).first()
+                if not tag:
+                    print(f"Tag with name '{tag_name}' not found")
+                    return ValueError(f"Tag with name '{tag_name}' not found")
+                existing_book_tag = session.query(BookTag).filter_by(book_id=book_id, tag_id=tag.id).first()
+                if not existing_book_tag:
+                    book_tag = BookTag(book_id=book_id, tag_id=tag.id)
+                    session.add(book_tag)
+
+            session.commit()
+            return None
+        except IntegrityError as e:
+            session.rollback()
+            print(f"Database integrity error setting tags for book '{book_title}': {str(e)}")
+            return ValueError(f"Database integrity error: {str(e)}")
+        except SQLAlchemyError as e:
+            session.rollback()
+            print(f"Error setting tags for book '{book_title}': {str(e)}")
+            return e
+        finally:
+            session.close()
+
+    def getPublisherReviews(self, follower_id: Optional[uuid.UUID] = None, publisher_id: uuid.UUID = None) -> \
+        Tuple[List[Review], Optional[Exception]]:
+        if follower_id is None:
+            follower_id = self.fixed_user_id
+        session = self.Session()
+        try:
+            if not session.query(Users).get(follower_id):
+                return [], ValueError(f"Follower user {follower_id} not found")
+            if not session.query(Users).get(publisher_id):
+                return [], ValueError(f"Publisher user {publisher_id} not found")
+            subscription = session.query(Subscription).filter(follower_id=follower_id,
+                                                              subscribed_id=publisher_id).first()
+            if not subscription:
+                return [], ValueError(f"User {follower_id} is not subscribed on publisher {publisher_id}")
+            return self.getReview(user_id=publisher_id)
+
         except SQLAlchemyError as e:
             print(f"Error retrieving reviews for follower {follower_id}: {str(e)}")
             return [], e
