@@ -1,5 +1,8 @@
+from uuid import UUID
+
 from fastapi import FastAPI, Response, APIRouter, HTTPException
-from src.models.subscriptions import SubscribeRequest, SubscriptionReviewsResponse, SubscriptionReviewsRequest
+from src.models.subscriptions import SubscribeRequest, SubscriptionReviewsResponse, SubscriptionReviewsRequest, \
+    SubscriptionReviewsRequestByPublisher
 from src.database.db_instance import db_handler
 from src.models.reviews import ReviewData
 import logging
@@ -14,7 +17,7 @@ async def subscribe(request: SubscribeRequest):
             "status": "error",
             "message": "User id not found"
         })
-    err = db_handler.add_subscription(publisher_id=request.publisher_id, subscriber_id=request.subscriber_id)
+    err = db_handler.addSubscription(subscribed_id=request.publisher_id, follower_id=request.subscriber_id)
     if err:
         logging.info(f"Database returned error: {err}")
         raise HTTPException(status_code=400, detail={
@@ -28,14 +31,14 @@ async def subscribe(request: SubscribeRequest):
     }
 
 
-@router.delete("/{subscription_id}", status_code=200)
-async def unsubscribe(subscription_id: int):
-    if not subscription_id:
+@router.delete("", status_code=200)
+async def unsubscribe(request: SubscribeRequest):
+    if not request.publisher_id:
         raise HTTPException(status_code=404, detail={
             "status": "error",
             "message": "Subscription not found"
         })
-    err = db_handler.delete_subscription(id=subscription_id)
+    err = db_handler.deleteSubscription(follower_id=request.subscriber_id, subscribed_id=request.publisher_id)
     if err:
         logging.info(f"Database returned error: {err}")
         raise HTTPException(status_code=400, detail={
@@ -49,14 +52,14 @@ async def unsubscribe(subscription_id: int):
     }
 
 
-@router.get("/{subscription_id}/reviews", status_code=200)
-async def get_reviews(subscription_id: int):
-    if not subscription_id:
+@router.post("/publisher_reviews", status_code=200)
+async def get_reviews(request: SubscriptionReviewsRequestByPublisher):
+    if not request.publisher_id:
         raise HTTPException(status_code=404, detail={
             "status": "error",
-            "message": "Subscription not found"
+            "message": "Publisher not found"
         })
-    data, err = db_handler.get_reviews_from_subscription(id=subscription_id)
+    data, err = db_handler.getReview(user_id=request.publisher_id)
     answer = []
     if err:
         logging.info(f"Database returned error: {err}")
@@ -80,27 +83,42 @@ async def get_reviews(subscription_id: int):
     }
 
 
-@router.get("/all_reviews", status_code=200)
+@router.post("/all_reviews", status_code=200)
 async def get_all_reviews(request: SubscriptionReviewsRequest):
-    data, err = db_handler.get_reviews_using_subscriber(user_id=request.subscriber_id)
-    answer = []
-    if err:
-        logging.info(f"Database returned error: {err}")
+    if not request.subscriber_id:
         raise HTTPException(status_code=400, detail={
             "status": "error",
-            "message": str(err)
+            "message": "Subscriber ID is required"
         })
-    if data:
-        for review in data:
-            answer.append(ReviewData(
-                rate=review.rate,
-                text=review.text,
-                book_id=review.book_id,
-                user_id=review.user_id,
-                created_at=review.created_at
-            ))
+
+    data, err = db_handler.getAllReviews(follower_id=request.subscriber_id)
+
+    if err:
+        logging.info(f"Database returned error: {err}")
+        if isinstance(err, ValueError):
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": str(err)
+            })
+        else:
+            raise HTTPException(status_code=500, detail={
+                "status": "error",
+                "message": "Unexpected database error"
+            })
+
+    answer = [
+        ReviewData(
+            rate=review.rate,
+            text=review.text,
+            book_id=review.book_id,
+            user_id=review.user_id,
+            created_at=review.created_at
+        )
+        for review in data
+    ]
+
     return {
         "status": "success",
-        "message": "Reviews retrieved",
+        "message": "Reviews retrieved successfully",
         "data": answer
     }
