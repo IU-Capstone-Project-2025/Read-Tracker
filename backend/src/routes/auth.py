@@ -1,14 +1,14 @@
 from fastapi import FastAPI, Response, APIRouter, Request, HTTPException
-from fastapi.responses import JSONResponse
 from src.models.base_response import BaseResponse
-from src.models.auth import LoginRequest, EmailRequest, PasswordRestoreRequest, RegisterRequest, LoginResponse
-from src.models.user import UserRequest, UserData, UserResponse, UpdateAvatarRequest
+from src.models.auth import LoginRequest, PasswordRestoreRequest, RegisterRequest, LoginResponse
+from src.models.user import UserRequest, UpdateAvatarRequest
 from src.database.db_instance import db_handler
 import logging
 import re
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 logging.basicConfig(level=logging.DEBUG)
+
 
 @router.post("/register", response_model=BaseResponse, status_code=201)
 async def register_user(request: RegisterRequest):
@@ -133,58 +133,7 @@ async def change_password(request: PasswordRestoreRequest):
                 "message": str(err)
             })
     logging.info("Function change_password succeeded")
-    return JSONResponse(content={
+    return {
         "status": "success",
         "message": "Password changed successfully",
-    })
-
-
-"""
-# TODO: 404 error
-@router.post("/validate", status_code=200)
-async def validate_token(request: Request):
-    if request:
-        pass
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Token validated",
-    }, status_code=200)
-
-
-# TODO: 404 error
-@router.post("/refresh", status_code=200)
-async def refresh_token(request: Request):
-    if request:
-        pass
-    return JSONResponse(content={
-        "status": "success",
-        "token": "abc123...",  # JWT or session token
-    }, status_code=200)
-"""
-
-"""
-# TODO: Code validation process; 400 and 404 errors
-@router.post("forgot_password", response_model=BaseResponse)
-async def forgot_password(request: PasswordRestoreRequest):
-    data = await request.json()
-    if not data:
-        pass
-
-    return JSONResponse(content={
-        "status": "success",
-        "message": "If the email is registered, a reset link has been sent."
-    }, status_code=200)
-
-
-# TODO: Code validation; 400 error.
-@router.post("reset_password", response_model=BaseResponse)
-async def reset_password(request: Request):
-    data = await request.json()
-    if not data:
-        pass
-
-    return JSONResponse(content={
-        "status": "success",
-        "message": "Password updated successfully"
-    }, status_code=200)
-"""
+    }

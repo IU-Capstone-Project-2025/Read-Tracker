@@ -1,9 +1,9 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
 from typing import List, Optional
 from src.models.base_response import BaseResponse
-from src.models.user import UserRequest
+
 
 class NoteData(BaseModel):
     id: UUID
@@ -13,7 +13,8 @@ class NoteData(BaseModel):
     created_at: datetime
 
 
-class NoteRequest(UserRequest):
+class NoteRequest(BaseModel):
+    user_id: UUID
     text: Optional[str]
 
 

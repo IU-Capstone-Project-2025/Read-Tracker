@@ -1,9 +1,7 @@
 import logging
 import datetime
 
-from fastapi import FastAPI, Response, APIRouter, Request, HTTPException
-from fastapi.responses import JSONResponse
-from typing import Optional
+from fastapi import APIRouter, HTTPException
 from uuid import UUID
 
 from src.models.base_response import BaseResponse
@@ -27,7 +25,7 @@ async def update_streak(request: TrackerRequest):
             "status": "error",
             "message": str(err)
         })
-    if data and not (data[-1].end_date or abs(datetime.datetime.now().date() - data[-1].last_marked.date()) <= 1):
+    if data and not (data[-1].end_date or abs(datetime.datetime.now().date() - data[-1].last_marked).days <= 1):
         err = db_handler.endStreak(user_id=request.user_id)
         if err:
             raise HTTPException(status_code=400, detail={
@@ -42,7 +40,7 @@ async def update_streak(request: TrackerRequest):
         })
     logging.debug(data)
     for i in data:
-        logging.debug(i.json())
+        logging.debug(f"{i.id}, {i.user_id}, {i.start_date}, {i.end_date}, {i.last_marked}")
     logging.info("Function register_user succeeded")
     return {
         "status": "success",

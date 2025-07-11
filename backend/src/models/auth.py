@@ -1,8 +1,7 @@
 from pydantic import BaseModel
 from uuid import UUID
-from typing import List, Optional
 from src.models.base_response import BaseResponse
-from src.models.user import UserRequest
+
 
 class LoginRequest(BaseModel):
     email: str
@@ -13,11 +12,14 @@ class EmailRequest(BaseModel):
     email: str
 
 
-class PasswordRestoreRequest(UserRequest):
+class PasswordRestoreRequest(BaseModel):
+    user_id: UUID
     password: str
 
 
-class RegisterRequest(LoginRequest):
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
     name: str
 
 

@@ -3,8 +3,7 @@ from src.models.collections import (
     CollectionRequest,
     CollectionResponse,
     CollectionData,
-    CollectionRequestWithUserID,
-    AddBookToCollectionRequest,
+    CollectionRequestWithUserID
 )
 from src.models.user import UserRequest
 from src.models.base_response import BaseResponse

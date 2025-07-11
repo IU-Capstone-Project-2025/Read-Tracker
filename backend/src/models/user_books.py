@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from src.models.base_response import BaseResponse
-from src.models.user import UserRequest
 from typing import Optional, List, Literal
 from uuid import UUID
 from datetime import datetime

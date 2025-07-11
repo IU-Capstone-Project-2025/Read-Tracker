@@ -2,11 +2,11 @@ from pydantic import BaseModel, Field
 from uuid import UUID
 from datetime import datetime
 from src.models.base_response import BaseResponse
-from src.models.user import UserRequest
 from typing import List, Optional
 
 
-class ReviewRequest(UserRequest):
+class ReviewRequest(BaseResponse):
+    user_id: UUID
     rate: int = Optional[Field(ge=1, le=10)]
     text: Optional[str]
 

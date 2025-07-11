@@ -27,7 +27,6 @@ class CollectionData(BaseModel):
     items: Optional[List[BookData]] = []
 
 
-
 class CollectionResponse(BaseModel):
     status: str
     message: str
