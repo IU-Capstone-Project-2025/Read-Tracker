@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 from src.models.base_response import BaseResponse
 
 
@@ -21,5 +21,6 @@ class UserResponse(BaseResponse):
     data: UserData
 
 
-class UpdateAvatarRequest(UserRequest):
+class UpdateAvatarRequest(BaseModel):
+    user_id: UUID
     avatar: str
