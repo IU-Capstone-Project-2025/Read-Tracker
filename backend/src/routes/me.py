@@ -82,8 +82,8 @@ async def get_user_books(request: UserRequest):
         for user_book in data:
             answer.append(UserBookData(user_id=user_book.user_id,
                                        book_id=user_book.book_id,
-                                       started_at=user_book.started_at,
-                                       ended_at=user_book.ended_at,
+                                       start_date=user_book.start_date,
+                                       end_date=user_book.end_date,
                                        status=user_book.status))
     return {
         "status": "success",
@@ -97,17 +97,22 @@ async def get_user_book(request: UserRequest, book_id: UUID):
     data, err = db_handler.getUserBook(user_id=request.user_id, book_id=book_id)
     answer = []
     if err:
-        raise HTTPException(status_code=400, detail={
-            "status": "error",
-            "message": str(err)
-        })
+        if "No association found" in str(err):
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "User book not found"
+            })
+        else:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "message": str(err)
+            })
     if data:
-        for user_book in data:
-            answer.append(UserBookData(user_id=user_book.user_id,
-                                       book_id=user_book.book_id,
-                                       started_at=user_book.started_at,
-                                       ended_at=user_book.ended_at,
-                                       status=user_book.status))
+        answer.append(UserBookData(user_id=data.user_id,
+                                   book_id=data.book_id,
+                                   start_date=data.start_date,
+                                   end_date=data.end_date,
+                                   status=data.status))
     return {
         "status": "success",
         "message": "Book details retrieved",
