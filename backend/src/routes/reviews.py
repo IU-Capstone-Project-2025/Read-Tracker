@@ -13,6 +13,11 @@ router = APIRouter(tags=["Reviews"])
 async def get_reviews(request: UserRequest):
     data, err = db_handler.getReview(user_id=request.user_id)
     answer = []
+    if err:
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "message": str(err)
+        })
     if data:
         for review in data:
             answer.append(ReviewData(
@@ -33,6 +38,17 @@ async def get_reviews(request: UserRequest):
 async def get_review(request: UserRequest, book_id: UUID):
     data, err = db_handler.getReview(user_id=request.user_id, book_id=book_id)
     answer = []
+    if err:
+        if isinstance(err, ValueError):
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "Book not found."
+            })
+        else:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "message": str(err)
+            })
     if data:
         for review in data:
             answer.append(ReviewData(
@@ -46,6 +62,17 @@ async def get_review(request: UserRequest, book_id: UUID):
         "status": "success",
         "message": "Reviews retrieved",
         "data": answer
+    }
+
+
+@router.post("/me/reviews/{book_id}/new", response_model=BaseResponse, status_code=200)
+async def create_review(request: ReviewRequest, book_id: UUID):
+    if not book_id:
+        raise HTTPException(status_code=404, detail="Book id not found")
+    err = db_handler.addReview(user_id=request.user_id, book_id=book_id, rate=request.rate, text=request.text)
+    return {
+        "status": "success",
+        "message": "Review created"
     }
 
 
@@ -68,15 +95,4 @@ async def delete_review(request: UserRequest, book_id: UUID):
     return {
         "status": "success",
         "message": "Review deleted"
-    }
-
-
-@router.post("/me/reviews/{book_id}/new", response_model=BaseResponse, status_code=200)
-async def create_review(request: ReviewRequest, book_id: UUID):
-    if not book_id:
-        raise HTTPException(status_code=404, detail="Book id not found")
-    err = db_handler.addReview(user_id=request.user_id, book_id=book_id, rate=request.rate, text=request.text)
-    return {
-        "status": "success",
-        "message": "Review created"
     }

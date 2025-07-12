@@ -52,6 +52,11 @@ async def update_streak(request: TrackerRequest):
 async def get_streaks(request: TrackerRequest):
     data, err = db_handler.getStreaks()
     answer = []
+    if err:
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "message": str(err)
+        })
     if data:
         for streak in data:
             if streak.user_id == request.user_id:
