@@ -11,7 +11,7 @@
       </div>
       <div class="profile-info">
         <h2 class="profile-name"> {{ authStore.user.username }} </h2>
-        <p>Member since 2020</p>
+        <p> Member since: {{ authStore.user.created_at }}</p>
 
         <div class="profile-stats">
           <div class="stat-item">
@@ -81,7 +81,6 @@ import { useAuthStore } from '@/store/auth'
 import { useBooksStore } from '@/store/books'
 import { useReviewsStore } from '@/store/reviews'
 import { useCollectionsStore } from '@/store/collections'
-import { apiLoadStreaks, apiCheckIn } from '@/api/streaks'
 
 const authStore = useAuthStore()
 const booksStore = useBooksStore()
@@ -97,42 +96,41 @@ const currentMonth = ref(currentDate.getMonth())
 const currentYear = ref(currentDate.getFullYear())
 
 const readingData = ref({})
-const currentStreak = ref(0)
-const todayMarked = ref(false)
+
+const currentStreak = computed(() => {
+  if (!Array.isArray(authStore.streaks) || authStore.streaks.length === 0) return 0
+
+  const latest = [...authStore.streaks].sort((a, b) => 
+    new Date(b.end_date) - new Date(a.end_date)
+  )[0]
+
+  return latest ? calculateStreakLength(latest.start_date, latest.end_date) : 0
+})
+
+const todayMarked = computed(() => {
+  const today = new Date().toISOString().split('T')[0]
+  return !!readingData.value[today]
+})
 
 const loadStreaks = async () => {
   try {
-    const res = await apiLoadStreaks(authStore.user.id)
-    const streaks = res.data?.data
+    await authStore.loadStreaks()
 
-    if (Array.isArray(streaks)) {
-      readingData.value = {}
-
-      let maxStreak = 0
-
-      streaks.forEach((item) => {
+    const data = {}
+    if (Array.isArray(authStore.streaks)) {
+      authStore.streaks.forEach((item) => {
         const start = new Date(item.start_date)
-        const end = item.end_date ? new Date(item.end_date) : new Date()
-        
-        let date = new Date(start)
+        const end = new Date(item.end_date)
+        const date = new Date(start)
+
         while (date <= end) {
           const dateStr = date.toISOString().split('T')[0]
-          readingData.value[dateStr] = true
+          data[dateStr] = true
           date.setDate(date.getDate() + 1)
         }
-        
-        const streakLength = calculateStreakLength(item.start_date, item.end_date)
-        if (streakLength > maxStreak) {
-          maxStreak = streakLength
-        }
       })
-
-      currentStreak.value = maxStreak
-      const today = new Date().toISOString().split('T')[0]
-      todayMarked.value = !!readingData.value[today]
-    } else {
-      console.error('Invalid streaks format', res.data)
     }
+    readingData.value = data
   } catch (e) {
     console.error('Failed to load streaks', e)
   }
@@ -141,11 +139,13 @@ const loadStreaks = async () => {
 const markAsRead = async () => {
   if (!todayMarked.value) {
     try {
-      const today = new Date().toISOString().split('T')[0]
-      await apiCheckIn(authStore.user.id)
-      readingData.value[today] = true
-      currentStreak.value++
-      todayMarked.value = true
+      console.log("STARTED")
+      console.log(authStore.streaks)
+      await authStore.checkIn()
+      await loadStreaks()
+      console.log("SUCCESS")
+      console.log(todayMarked.value)
+      console.log(authStore.streaks)
     } catch (error) {
       console.error('Failed to mark today as read', error)
     }
@@ -205,7 +205,6 @@ const calculateStreakLength = (startDate, endDate = null) => {
 
 
 onMounted(() => {
-  console.log(authStore.user)
   loadStreaks()
 })
 </script>

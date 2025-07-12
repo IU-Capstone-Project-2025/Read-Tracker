@@ -167,3 +167,23 @@ export const updateUserVisibility = async (userId, isVisible, token) => {
     throw new Error(errorMsg)
   }
 }
+
+export async function apiLoadStreaks(userId) {
+    const response = await api.post('me/streaks', {
+      user_id: userId
+    })
+    if (response.data.status === 'success') {
+      return response.data.data
+    }
+    throw new Error('Failed to load streaks')
+}
+
+export async function apiCheckIn(userId) {
+    const response = await api.post('me/streaks', {
+      user_id: userId
+    })
+    if (response.data.status === 'success') {
+        return true
+    }
+    throw new Error('Failed to check in')
+}

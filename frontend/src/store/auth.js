@@ -7,7 +7,9 @@ import {
   resetPassword,
   updateUserAvatar,
   updateUserPassword,
-  updateUserVisibility
+  updateUserVisibility,
+  apiLoadStreaks,
+  apiCheckIn
 } from '@/api/users'
 import { useBooksStore } from './books'
 import { useCollectionsStore } from './collections'
@@ -21,7 +23,8 @@ export const useAuthStore = defineStore('auth', {
     token: localStorage.getItem(config.app.authTokenStorageKey) || null,
     loading: false,
     error: null,
-    isInitialized: false
+    isInitialized: false,
+    streaks: []
   }),
   getters: {
     isAuthenticated: (state) => state.isInitialized
@@ -78,6 +81,7 @@ export const useAuthStore = defineStore('auth', {
           const reviewsStore = useReviewsStore()
 
           this.user = response.data
+          this.user.created_at = new Date(this.user.created_at).getFullYear()
 
           await booksStore.init(this.user.id)
           await collectionsStore.init(this.user.id)
@@ -101,11 +105,11 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     
-    async logout(router) {
+    async logout() {
       this.user = null
       this.token = null
       localStorage.removeItem(config.app.authTokenStorageKey)
-      router.push('/login')
+      this.isInitialized = false
     },
     
     async requestPasswordReset(email) {
@@ -181,6 +185,29 @@ export const useAuthStore = defineStore('auth', {
         throw error
       } finally {
         this.loading = false
+      }
+    },
+
+    async loadStreaks() {
+      try {
+        if (!this.user) throw new Error('User not authenticated')
+        const data = await apiLoadStreaks(this.user.id)
+        this.streaks = data
+        return data
+      }
+      catch (error) {
+        throw error
+      } 
+    },
+
+    async checkIn() {
+      try {
+        if (!this.user) throw new Error('User not authenticated')
+        await apiCheckIn(this.user.id)
+        return true
+      }
+      catch (error) {
+        throw error
       }
     }
   }

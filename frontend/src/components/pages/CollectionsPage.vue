@@ -3,7 +3,11 @@
     <div class="page-header">
       <h1 class="page-title">My Collections</h1>
       <p class="page-subtitle">Organize your books into collections</p>
-      <button class="create-btn" @click="showCreateModal = true">
+      <button 
+        v-if="collections.length > 0" 
+        class="create-btn" 
+        @click="showCreateModal = true"
+      >
         <i class="fas fa-plus"></i> New Collection
       </button>
     </div>
