@@ -73,6 +73,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/store/auth'
 import NoteForm from '@/components/notes/NoteForm.vue'
 import NoteList from '@/components/notes/NoteList.vue'
 import ReviewEditor from '@/components/reviews/ReviewEditor.vue'
@@ -84,6 +85,7 @@ import { useBooksStore } from '@/store/books'
 
 const route = useRoute()
 const bookId = route.params.id
+const authStore = useAuthStore()
 
 const notesStore = useNotesStore()
 const reviewsStore = useReviewsStore()
@@ -106,9 +108,15 @@ onMounted(async () => {
       description: 'Book description not available.',
       cover: '/images/placeholder.png'
     }
+    
+    const userId = authStore.user?.id
+    if (!userId) {
+      throw new Error('User not authenticated')
+    }
+
     await notesStore.fetchNotes(bookId)
-    await reviewsStore.fetchReviews(bookId)
-    await reviewsStore.fetchCommunityReviews(bookId)
+    await reviewsStore.fetchReviews(bookId, userId)
+    await reviewsStore.fetchCommunityReviews(bookId, userId)
   } catch (e) {
     console.error('Failed to load book, notes or reviews:', e)
   } finally {
@@ -148,14 +156,18 @@ const saveReview = async (reviewData) => {
     return
   }
   try {
+    const userId = authStore.user?.id
+    if (!userId) {
+      throw new Error('User not authenticated')
+    }
+
     if (editingReview.value && existingReview.value) {
-      await reviewsStore.updateReview(bookId, reviewData)
+      await reviewsStore.updateReview(bookId, reviewData, userId)
     } else {
-      await reviewsStore.addReview(bookId, reviewData)
+      await reviewsStore.addReview(bookId, reviewData, userId)
     }
     editingReview.value = false
-    await reviewsStore.fetchReviews(bookId)
-    console.log('Reviews from store:', reviewsStore.reviews)
+    await reviewsStore.fetchReviews(bookId, userId)
   } catch (e) {
     console.error('Failed to save review:', e)
   }
@@ -172,9 +184,14 @@ const cancelEdit = () => {
 const deleteReview = async () => {
   if (existingReview.value) {
     try {
-      await reviewsStore.deleteReview(bookId)
+      const userId = authStore.user?.id
+      if (!userId) {
+        throw new Error('User not authenticated')
+      }
+      
+      await reviewsStore.deleteReview(bookId, userId)
       editingReview.value = false
-      await reviewsStore.fetchReviews(bookId)
+      await reviewsStore.fetchReviews(bookId, userId)
     } catch (e) {
       console.error('Failed to delete review:', e)
     }
