@@ -122,3 +122,24 @@ export const deleteReview = async (userId, bookId) => {
     throw new Error(errorMsg)
   }
 }
+
+export async function getAllBookReviews(bookId) {
+  try {
+    console.log(`[API] Fetching all reviews for book ID: ${bookId}`)
+    const response = await api.get(`/books/${bookId}/reviews`)
+    
+    if (response.data.status !== 'success') {
+      const errorMsg = response.data.message || 'Failed to load book reviews. Please try again.'
+      console.error('[API] getAllBookReviews error:', errorMsg)
+      throw new Error(errorMsg)
+    }
+
+    console.log(`[API] Successfully fetched ${response.data.data.length} reviews for book ID: ${bookId}`)
+    return response.data
+  } catch (error) {
+    const errorMsg = error.response?.data?.message || 
+                    'Failed to load book reviews. The book may not exist or you may not have access.'
+    console.error('[API] getAllBookReviews exception:', errorMsg, error)
+    throw new Error(errorMsg)
+  }
+}
