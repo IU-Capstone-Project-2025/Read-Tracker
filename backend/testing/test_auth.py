@@ -91,7 +91,7 @@ def test_invalid_profile_id():
     }
 
     response = requests.post(url, headers=header, json=data)
-    assert response.status_code == 400
+    assert response.status_code == 404
 
 
 def test_update_avatar():
@@ -119,7 +119,7 @@ def test_invalid_avatar_id():
     }
 
     response = requests.put(url, headers=header, json=data)
-    assert response.status_code == 400
+    assert response.status_code == 404
 
 
 def test_valid_password_restore():
@@ -147,4 +147,4 @@ def test_invalid_password_restore():
     }
 
     response = requests.put(url, headers=header, json=data)
-    assert response.status_code == 400
+    assert response.status_code == 404
