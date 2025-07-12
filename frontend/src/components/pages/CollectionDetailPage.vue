@@ -21,7 +21,7 @@
         </div>
       </div>
       
-      <div class="collection-actions">
+      <div class="collection-actions" v-if="books.length > 0">
         <button class="action-btn primary" @click="addBooksToCollection">
           <i class="fas fa-plus"></i> Add Books
         </button>

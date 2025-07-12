@@ -12,8 +12,8 @@
       <router-view />
     </div>
     
-    <div v-if="isAuthenticated" class="toggle-btn" @click="toggleSidebar">
-      {{ isCollapsed ? '>' : '<' }}
+    <div v-if="isAuthenticated" class="toggle-btn" @click="goBack">
+      <
     </div>
   </div>
 </template>
@@ -45,8 +45,8 @@ const currentPage = computed(() => {
   return router.currentRoute.value.name || 'recommendations'
 })
 
-const toggleSidebar = () => {
-  isCollapsed.value = !isCollapsed.value
+const goBack = () => {
+  router.back()
 }
 
 const changePage = (page) => {
