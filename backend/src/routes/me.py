@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 @router.post("/check_in", response_model=BaseResponse, status_code=200)
 async def update_streak(request: TrackerRequest):
     logging.info("Function update_streak from me.py is called")
-    data, err = db_handler.getStreaks()
+    data, err = db_handler.getStreaks(user_id=request.user_id)
     if err:
         raise HTTPException(status_code=400, detail={
             "status": "error",
@@ -50,7 +50,7 @@ async def update_streak(request: TrackerRequest):
 
 @router.post("/streaks", response_model=TrackerResponse, status_code=200)
 async def get_streaks(request: TrackerRequest):
-    data, err = db_handler.getStreaks()
+    data, err = db_handler.getStreaks(user_id=request.user_id)
     answer = []
     if err:
         raise HTTPException(status_code=400, detail={
@@ -59,14 +59,13 @@ async def get_streaks(request: TrackerRequest):
         })
     if data:
         for streak in data:
-            if streak.user_id == request.user_id:
-                answer.append(TrackerData(
-                    id=streak.id,
-                    user_id=streak.user_id,
-                    start_date=streak.start_date,
-                    end_date=streak.end_date,
-                    last_marked=streak.last_marked
-                ))
+            answer.append(TrackerData(
+                id=streak.id,
+                user_id=streak.user_id,
+                start_date=streak.start_date,
+                end_date=streak.end_date,
+                last_marked=streak.last_marked
+            ))
     return {
         "status": "success",
         "message": "Streaks retrieved",
