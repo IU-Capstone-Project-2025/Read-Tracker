@@ -123,10 +123,12 @@ export const deleteReview = async (userId, bookId) => {
   }
 }
 
-export async function getAllBookReviews(bookId) {
+export async function getAllBookReviews(bookId, userId) {
   try {
     console.log(`[API] Fetching all reviews for book ID: ${bookId}`)
-    const response = await api.get(`/books/${bookId}/reviews`)
+    const response = await api.get(`/books/${bookId}/reviews`, {
+      data: { user_id: userId }
+    })
     
     if (response.data.status !== 'success') {
       const errorMsg = response.data.message || 'Failed to load book reviews. Please try again.'
