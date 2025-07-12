@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import {
   getMyReviews,
   getBookReviews,
+  getAllBookReviews,
   createReview,
   updateReview,
   deleteReview
@@ -10,6 +11,7 @@ import {
 export const useReviewsStore = defineStore('reviews', {
   state: () => ({
     reviews: [],
+    communityReviews: [],
     editingReviewId: null,
     userId: null
   }),
@@ -17,6 +19,15 @@ export const useReviewsStore = defineStore('reviews', {
   actions: {
     async init(userId) {
       this.userId = userId
+    },
+
+    async fetchCommunityReviews(bookId) {
+      try {
+        const data = await getAllBookReviews(bookId)
+        this.communityReviews = data.data || []
+      } catch (e) {
+        console.error('fetchCommunityReviews error:', e)
+      }
     },
 
     async fetchMyReviews() {
