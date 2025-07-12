@@ -40,17 +40,17 @@ async def get_notes(request: UserRequest, book_id: UUID):
 
 @router.put("/me/books/{book_id}/notes", response_model=BaseResponse, status_code=200)
 async def add_note(request: NoteRequest, book_id: UUID):
-    if not book_id:
-        raise HTTPException(status_code=404, detail={
-                "status": "error",
-                "message": "Book id not found"
-        })
     err = db_handler.addNote(book_id=book_id, user_id=request.user_id, text=request.text)
     if err:
-        print(err)
-        raise HTTPException(status_code=500, detail={
+        if isinstance(err, ValueError):
+            raise HTTPException(status_code=404, detail={
                 "status": "error",
-                "message": "Failed to add note"
+                "message": "Book not found."
+            })
+        print(err)
+        raise HTTPException(status_code=400, detail={
+            "status": "error",
+            "message": str(err)
         })
     return {
         "status": "success",
