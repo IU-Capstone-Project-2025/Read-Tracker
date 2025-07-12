@@ -24,10 +24,16 @@ export const useAuthStore = defineStore('auth', {
     loading: false,
     error: null,
     isInitialized: false,
-    streaks: []
+    streaks: [],
+    localMarks: JSON.parse(localStorage.getItem('reading_marks') || '{}'),
+    todayMarked: false,
   }),
   getters: {
-    isAuthenticated: (state) => state.isInitialized
+    isAuthenticated: (state) => state.isInitialized,
+    todayMarkedLocal: (state) => {
+      const today = new Date().toISOString().slice(0, 10)
+      return !!state.localMarks[today]
+    }
   },
   actions: {
     async register(userData) {
@@ -93,6 +99,8 @@ export const useAuthStore = defineStore('auth', {
             collectionsStore.fetchCollections(),
             reviewsStore.fetchMyReviews()
           ])
+
+          await this.loadLocalMarks()
           this.isInitialized = true
         } else {
           throw new Error(response.message || 'Failed to fetch profile')
@@ -146,7 +154,6 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await updateUserAvatar(this.user.id, avatarUrl, this.token)
         if (response.status === 'success') {
-          // Update local user data
           await this.fetchProfile()
         }
       } catch (error) {
@@ -179,13 +186,21 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         await updateUserVisibility(this.user.id, isVisible, this.token)
-        this.user.isVisible = isVisible
+        this.user.isVisible = isVisible 
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Visibility update failed'
         throw error
       } finally {
         this.loading = false
       }
+    },
+
+    async loadLocalMarks() {
+      const marks = JSON.parse(localStorage.getItem('reading_marks') || '{}')
+      const today = new Date().toISOString().slice(0, 10)
+
+      this.localMarks = marks
+      this.todayMarked = !!marks[today]
     },
 
     async loadStreaks() {
@@ -202,11 +217,14 @@ export const useAuthStore = defineStore('auth', {
 
     async checkIn() {
       try {
-        if (!this.user) throw new Error('User not authenticated')
         await apiCheckIn(this.user.id)
-        return true
+        const today = new Date().toISOString().slice(0, 10)
+        this.localMarks[today] = true
+        localStorage.setItem('reading_marks', JSON.stringify(this.localMarks))
+        this.todayMarked = true
       }
       catch (error) {
+        console.error(error)
         throw error
       }
     }

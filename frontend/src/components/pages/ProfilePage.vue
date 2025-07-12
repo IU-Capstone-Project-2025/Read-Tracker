@@ -30,9 +30,29 @@
       </div>
     </div>
 
+    <div class="streak-container">
+      <div class="streak-count">
+        <span>Your reading streak is: </span>
+        <template v-if="currentStreak > 0">
+          {{ currentStreak }} days in a row
+        </template>
+        <template v-else>
+          No current streak
+        </template>
+      </div>
+
+      <button
+        class="mark-read-button"
+        @click="markAsRead"
+        :disabled="todayMarked"
+      >
+        <i class="fas fa-check"></i> I have read today
+      </button>
+    </div>
+
     <div class="calendar-section">
       <div class="calendar-header">
-        <h3 class="calendar-title">Reading Calendar - {{ currentMonth }} {{ currentYear }}</h3>
+        <h3 class="calendar-title">Reading Calendar - {{ months[currentMonth] }} {{ currentYear }}</h3>
         <div class="month-navigation">
           <button class="nav-button" @click="prevMonth">
             <i class="fas fa-chevron-left"></i>
@@ -58,20 +78,6 @@
         </div>
       </div>
     </div>
-
-    <div class="streak-container">
-      <div class="streak-count">
-        {{ currentStreak }} days in a row
-        <span>Your reading streak</span>
-      </div>
-      <button
-        class="mark-read-button"
-        @click="markAsRead"
-        :disabled="todayMarked"
-      >
-        <i class="fas fa-check"></i> I have read today
-      </button>
-    </div>
   </div>
 </template>
 
@@ -95,60 +101,72 @@ const currentDate = new Date()
 const currentMonth = ref(currentDate.getMonth())
 const currentYear = ref(currentDate.getFullYear())
 
-const readingData = ref({})
+function ymdLocal(d) {
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 const currentStreak = computed(() => {
   if (!Array.isArray(authStore.streaks) || authStore.streaks.length === 0) return 0
 
   const latest = [...authStore.streaks].sort((a, b) => 
-    new Date(b.end_date) - new Date(a.end_date)
+    new Date(b.end_date ?? b.last_marked) - new Date(a.end_date ?? a.last_marked)
   )[0]
 
-  return latest ? calculateStreakLength(latest.start_date, latest.end_date) : 0
+  return latest ? calculateStreakLength(latest.start_date, latest.end_date ?? latest.last_marked) : 0
 })
 
-const todayMarked = computed(() => {
-  const today = new Date().toISOString().split('T')[0]
-  return !!readingData.value[today]
-})
+const readingData = ref({})
+const todayMarked = computed(() => authStore.todayMarkedLocal)
 
 const loadStreaks = async () => {
   try {
     await authStore.loadStreaks()
 
     const data = {}
+    const today = ymdLocal(new Date())
+    let foundToday = false
+
     if (Array.isArray(authStore.streaks)) {
       authStore.streaks.forEach((item) => {
         const start = new Date(item.start_date)
-        const end = new Date(item.end_date)
+        const end = item.end_date ? new Date(item.end_date) : new Date(item.last_marked)
         const date = new Date(start)
 
         while (date <= end) {
-          const dateStr = date.toISOString().split('T')[0]
+          const dateStr = ymdLocal(date)
           data[dateStr] = true
+          if (dateStr === today) foundToday = true
           date.setDate(date.getDate() + 1)
         }
       })
     }
+
     readingData.value = data
+    todayMarked.value = foundToday
+    console.log(authStore.streaks)
+    console.log('todayMarked:', todayMarked.value)
   } catch (e) {
     console.error('Failed to load streaks', e)
   }
 }
 
 const markAsRead = async () => {
-  if (!todayMarked.value) {
-    try {
-      console.log("STARTED")
-      console.log(authStore.streaks)
-      await authStore.checkIn()
-      await loadStreaks()
-      console.log("SUCCESS")
-      console.log(todayMarked.value)
-      console.log(authStore.streaks)
-    } catch (error) {
-      console.error('Failed to mark today as read', error)
+  try {
+    await authStore.checkIn()
+    await loadStreaks()
+    console.log('Marked today as read')
+
+    const today = ymdLocal(new Date())
+    readingData.value = {
+      ...readingData.value,
+      [today]: true
     }
+    todayMarked.value = true
+  } catch (error) {
+    console.error('Failed to mark today as read', error)
   }
 }
 
@@ -165,7 +183,7 @@ const calendarDays = computed(() => {
     const date = new Date(currentYear.value, currentMonth.value, i)
     days.push({
       day: i,
-      date: date.toISOString().split('T')[0]
+      date: ymdLocal(date)
     })
   }
 
@@ -173,7 +191,7 @@ const calendarDays = computed(() => {
 })
 
 const isToday = (dateString) => {
-  const today = new Date().toISOString().split('T')[0]
+  const today = ymdLocal(new Date())
   return dateString === today
 }
 
@@ -198,18 +216,33 @@ const nextMonth = () => {
 const calculateStreakLength = (startDate, endDate = null) => {
   const start = new Date(startDate)
   const end = endDate ? new Date(endDate) : new Date()
+  start.setHours(0, 0, 0, 0)
+  end.setHours(0, 0, 0, 0)
   const diffTime = end - start
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  return diffDays > 0 ? diffDays : 0
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays + 1 > 0 ? diffDays + 1 : 0
 }
 
-
 onMounted(() => {
+  authStore.loadLocalMarks()
   loadStreaks()
 })
 </script>
 
 <style scoped>
+.streak-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap; 
+}
+
+.streak-count {
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .calendar-day.has-data {
   background: #764ba2;
   color: white;

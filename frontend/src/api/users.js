@@ -179,7 +179,7 @@ export async function apiLoadStreaks(userId) {
 }
 
 export async function apiCheckIn(userId) {
-    const response = await api.post('me/streaks', {
+    const response = await api.post('me/check_in', {
       user_id: userId
     })
     if (response.data.status === 'success') {
