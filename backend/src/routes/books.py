@@ -36,10 +36,16 @@ async def get_book(book_id: int):
     data, err = db_handler.getBook(book_id=book_id)
     answer = []
     if err:
-        raise HTTPException(status_code=400, detail={
-            "status": "error",
-            "message": str(err)
-        })
+        if isinstance(err, ValueError):
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "Book not found."
+            })
+        else:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "message": str(err)
+            })
     if data:
         for book in data:
             answer.append(BookData(id=book.id,

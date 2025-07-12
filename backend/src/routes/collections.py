@@ -98,6 +98,7 @@ async def create_collection(request: CollectionRequestWithUserID):
         cover=request.cover,
     )
     if err:
+
         print(err)
         raise HTTPException(status_code=400, detail={
             "status": "error",
@@ -121,6 +122,11 @@ async def update_collection(request: CollectionRequest, collection_id: UUID):
         cover=request.cover
     )
     if err:
+        if isinstance(err, ValueError):
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "Collecction not found."
+            })
         print(err)
         raise HTTPException(status_code=400, detail={
             "status": "error",
@@ -137,6 +143,11 @@ async def update_collection(request: CollectionRequest, collection_id: UUID):
 async def delete_collection(collection_id: UUID):
     err = db_handler.deleteCollection(collection_id)
     if err:
+        if isinstance(err, ValueError):
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "Collection not found."
+            })
         print(err)
         raise HTTPException(status_code=400, detail={
             "status": "error",

@@ -68,7 +68,7 @@ async def get_user_profile(request: UserRequest):
     data, err = db_handler.getUser(request.user_id)
     if not data:
         if isinstance(err, ValueError):
-            raise HTTPException(status_code=400, detail={
+            raise HTTPException(status_code=404, detail={
                 "status": "error",
                 "message": "No user found"
             })
@@ -99,7 +99,7 @@ async def update_avatar(request: UpdateAvatarRequest):
                                   avatar=request.avatar)
     if err:
         if isinstance(err, ValueError):
-            raise HTTPException(status_code=400, detail={
+            raise HTTPException(status_code=404, detail={
                 "status": "error",
                 "message": "No user found."
             })
@@ -118,12 +118,10 @@ async def update_avatar(request: UpdateAvatarRequest):
 @router.put("/profile/password", response_model=BaseResponse, status_code=200)
 async def change_password(request: PasswordRestoreRequest):
     logging.info("Function change_password from auth.py is called")
-    if request:
-        pass
     err = db_handler.resetPassword(password=request.password, user_id=request.user_id)
     if err:
         if isinstance(err, ValueError):
-            raise HTTPException(status_code=400, detail={
+            raise HTTPException(status_code=404, detail={
                 "status": "error",
                 "message": "No user found."
             })
