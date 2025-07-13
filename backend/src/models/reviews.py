@@ -5,9 +5,9 @@ from src.models.base_response import BaseResponse
 from typing import List, Optional
 
 
-class ReviewRequest(BaseResponse):
+class ReviewRequest(BaseModel):
     user_id: UUID
-    rate: int = Optional[Field(ge=1, le=10)]
+    rate: Optional[int] = Field(ge=1, le=10)
     text: Optional[str]
 
 
