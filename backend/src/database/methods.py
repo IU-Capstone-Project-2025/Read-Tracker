@@ -15,8 +15,7 @@ class DBHandler:
         self.fixed_user_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
 
     def getReview(self, user_id: Optional[uuid.UUID] = None, book_id: Optional[uuid.UUID] = None) -> Tuple[List[Review], Optional[Exception]]:
-        if user_id is None:
-            user_id = self.fixed_user_id
+
         session = self.Session()
         try:
             if not user_id and not book_id:
@@ -740,6 +739,20 @@ class DBHandler:
 
         except SQLAlchemyError as e:
             print(f"Error retrieving reviews for follower {follower_id}: {str(e)}")
+            return [], e
+        finally:
+            session.close()
+
+    def getBookReviews(self, book_id: Optional[uuid.UUID] = None) -> Tuple[List[Review], Optional[Exception]]:
+        if book_id is None:
+            return [], ValueError(f"book_id was not provided")
+        session = self.Session()
+        try:
+            if not session.query(Book).get(book_id):
+                return [], ValueError(f"Book {book_id} not found")
+            return self.getReview(book_id=book_id)
+        except SQLAlchemyError as e:
+            print(f"Error retrieving reviews for book {book_id}: {str(e)}")
             return [], e
         finally:
             session.close()
