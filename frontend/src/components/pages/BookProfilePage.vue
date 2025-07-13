@@ -82,14 +82,16 @@ import CommunityReviewCard from '@/components/reviews/CommunityReviewCard.vue'
 import { useNotesStore } from '@/store/notes'
 import { useReviewsStore } from '@/store/reviews'
 import { useBooksStore } from '@/store/books'
+import { useSubscriptionsStore } from '@/store/subscriptions'
 
 const route = useRoute()
 const bookId = route.params.id
-const authStore = useAuthStore()
 
+const authStore = useAuthStore()
 const notesStore = useNotesStore()
 const reviewsStore = useReviewsStore()
 const booksStore = useBooksStore()
+const subscriptionsStore = useSubscriptionsStore()
 
 const book = ref(null)
 const loading = ref(true)
@@ -108,15 +110,13 @@ onMounted(async () => {
       description: 'Book description not available.',
       cover: '/images/placeholder.png'
     }
-    
-    const userId = authStore.user?.id
-    if (!userId) {
-      throw new Error('User not authenticated')
-    }
-
     await notesStore.fetchNotes(bookId)
-    await reviewsStore.fetchReviews(bookId, userId)
-    await reviewsStore.fetchCommunityReviews(bookId, userId)
+    await reviewsStore.fetchReviews(bookId)
+    await reviewsStore.fetchCommunityReviews(bookId)
+    
+    if (authStore.isAuthenticated) {
+      await subscriptionsStore.fetchSubscriptions(authStore.user.id)
+    }
   } catch (e) {
     console.error('Failed to load book, notes or reviews:', e)
   } finally {
@@ -156,18 +156,13 @@ const saveReview = async (reviewData) => {
     return
   }
   try {
-    const userId = authStore.user?.id
-    if (!userId) {
-      throw new Error('User not authenticated')
-    }
-
     if (editingReview.value && existingReview.value) {
-      await reviewsStore.updateReview(bookId, reviewData, userId)
+      await reviewsStore.updateReview(bookId, reviewData)
     } else {
-      await reviewsStore.addReview(bookId, reviewData, userId)
+      await reviewsStore.addReview(bookId, reviewData)
     }
     editingReview.value = false
-    await reviewsStore.fetchReviews(bookId, userId)
+    await reviewsStore.fetchReviews(bookId)
   } catch (e) {
     console.error('Failed to save review:', e)
   }
@@ -184,14 +179,9 @@ const cancelEdit = () => {
 const deleteReview = async () => {
   if (existingReview.value) {
     try {
-      const userId = authStore.user?.id
-      if (!userId) {
-        throw new Error('User not authenticated')
-      }
-      
-      await reviewsStore.deleteReview(bookId, userId)
+      await reviewsStore.deleteReview(bookId)
       editingReview.value = false
-      await reviewsStore.fetchReviews(bookId, userId)
+      await reviewsStore.fetchReviews(bookId)
     } catch (e) {
       console.error('Failed to delete review:', e)
     }

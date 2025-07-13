@@ -96,6 +96,7 @@ export const useAuthStore = defineStore('auth', {
           await notesStore.init(this.user.id)
           await reviewsStore.init(this.user.id)
           await subscriptionsStore.init(this.user.id)
+          await subscriptionsStore.fetchSubscriptions(this.user.id)
 
           await Promise.all([
             booksStore.fetchBooks(),
