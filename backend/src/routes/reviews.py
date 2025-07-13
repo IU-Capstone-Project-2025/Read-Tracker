@@ -6,6 +6,10 @@ from src.models.user import UserRequest
 from src.database.db_instance import db_handler
 from uuid import UUID
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 router = APIRouter(tags=["Reviews"])
 
 
@@ -36,7 +40,9 @@ async def get_reviews(request: UserRequest):
 
 @router.get("/me/reviews/{book_id}/all_reviews")
 async def get_reviews_for_book(book_id: UUID):
-    data, err = db_handler.getReview(book_id=book_id)
+    logging.info("Method get_reviews_for_book started")
+    data, err = db_handler.getBookReviews(book_id=book_id)
+    logging.debug(data)
     answer = []
     if err:
         if isinstance(err, ValueError):
@@ -58,6 +64,8 @@ async def get_reviews_for_book(book_id: UUID):
                 user_id=review.user_id,
                 created_at=review.created_at
             ))
+    logging.debug(answer)
+    logging.info("Method get_reviews_for_book finished successfully")
     return {
         "status": "success",
         "message": "Reviews retrieved",
@@ -98,9 +106,20 @@ async def get_review(request: UserRequest, book_id: UUID):
 
 @router.post("/me/reviews/{book_id}/new", response_model=BaseResponse, status_code=200)
 async def create_review(request: ReviewRequest, book_id: UUID):
-    if not book_id:
-        raise HTTPException(status_code=404, detail="Book id not found")
+    logging.info("Method create_review started")
     err = db_handler.addReview(user_id=request.user_id, book_id=book_id, rate=request.rate, text=request.text)
+    if err:
+        if isinstance(err, ValueError):
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": "Book not found."
+            })
+        else:
+            raise HTTPException(status_code=400, detail={
+                "status": "error",
+                "message": str(err)
+            })
+    logging.info("Method create_review finished successfully")
     return {
         "status": "success",
         "message": "Review created"
