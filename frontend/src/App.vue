@@ -24,20 +24,21 @@ import { useRouter } from 'vue-router'
 import NavigationPanel from './components/NavigationPanel.vue'
 import { useAuthStore } from '@/store/auth'
 import { useBooksStore } from '@/store/books'
+import { useSubscriptionsStore } from '@/store/subscriptions'
 
 const router = useRouter()
 const isCollapsed = ref(false)
 const authStore = useAuthStore()
 const booksStore = useBooksStore()
+const subscriptionsStore = useSubscriptionsStore()
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 onMounted(async () => {
   if (authStore.token) {
     await authStore.fetchProfile()
-  }
-  if (!booksStore.books.length && isAuthenticated.value) {
     await booksStore.fetchBooks()
+    await subscriptionsStore.fetchSubscriptions(authStore.user.id)
   }
 })
 
@@ -55,12 +56,46 @@ const changePage = (page) => {
 </script>
 
 <style scoped>
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  transition: all 0.3s ease;
+  margin-left: 0px;
+  width: calc(100% - 250px);
+}
+
 .full-width {
   margin-left: 0;
   width: 100%;
 }
 
-.main-content {
-  transition: all 0.3s ease;
+.toggle-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 230px;
+  background: #5d3787;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
 }
 </style>
