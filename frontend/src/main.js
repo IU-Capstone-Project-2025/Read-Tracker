@@ -17,6 +17,7 @@ import ReviewsPage from './components/pages/ReviewsPage.vue'
 import CollectionsPage from './components/pages/CollectionsPage.vue'
 import BookProfilePage from './components/pages/BookProfilePage.vue'
 import CollectionDetailPage from './components/pages/CollectionDetailPage.vue'
+import SubscriptionsPage from './components/pages/SubscriptionsPage.vue'
 import { useAuthStore } from './store/auth'
 
 const router = createRouter({
@@ -33,6 +34,7 @@ const router = createRouter({
     { path: '/collections', name: 'collections', component: CollectionsPage, meta: { requiresAuth: true } },
     { path: '/book/:id', name: 'bookProfile', component: BookProfilePage, props: true, meta: { requiresAuth: true } },
     { path: '/collection/:id', name: 'collectionDetail', component: CollectionDetailPage, props: true, meta: { requiresAuth: true } },
+    { path: '/subscriptions', name: 'subscriptions', component: SubscriptionsPage, meta: { requiresAuth: true } },
     { path: '/:pathMatch(.*)*', redirect: '/' }
   ]
 })

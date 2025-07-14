@@ -19,6 +19,7 @@ export const useSubscriptionsStore = defineStore('subscriptions', {
         this.subscriptions = response.data || []
       } catch (e) {
         console.error('fetchSubscriptions error:', e)
+        throw e
       } finally {
         this.loading = false
       }

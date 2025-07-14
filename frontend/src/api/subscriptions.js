@@ -56,6 +56,8 @@ export const getUserSubscriptions = async (userId) => {
       console.error('[API] getUserSubscriptions error:', errorMsg)
       throw new Error(errorMsg)
     }
+    
+    console.log(`[API] Successfully fetched ${response.data.data.length} subscriptions`)
     return response.data
   } catch (error) {
     const errorMsg = error.response?.data?.message || 
