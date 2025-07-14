@@ -300,6 +300,18 @@ paths:
                         cover:
                           type: string
                           format: uri
+                        tags:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              name:
+                                type: string
+                              description:
+                                type: string
         '400':
           description: Bad request
           content:
@@ -348,8 +360,18 @@ paths:
                       cover:
                         type: string
                         format: uri
-                      status:
-                        type: string
+                      tags:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            description:
+                              type: string
         '404':
           description: Book not found
           content:
@@ -941,6 +963,18 @@ paths:
                       created_at:
                         type: string
                         format: date
+                      tags:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            description:
+                              type: string
         '400':
           description: Database returned error
           content:
