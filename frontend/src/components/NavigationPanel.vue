@@ -52,6 +52,15 @@
         <span class="menu-icon"><i class="fas fa-pen"></i></span>
         <span class="menu-text">My Reviews</span>
       </div>
+
+      <div
+        class="menu-item"
+        :class="{ active: currentPage === 'subscriptions' }"
+        @click="$emit('navigate', 'subscriptions')"
+      >
+        <span class="menu-icon"><i class="fas fa-user-friends"></i></span>
+        <span class="menu-text">Subscriptions</span>
+      </div>
     </div>
 
     <div class="bottom-menu">
