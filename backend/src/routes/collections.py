@@ -34,13 +34,31 @@ async def get_collection(collection_id: UUID):
     books = []
     if collection_books:
         for book in collection_books:
+            tag_objects, tag_err = db_handler.getTags(book.id)
+            if tag_err:
+                if isinstance(err, ValueError):
+                    raise HTTPException(status_code=404, detail={
+                        "status": "error",
+                        "message": "Book not found."
+                    })
+                else:
+                    raise HTTPException(status_code=400, detail={
+                        "status": "error",
+                        "message": str(err)
+                    })
+            tags = []
+            for tag in tag_objects:
+                tags.append(TagData(id=tag.id,
+                                    name=tag.name,
+                                    description=tag.description))
             books.append(BookData(id=book.id,
                                   author=book.author,
                                   title=book.title,
                                   language=book.language,
                                   description=book.description,
-                                  cover=book.cover))
-
+                                  cover=book.cover,
+                                  tags=tags))
+    logging.debug(books)
     logging.info("Function completed successfully")
     return {
         "status": "success",
