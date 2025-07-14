@@ -756,3 +756,22 @@ class DBHandler:
             return [], e
         finally:
             session.close()
+
+    def getTags(self, book_id: uuid.UUID) -> Tuple[List[Tag], Optional[Exception]]:
+        if book_id is None:
+            return [], ValueError("book_id must be provided")
+        session = self.Session()
+        try:
+            if not session.query(Book).get(book_id):
+                return [], ValueError(f"Book with ID {book_id} not found")
+            book_tags = session.query(BookTag).filter_by(book_id=book_id).all()
+            if not book_tags:
+                return [], None
+            tag_ids = [bt.tag_id for bt in book_tags]
+            tags = session.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+            return tags, None
+        except SQLAlchemyError as e:
+            print(f"Error retrieving tags for book {book_id}: {str(e)}")
+            return [], e
+        finally:
+            session.close()
