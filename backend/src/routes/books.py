@@ -1,7 +1,11 @@
 from fastapi import APIRouter
 
 from src.database.db_instance import db_handler
-from src.models.books import BookData, BookResponse
+from src.models.books import BookData, BookResponse, TagData
+
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 router = APIRouter(prefix="/books", tags=["Books"])
 
 
@@ -16,12 +20,31 @@ async def get_books():
         })
     if data:
         for book in data:
+            tag_objects, tag_err = db_handler.getTags(book.id)
+            if tag_err:
+                if isinstance(err, ValueError):
+                    raise HTTPException(status_code=404, detail={
+                        "status": "error",
+                        "message": "Book not found."
+                    })
+                else:
+                    raise HTTPException(status_code=400, detail={
+                        "status": "error",
+                        "message": str(err)
+                    })
+            tags = []
+            for tag in tag_objects:
+                tags.append(TagData(id=tag.id,
+                                    name=tag.name,
+                                    description=tag.description))
             answer.append(BookData(id=book.id,
                                    author=book.author,
                                    title=book.title,
                                    language=book.language,
                                    description=book.description,
-                                   cover=book.cover))
+                                   cover=book.cover,
+                                   tags=tags))
+    logging.debug(answer)
     return {
         "status": "success",
         "message": "Books retrieved",
@@ -48,12 +71,31 @@ async def get_book(book_id: int):
             })
     if data:
         for book in data:
+            tag_objects, tag_err = db_handler.getTags(book.id)
+            if tag_err:
+                if isinstance(err, ValueError):
+                    raise HTTPException(status_code=404, detail={
+                        "status": "error",
+                        "message": "Book not found."
+                    })
+                else:
+                    raise HTTPException(status_code=400, detail={
+                        "status": "error",
+                        "message": str(err)
+                    })
+            tags = []
+            for tag in tag_objects:
+                tags.append(TagData(id=tag.id,
+                                    name=tag.name,
+                                    description=tag.description))
             answer.append(BookData(id=book.id,
                                    author=book.author,
                                    title=book.title,
                                    language=book.language,
                                    description=book.description,
-                                   cover=book.cover))
+                                   cover=book.cover,
+                                   tags=tags))
+    logging.debug(answer)
     return {
         "status": "success",
         "message": "Book details retrieved",

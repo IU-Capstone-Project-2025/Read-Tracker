@@ -300,6 +300,18 @@ paths:
                         cover:
                           type: string
                           format: uri
+                        tags:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              name:
+                                type: string
+                              description:
+                                type: string
         '400':
           description: Bad request
           content:
@@ -348,8 +360,18 @@ paths:
                       cover:
                         type: string
                         format: uri
-                      status:
-                        type: string
+                      tags:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            description:
+                              type: string
         '404':
           description: Book not found
           content:
@@ -737,6 +759,69 @@ paths:
                   message:
                     type: string
 
+  /me/reviews/{book_id}/all_reviews:
+    get:
+      summary: Get all reviews written to book with book_id
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      rate:
+                        type: string
+                      text:
+                        type: string
+                      book_id:
+                        type: string
+                        format: uuid
+                      user_id:
+                        type: string
+                        format: uuid
+                      created_at:
+                        type: string
+                        format: date
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+
   /me/collections/all:
     post:
       summary: Get all collections
@@ -878,6 +963,18 @@ paths:
                       created_at:
                         type: string
                         format: date
+                      tags:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            description:
+                              type: string
         '400':
           description: Database returned error
           content:
