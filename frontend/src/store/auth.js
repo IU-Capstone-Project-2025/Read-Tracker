@@ -15,6 +15,7 @@ import { useBooksStore } from './books'
 import { useCollectionsStore } from './collections'
 import { useNotesStore } from './notes'
 import { useReviewsStore } from './reviews'
+import { useSubscriptionsStore } from './subscriptions'
 import config from '@/runtimeConfig'
 
 export const useAuthStore = defineStore('auth', {
@@ -85,6 +86,7 @@ export const useAuthStore = defineStore('auth', {
           const collectionsStore = useCollectionsStore()
           const notesStore = useNotesStore()
           const reviewsStore = useReviewsStore()
+          const subscriptionsStore = useSubscriptionsStore()
 
           this.user = response.data
           this.user.created_at = new Date(this.user.created_at).getFullYear()
@@ -93,6 +95,7 @@ export const useAuthStore = defineStore('auth', {
           await collectionsStore.init(this.user.id)
           await notesStore.init(this.user.id)
           await reviewsStore.init(this.user.id)
+          await subscriptionsStore.init(this.user.id)
 
           await Promise.all([
             booksStore.fetchBooks(),
