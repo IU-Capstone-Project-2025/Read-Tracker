@@ -123,25 +123,34 @@ export const deleteReview = async (userId, bookId) => {
   }
 }
 
-export async function getAllBookReviews(bookId, userId) {
+export async function getAllBookReviews(book_id) {
   try {
-    console.log(`[API] Fetching all reviews for book ID: ${bookId}`)
-    const response = await api.get(`/books/${bookId}/reviews`, {
-      data: { user_id: userId }
-    })
+    console.log(`[API] Fetching all reviews for book ID: ${book_id}`);
+    const response = await api.get(`/me/reviews/${book_id}/all_reviews`);
     
     if (response.data.status !== 'success') {
-      const errorMsg = response.data.message || 'Failed to load book reviews. Please try again.'
-      console.error('[API] getAllBookReviews error:', errorMsg)
-      throw new Error(errorMsg)
+      const errorMsg = response.data.message || 'Failed to load book reviews. Please try again.';
+      console.error('[API] getAllBookReviews error:', errorMsg);
+      throw new Error(errorMsg);
     }
 
-    console.log(`[API] Successfully fetched ${response.data.data.length} reviews for book ID: ${bookId}`)
-    return response.data
+    console.log(`[API] Successfully fetched ${response.data.data.length} reviews for book ID: ${book_id}`);
+    return response.data;
   } catch (error) {
-    const errorMsg = error.response?.data?.message || 
-                    'Failed to load book reviews. The book may not exist or you may not have access.'
-    console.error('[API] getAllBookReviews exception:', errorMsg, error)
-    throw new Error(errorMsg)
+    let errorMsg;
+    if (error.response) {
+      if (error.response.status === 404) {
+        errorMsg = 'Book not found.';
+      } else if (error.response.status === 400) {
+        errorMsg = error.response.data?.message || 'Invalid request.';
+      } else {
+        errorMsg = error.response.data?.message || 'Failed to load book reviews. Please try again.';
+      }
+    } else {
+      errorMsg = 'Failed to load book reviews. Please check your connection and try again.';
+    }
+    
+    console.error('[API] getAllBookReviews exception:', errorMsg, error);
+    throw new Error(errorMsg);
   }
 }
