@@ -41,13 +41,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useBooksStore } from '@/store/books'
-import { useReviewsStore } from '@/store/reviews'
+import { useSubscriptionsStore } from '@/store/subscriptions'
 
 const booksStore = useBooksStore()
-const reviewsStore = useReviewsStore()
+const reviewsStore = useSubscriptionsStore()
 
 onMounted(async () => {
-  await reviewsStore.fetchMyReviews()
+  await reviewsStore.getAllReviews()
 })
 
 const reviewsWithBooks = computed(() => {
