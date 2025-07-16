@@ -61,6 +61,7 @@ async def get_reviews(request: SubscriptionReviewsRequestByPublisher):
         })
     data, err = db_handler.getReview(user_id=request.publisher_id)
     answer = []
+
     if err:
         logging.info(f"Database returned error: {err}")
         raise HTTPException(status_code=400, detail={
