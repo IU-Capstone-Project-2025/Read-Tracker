@@ -44,8 +44,8 @@ export const useSubscriptionsStore = defineStore('subscriptions', {
     async subscribe(publisherId, subscriberId) {
       try {
         const response = await subscribeToUser(publisherId, subscriberId)
-        this.subscriptions.push(response.data)
-        return response.data
+        this.subscriptions.push(publisherId)
+        return publisherId
       } catch (e) {
         console.error('subscribe error:', e)
         throw e

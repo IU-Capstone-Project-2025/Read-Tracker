@@ -2,13 +2,13 @@
   <div class="review-card">
     <div class="review-header">
       <img 
-        :src="review.user.avatar || '/images/avatar-placeholder.png'" 
-        :alt="review.user.username" 
+        src="/images/placeholder.png" 
+        alt="No avater available" 
         class="avatar"
       />
       <div class="user-info">
         <div class="username-container">
-          <h3 class="username">{{ review.user.username }}</h3>
+          <h3 class="username">{{ review.user_id }}</h3>
           <button 
             v-if="showSubscribeButton"
             @click="toggleSubscription"
@@ -49,12 +49,12 @@ const subscriptionLoading = ref(false)
 
 const currentUserId = computed(() => authStore.user?.id)
 const showSubscribeButton = computed(() => 
-  currentUserId.value && props.review.user.id !== currentUserId.value
+  currentUserId.value && props.review.user_id !== currentUserId.value
 )
 
 const isSubscribed = computed(() => {
   if (!currentUserId.value) return false
-  return subscriptionsStore.isSubscribedTo(props.review.user.id)
+  return subscriptionsStore.isSubscribedTo(props.review.user_id)
 })
 
 const formatDate = (dateString) => {
@@ -68,12 +68,12 @@ const toggleSubscription = async () => {
   subscriptionLoading.value = true
   try {
     if (isSubscribed.value) {
-      const subscriptionId = subscriptionsStore.getSubscriptionId(props.review.user.id)
+      const subscriptionId = subscriptionsStore.getSubscriptionId(props.review.user_id)
       if (subscriptionId) {
         await subscriptionsStore.unsubscribe(subscriptionId)
       }
     } else {
-      await subscriptionsStore.subscribe(props.review.user.id, currentUserId.value)
+      await subscriptionsStore.subscribe(props.review.user_id, currentUserId.value)
     }
   } catch (e) {
     console.error('Subscription toggle failed:', e)
