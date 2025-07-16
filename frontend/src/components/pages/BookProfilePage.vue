@@ -27,6 +27,22 @@
       </div>
     </div>
 
+    <!-- Community Reviews Section -->
+    <div class="community-reviews-section">
+      <h2>Community Reviews</h2>
+      <div v-if="communityReviewsLoading" class="loading">Loading community reviews...</div>
+      <div v-else>
+        <div v-if="communityReviews.length" class="reviews-feed">
+          <CommunityReviewCard 
+            v-for="review in communityReviews" 
+            :key="review.id" 
+            :review="review" 
+          />
+        </div>
+        <p v-else class="no-reviews">No community reviews yet. Be the first to review!</p>
+      </div>
+    </div>
+
     <div class="content-sections">
       <div class="notes-section">
         <h2>Your Notes</h2>
@@ -57,24 +73,30 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/store/auth'
 import NoteForm from '@/components/notes/NoteForm.vue'
 import NoteList from '@/components/notes/NoteList.vue'
 import ReviewEditor from '@/components/reviews/ReviewEditor.vue'
 import ReviewDisplay from '@/components/reviews/ReviewDisplay.vue'
+import CommunityReviewCard from '@/components/reviews/CommunityReviewCard.vue'
 import { useNotesStore } from '@/store/notes'
 import { useReviewsStore } from '@/store/reviews'
 import { useBooksStore } from '@/store/books'
+import { useSubscriptionsStore } from '@/store/subscriptions'
 
 const route = useRoute()
 const bookId = route.params.id
 
+const authStore = useAuthStore()
 const notesStore = useNotesStore()
 const reviewsStore = useReviewsStore()
 const booksStore = useBooksStore()
+const subscriptionsStore = useSubscriptionsStore()
 
 const book = ref(null)
 const loading = ref(true)
 const editingReview = ref(false)
+const communityReviewsLoading = ref(true)
 
 onMounted(async () => {
   try {
@@ -90,15 +112,22 @@ onMounted(async () => {
     }
     await notesStore.fetchNotes(bookId)
     await reviewsStore.fetchReviews(bookId)
+    await reviewsStore.fetchCommunityReviews(bookId)
+    
+    if (authStore.isAuthenticated) {
+      await subscriptionsStore.fetchSubscriptions(authStore.user_id)
+    }
   } catch (e) {
     console.error('Failed to load book, notes or reviews:', e)
   } finally {
     loading.value = false
+    communityReviewsLoading.value = false
   }
 })
 
 const notes = computed(() => notesStore.getNotesForBook(bookId))
 const existingReview = computed(() => reviewsStore.getReviewForBook(bookId))
+const communityReviews = computed(() => reviewsStore.communityReviews)
 
 watch(() => route.query, (query) => {
   editingReview.value = !!query.editReview
@@ -134,7 +163,6 @@ const saveReview = async (reviewData) => {
     }
     editingReview.value = false
     await reviewsStore.fetchReviews(bookId)
-    console.log('Reviews from store:', reviewsStore.reviews)
   } catch (e) {
     console.error('Failed to save review:', e)
   }
@@ -222,6 +250,33 @@ const deleteReview = async () => {
   font-size: 15px;
   line-height: 1.6;
   color: #444;
+}
+
+.community-reviews-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.reviews-feed {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.no-reviews {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 15px;
 }
 
 .content-sections {
