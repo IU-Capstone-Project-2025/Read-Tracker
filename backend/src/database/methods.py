@@ -775,3 +775,20 @@ class DBHandler:
             return [], e
         finally:
             session.close()
+
+    def getPublishers(self, follower_id: Optional[uuid.UUID] = None) -> Tuple[List[Users], Optional[Exception]]:
+        session = self.Session()
+        try:
+            if not session.query(Users).get(follower_id):
+                return [], ValueError(f"Follower user {follower_id} not found")
+            subscriptions = session.query(Subscription).filter_by(follower_id=follower_id).all()
+            subscribed_ids = [sub.subscribed_id for sub in subscriptions]
+            if not subscribed_ids:
+                return [], None
+            publishers = session.query(Users).filter(Users.user_id.in_(subscribed_ids)).all()
+            return publishers, None
+        except SQLAlchemyError as e:
+            print(f"Error retrieving reviews for follower {follower_id}: {str(e)}")
+            return [], e
+        finally:
+            session.close()
