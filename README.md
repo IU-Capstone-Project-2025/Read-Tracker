@@ -7,10 +7,10 @@ about books you've read, create unique collections, and share your discoveries w
 
 <div align = center><img src=".github/assets/banner.png"><br><br>
   
-&ensp;[<kbd> <br> Team members <br> </kbd>](-team-members)&ensp;
-&ensp;[<kbd> <br> Tech-stack <br> </kbd>](-tech-stack)&ensp;
-&ensp;[<kbd> <br> Installation <br> </kbd>](-installation)&ensp;
-&ensp;[<kbd> <br> Demonstration <br> </kbd>](-demonstration)&ensp;
+&ensp;[<kbd> <br> Team members <br> </kbd>](#-team-members)&ensp;
+&ensp;[<kbd> <br> Tech-stack <br> </kbd>](#-tech-stack)&ensp;
+&ensp;[<kbd> <br> Installation <br> </kbd>](#-installation)&ensp;
+&ensp;[<kbd> <br> Demonstration <br> </kbd>](#-demonstration)&ensp;
 <br><br><br><br></div>
 
 ## **Team members**
