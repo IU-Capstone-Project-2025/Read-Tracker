@@ -8,7 +8,7 @@ from src.models.collections import (
 from src.models.user import UserRequest
 from src.models.base_response import BaseResponse
 from src.database.db_instance import db_handler
-from src.models.books import BookData
+from src.models.books import BookData, TagData
 from uuid import UUID
 import logging
 
@@ -35,6 +35,7 @@ async def get_collection(collection_id: UUID):
     if collection_books:
         for book in collection_books:
             tag_objects, tag_err = db_handler.getTags(book.id)
+            print(f"tag_objects: {tag_objects}")
             if tag_err:
                 if isinstance(err, ValueError):
                     raise HTTPException(status_code=404, detail={
@@ -58,7 +59,7 @@ async def get_collection(collection_id: UUID):
                                   description=book.description,
                                   cover=book.cover,
                                   tags=tags))
-    logging.debug(books)
+    logging.debug(f"Collection books: {books}")
     logging.info("Function completed successfully")
     return {
         "status": "success",

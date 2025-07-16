@@ -98,7 +98,7 @@ def test_add_book_to_collection():
     books_url = f"http://localhost:{PORT}/books"
     book_response = requests.get(books_url, headers=header)
     print(book_response.json())
-    book_id = book_response.json()["data"][0]["id"]
+    book_id = book_response.json()["data"][5]["id"]
     url = f"http://localhost:{PORT}/me/collections/{collection_id}/{book_id}"
     response_adding = requests.post(url, headers=header)
 
@@ -125,7 +125,7 @@ def test_delete_book_from_collection():
     collection_id = requests.post(collection_url, headers=header, json=data_collection).json()["data"][0]["id"]
 
     books_url = f"http://localhost:{PORT}/books"
-    book_id = requests.get(books_url, headers=header).json()["data"][0]["id"]
+    book_id = requests.get(books_url, headers=header).json()["data"][5]["id"]
 
     url = f"http://localhost:{PORT}/me/collections/{collection_id}/{book_id}"
     response_adding = requests.delete(url, headers=header)
