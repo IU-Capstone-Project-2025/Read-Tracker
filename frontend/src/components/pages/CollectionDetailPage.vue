@@ -98,7 +98,7 @@
               <div class="book-cover-small">
                 <img 
                   v-if="book.cover" 
-                  :src="book.cover" 
+                  :src="`/images/${book.cover}.jpg`"
                   alt="Book cover"
                 >
                 <div v-else class="placeholder-cover-small">

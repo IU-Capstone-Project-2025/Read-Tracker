@@ -11,6 +11,7 @@ export async function apiFetchBooks() {
     const response = await api.get('/books/')
     if (response.data.status === 'success') {
       console.log(`[API] Successfully fetched ${response.data.data.length} books`)
+      console.log(`123`)
       return response.data.data.map(book => ({
         id: book.id,
         title: book.title,

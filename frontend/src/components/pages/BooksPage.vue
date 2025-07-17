@@ -35,13 +35,13 @@
         <div class="book-cover-container">
           <img 
             v-if="book.cover" 
-            :src="book.cover" 
+            :src="`/images/${book.cover}.jpg`"
             :alt="book.title" 
             class="book-cover"
           />
           <img 
             v-else 
-            src="/images/placeholder.png" 
+            src="/images/placeholder.png"
             alt="No cover available" 
             class="book-cover"
           />
