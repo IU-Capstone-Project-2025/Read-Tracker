@@ -8,7 +8,7 @@
       <div class="cover-container">
         <img 
           v-if="book.cover" 
-          :src="book.cover" 
+          :src="`/images/${book.cover}.jpg`"
           :alt="book.title" 
           class="book-cover"
         />
