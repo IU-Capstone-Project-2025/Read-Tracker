@@ -166,6 +166,8 @@ const toggleSubscription = async () => {
 }
 
 .review-text {
+  max-width: 1200px;
+  overflow-wrap: break-word;
   margin: 10px 0;
   font-size: 14px;
   line-height: 1.5;

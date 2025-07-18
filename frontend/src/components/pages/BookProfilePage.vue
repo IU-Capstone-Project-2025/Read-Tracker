@@ -280,8 +280,8 @@ const deleteReview = async () => {
 }
 
 .content-sections {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 }
 
