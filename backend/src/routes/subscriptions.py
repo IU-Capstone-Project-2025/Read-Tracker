@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import FastAPI, Response, APIRouter, HTTPException
 from src.models.subscriptions import SubscribeRequest, SubscriptionReviewsResponse, SubscriptionReviewsRequest, \
-    SubscriptionReviewsRequestByPublisher, SubscriptionRequest
+    SubscriptionReviewsRequestByPublisher, SubscriptionsRequest
 from src.database.db_instance import db_handler
 from src.models.reviews import ReviewData
 from src.models.user import UserData
@@ -126,7 +126,7 @@ async def get_all_reviews(request: SubscriptionReviewsRequest):
     }
 
 @router.post("/all_subscriptions", status_code=200)
-async def get_all_subscriptions(request: SubscriptionRequest):
+async def get_all_subscriptions(request: SubscriptionsRequest):
     data, err = db_handler.getPublishers(follower_id=request.user_id)
 
     if err:
