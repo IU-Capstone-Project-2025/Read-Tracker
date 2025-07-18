@@ -1,15 +1,17 @@
 <template>
   <div class="page">
     <div class="page-header">
-      <div class="header-top">
-        <h1 class="page-title">{{ collection.title }}</h1>
-        <button v-if="collection.isPrivate" class="private-badge">
-          <i class="fas fa-lock"></i> Private
-        </button>
+      <div class="collection-title">
+        <div class="header-top">
+          <h1 class="page-title">{{ collection.title }}</h1>
+          <button v-if="collection.isPrivate" class="private-badge">
+            <i class="fas fa-lock"></i> Private
+          </button>
+        </div>
+        
+        <p class="page-subtitle">{{ collection.description }}</p>
       </div>
-      
-      <p class="page-subtitle">{{ collection.description }}</p>
-      
+
       <div class="collection-meta">
         <div class="meta-item">
           <i class="fas fa-book"></i>
@@ -247,16 +249,24 @@ async function addBook(bookId) {
 
 <style scoped>
 .page-header {
+  max-width: 1200px;
+  overflow-wrap: break-word;
   margin-bottom: 40px;
   padding-bottom: 20px;
   border-bottom: 1px solid #eee;
 }
 
 .header-top {
-  display: flex;
-  align-items: center;
   gap: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
   margin-bottom: 10px;
+}
+
+.page-title {
+  max-width: 1200px;
+  overflow-wrap: break-word;
+  text-align: left;
 }
 
 .private-badge {
@@ -273,11 +283,20 @@ async function addBook(bookId) {
 }
 
 .page-subtitle {
+  max-width: 1200px;
+  overflow-wrap: break-word;
   color: #666;
   text-align: left;
   font-size: 18px;
   margin-bottom: 25px;
   line-height: 1.6;
+}
+
+.collection-title {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
 .collection-meta {

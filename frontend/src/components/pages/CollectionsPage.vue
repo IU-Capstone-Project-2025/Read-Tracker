@@ -78,12 +78,12 @@
         <form @submit.prevent="handleCreateCollection">
           <div class="form-group">
             <label>Title*</label>
-            <input v-model="newCollection.title" required placeholder="Enter collection title">
+            <input maxlength="50" v-model="newCollection.title" required placeholder="Enter collection title">
           </div>
           
           <div class="form-group">
             <label>Description</label>
-            <textarea v-model="newCollection.description" placeholder="Enter a brief description"></textarea>
+            <textarea maxlength="150" v-model="newCollection.description" placeholder="Enter a brief description"></textarea>
           </div>
           
           <div class="form-group">
@@ -117,12 +117,12 @@
         <form @submit.prevent="handleUpdateCollection">
           <div class="form-group">
             <label>Title*</label>
-            <input v-model="editCollectionData.title" required>
+            <input maxlength="50" v-model="editCollectionData.title" required/>
           </div>
           
           <div class="form-group">
             <label>Description</label>
-            <textarea v-model="editCollectionData.description"></textarea>
+            <textarea maxlength="150" v-model="editCollectionData.description"></textarea>
           </div>
           
           <div class="form-group">
@@ -434,6 +434,12 @@ async function deleteCollection(collectionId) {
 }
 
 .collection-title {
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 22px;
   font-weight: 700;
   margin: 0 0 5px;
@@ -451,6 +457,12 @@ async function deleteCollection(collectionId) {
 }
 
 .description {
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #555;
   margin-bottom: 15px;
   line-height: 1.6;

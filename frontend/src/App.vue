@@ -64,7 +64,7 @@ const changePage = (page) => {
 
 .main-content {
   flex: 1;
-  padding: 20px;
+  padding: 30px;
   transition: all 0.3s ease;
   margin-left: 0px;
   width: calc(100% - 250px);

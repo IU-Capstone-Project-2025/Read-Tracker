@@ -46,6 +46,8 @@ const formatDate = (dateString) => {
 }
 
 .note-content {
+  max-width: 1200px;
+  overflow-wrap: break-word;
   margin-bottom: 10px;
   line-height: 1.5;
 }

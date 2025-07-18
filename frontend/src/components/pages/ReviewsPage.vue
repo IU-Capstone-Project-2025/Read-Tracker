@@ -119,8 +119,13 @@ const formatDate = (dateString) => {
 }
 
 .review-content {
-  display: flex;
-  flex-direction: column;
+  max-width: 1200px;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 5; /* Количество строк */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .review-header {
