@@ -41,8 +41,6 @@ jobs:
           cd $STAGING_DIR
           docker compose pull
           docker compose stop
-          sudo rm -rf $STAGE_DB_DIR
           docker compose up -d
       env:
         STAGING_DIR: ${{ secrets.STAGING_DIR }}
-        STAGE_DB_DIR: ${{ secrets.STAGE_DB_DIR }}
