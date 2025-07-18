@@ -88,9 +88,11 @@
           
           <div class="form-group">
             <label class="checkbox-label">
-              <input type="checkbox" v-model="newCollection.isPrivate">
-              <span class="checkmark"></span>
-              Make this collection private
+              <label class="checkbox-label">
+                <input type="checkbox" v-model="newCollection.isPrivate">
+                <span class="checkmark"></span>
+                <span class="checkbox-text">Make this collection private</span>
+              </label>
             </label>
           </div>
           
@@ -125,10 +127,10 @@
           
           <div class="form-group">
             <label class="checkbox-label">
-              <input type="checkbox" v-model="editCollectionData.isPrivate">
-              <span class="checkmark"></span>
-              Private Collection
-            </label>
+                <input type="checkbox" v-model="newCollection.isPrivate">
+                <span class="checkmark"></span>
+                <span class="checkbox-text">Make this collection private</span>
+              </label>
           </div>
           
           <div class="form-actions">
@@ -605,7 +607,7 @@ async function deleteCollection(collectionId) {
   background-color: #f5f5f5;
   border: 1px solid #ddd;
   border-radius: 4px;
-  margin-right: 10px;
+  margin-right: 20px;
   position: relative;
   transition: all 0.2s;
 }
@@ -619,11 +621,11 @@ async function deleteCollection(collectionId) {
   content: "";
   position: absolute;
   display: none;
-  left: 7px;
-  top: 3px;
-  width: 5px;
-  height: 10px;
-  border: solid white;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: 1px solid #667eea;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
