@@ -85,6 +85,8 @@ const formatDate = (dateString) => {
 }
 
 .review-content {
+  max-width: 1200px;
+  overflow-wrap: break-word;
   line-height: 1.6;
   margin-bottom: 15px;
   white-space: pre-line;
