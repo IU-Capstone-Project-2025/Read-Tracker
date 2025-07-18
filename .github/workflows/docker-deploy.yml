@@ -44,8 +44,6 @@ jobs:
           cd $PROD_DIR
           docker compose pull
           docker compose stop
-          sudo rm -rf $PROD_DB_DIR
           docker compose up -d
       env:
         PROD_DIR: ${{ secrets.PROD_DIR }}
-        PROD_DB_DIR: ${{ secrets.PROD_DB_DIR }}
