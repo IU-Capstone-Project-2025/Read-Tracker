@@ -2,9 +2,10 @@ from uuid import UUID
 
 from fastapi import FastAPI, Response, APIRouter, HTTPException
 from src.models.subscriptions import SubscribeRequest, SubscriptionReviewsResponse, SubscriptionReviewsRequest, \
-    SubscriptionReviewsRequestByPublisher
+    SubscriptionReviewsRequestByPublisher, SubscriptionsRequest
 from src.database.db_instance import db_handler
 from src.models.reviews import ReviewData
+from src.models.user import UserData
 import logging
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
@@ -121,5 +122,35 @@ async def get_all_reviews(request: SubscriptionReviewsRequest):
     return {
         "status": "success",
         "message": "Reviews retrieved successfully",
+        "data": answer
+    }
+
+@router.post("/all_subscriptions", status_code=200)
+async def get_all_subscriptions(request: SubscriptionsRequest):
+    data, err = db_handler.getPublishers(follower_id=request.user_id)
+
+    if err:
+        logging.info(f"Database returned error: {err}")
+        if isinstance(err, ValueError):
+            raise HTTPException(status_code=404, detail={
+                "status": "error",
+                "message": str(err)
+            })
+        else:
+            raise HTTPException(status_code=500, detail={
+                "status": "error",
+                "message": "Unexpected database error"
+            })
+
+    answer = [
+        UserData(
+            name=user.name,
+        )
+        for user in data
+    ]
+
+    return {
+        "status": "success",
+        "message": "Subscriptions retrieved successfully",
         "data": answer
     }
