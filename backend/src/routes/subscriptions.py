@@ -60,7 +60,7 @@ async def get_reviews(request: SubscriptionReviewsRequestByPublisher):
             "status": "error",
             "message": "Publisher not found"
         })
-    data, err = db_handler.getReview(user_id=request.publisher_id)
+    data, err = db_handler.getPublisherReviews(follower_id=request.subscriber_id, publisher_id=request.publisher_id)
     answer = []
 
     if err:
@@ -144,7 +144,7 @@ async def get_all_subscriptions(request: SubscriptionsRequest):
 
     answer = [
         UserData(
-            name=user.name,
+            id=user.id,
         )
         for user in data
     ]
