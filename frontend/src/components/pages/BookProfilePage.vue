@@ -83,6 +83,7 @@ import { useNotesStore } from '@/store/notes'
 import { useReviewsStore } from '@/store/reviews'
 import { useBooksStore } from '@/store/books'
 import { useSubscriptionsStore } from '@/store/subscriptions'
+import { useUsersStore } from '@/store/users'
 
 const route = useRoute()
 const bookId = route.params.id
@@ -92,6 +93,7 @@ const notesStore = useNotesStore()
 const reviewsStore = useReviewsStore()
 const booksStore = useBooksStore()
 const subscriptionsStore = useSubscriptionsStore()
+const usersStore = useUsersStore()
 
 const book = ref(null)
 const loading = ref(true)

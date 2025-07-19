@@ -187,3 +187,15 @@ export async function apiCheckIn(userId) {
     }
     throw new Error('Failed to check in')
 }
+
+export const getUserProfileById = async (userId) => {
+  try {
+    const response = await api.post('/auth/profile', {
+      user_id: userId
+    })
+    return response.data
+  } catch (error) {
+    const errorMsg = error.response?.data?.message || `Failed to fetch profile for user ${userId}`
+    throw new Error(errorMsg)
+  }
+}
