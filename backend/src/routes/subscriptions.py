@@ -144,7 +144,7 @@ async def get_all_subscriptions(request: SubscriptionsRequest):
 
     answer = [
         UserData(
-            name=user.name,
+            id=user.id,
         )
         for user in data
     ]
