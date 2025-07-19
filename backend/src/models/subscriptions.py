@@ -18,6 +18,7 @@ class SubscriptionReviewsRequest(BaseModel):
     subscriber_id: Optional[UUID] = None
 
 class SubscriptionReviewsRequestByPublisher(BaseModel):
+    subscriber_id: Optional[UUID] = None
     publisher_id: Optional[UUID] = None
 
 class SubscriptionsRequest(BaseModel):

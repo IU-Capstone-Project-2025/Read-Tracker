@@ -35,12 +35,16 @@ def test_unsubscribe():
 
 def test_get_publisher_reviews():
     data = {
-        "publisher_id": VALID_USER_ID
+        "publisher_id": VALID_USER_ID,
+        "subscriber_id": VALID_USER_ID
     }
 
     response = requests.post(f"{BASE_URL}/publisher_reviews", headers=HEADERS, json=data)
-    print(response.json())
-    assert response.status_code in [200, 400]
+    try:
+        print(response.json())
+    except Exception:
+        print(response.status_code, response.text)
+    assert response.status_code == 200
 
 
 def test_get_all_reviews():
@@ -81,6 +85,7 @@ def test_invalid_unsubscribe():
 
 def test_invalid_publisher_reviews():
     data = {
+        "subscriber_id": INVALID_USER_ID,
         "publisher_id": INVALID_USER_ID
     }
 
@@ -95,6 +100,30 @@ def test_invalid_all_reviews():
     }
 
     response = requests.post(f"{BASE_URL}/all_reviews", headers=HEADERS, json=data)
+    try:
+        print(response.json())
+    except Exception:
+        print(response.status_code, response.text)
+    assert response.status_code == 404
+
+
+def test_get_subscriptions_request():
+    data = {
+        "user_id": VALID_USER_ID,
+    }
+    response = requests.post(f"{BASE_URL}/all_subscriptions", headers=HEADERS, json=data)
+    try:
+        print(response.json())
+    except Exception:
+        print(response.status_code, response.text)
+    assert response.status_code == 200
+
+
+def test_get_subscriptions_invalid_request():
+    data = {
+        "user_id": INVALID_USER_ID,
+    }
+    response = requests.post(f"{BASE_URL}/all_subscriptions", headers=HEADERS, json=data)
     try:
         print(response.json())
     except Exception:
