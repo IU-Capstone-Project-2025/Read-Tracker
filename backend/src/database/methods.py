@@ -34,7 +34,8 @@ class DBHandler:
         finally:
             session.close()
 
-    def addReview(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, rate: int = None, text: str = None) -> Optional[Exception]:
+    def addReview(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, rate: int = None,
+                  text: str = None) -> Optional[Exception]:
         if user_id is None:
             user_id = self.fixed_user_id
         session = self.Session()
@@ -57,7 +58,8 @@ class DBHandler:
         finally:
             session.close()
 
-    def updateReview(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, rate: int = None, text: str = None) -> Optional[Exception]:
+    def updateReview(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, rate: int = None,
+                     text: str = None) -> Optional[Exception]:
         if user_id is None:
             user_id = self.fixed_user_id
         session = self.Session()
@@ -96,7 +98,8 @@ class DBHandler:
         finally:
             session.close()
 
-    def getNotes(self, user_id: Optional[uuid.UUID] = None, book_id: Optional[uuid.UUID] = None) -> Tuple[List[Note], Optional[Exception]]:
+    def getNotes(self, user_id: Optional[uuid.UUID] = None, book_id: Optional[uuid.UUID] = None) -> Tuple[
+        List[Note], Optional[Exception]]:
         if user_id is None:
             user_id = self.fixed_user_id
         session = self.Session()
@@ -129,7 +132,8 @@ class DBHandler:
         finally:
             session.close()
 
-    def addNote(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, text: str = None) -> Optional[Exception]:
+    def addNote(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, text: str = None) -> Optional[
+        Exception]:
         if user_id is None:
             user_id = self.fixed_user_id
         session = self.Session()
@@ -487,7 +491,8 @@ class DBHandler:
         finally:
             session.close()
 
-    def getUserBook(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None) -> Tuple[Optional[Book], Optional[Exception]]:
+    def getUserBook(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None) -> Tuple[
+        Optional[Book], Optional[Exception]]:
         if user_id is None:
             user_id = self.fixed_user_id
         if book_id is None:
@@ -507,7 +512,7 @@ class DBHandler:
             session.close()
 
     def updateUserBook(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, status: str = None) -> \
-    Optional[Exception]:
+            Optional[Exception]:
         if user_id is None:
             user_id = self.fixed_user_id
         if book_id is None or status is None:
@@ -573,7 +578,7 @@ class DBHandler:
             session.close()
 
     def addUserBook(self, user_id: Optional[uuid.UUID] = None, book_id: uuid.UUID = None, status: str = None) -> \
-    Optional[Exception]:
+            Optional[Exception]:
         if user_id is None:
             user_id = self.fixed_user_id
         if book_id is None or status is None:
@@ -722,7 +727,7 @@ class DBHandler:
             session.close()
 
     def getPublisherReviews(self, follower_id: Optional[uuid.UUID] = None, publisher_id: uuid.UUID = None) -> \
-        Tuple[List[Review], Optional[Exception]]:
+            Tuple[List[Review], Optional[Exception]]:
         if follower_id is None:
             follower_id = self.fixed_user_id
         session = self.Session()
@@ -731,8 +736,8 @@ class DBHandler:
                 return [], ValueError(f"Follower user {follower_id} not found")
             if not session.query(Users).get(publisher_id):
                 return [], ValueError(f"Publisher user {publisher_id} not found")
-            subscription = session.query(Subscription).filter(follower_id=follower_id,
-                                                              subscribed_id=publisher_id).first()
+            subscription = session.query(Subscription).filter_by(follower_id=follower_id,
+                                                                 subscribed_id=publisher_id).first()
             if not subscription:
                 return [], ValueError(f"User {follower_id} is not subscribed on publisher {publisher_id}")
             return self.getReview(user_id=publisher_id)
