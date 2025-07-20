@@ -15,7 +15,7 @@
 
         <div class="profile-stats">
           <div class="stat-item">
-            <span class="stat-value"> {{ booksStore.books.length || 0 }} </span>
+            <span class="stat-value"> {{ booksStore.userBooks.length || 0 }} </span>
             <span class="stat-label">Books Read</span>
           </div>
           <div class="stat-item">

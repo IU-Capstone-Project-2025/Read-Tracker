@@ -37,7 +37,8 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
 onMounted(async () => {
   if (authStore.token) {
     await authStore.fetchProfile()
-    await booksStore.fetchBooks()
+    await booksStore.fetchAllBooks()
+    await booksStore.fetchUserBooks(authStore.user.id)
     await subscriptionsStore.fetchSubscriptions(authStore.user.id)
   }
 })

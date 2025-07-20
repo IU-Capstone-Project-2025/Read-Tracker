@@ -100,7 +100,7 @@ const communityReviewsLoading = ref(true)
 
 onMounted(async () => {
   try {
-    const loadedBooks = await booksStore.fetchBooks()
+    const loadedBooks = await booksStore.fetchAllBooks()
     const found = loadedBooks.find(b => b.id === bookId)
     book.value = found || {
       id: bookId,
@@ -280,8 +280,8 @@ const deleteReview = async () => {
 }
 
 .content-sections {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 

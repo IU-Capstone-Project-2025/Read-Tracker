@@ -99,7 +99,8 @@ export const useAuthStore = defineStore('auth', {
           //await subscriptionsStore.fetchSubscriptions(this.user.id)
 
           await Promise.all([
-            booksStore.fetchBooks(),
+            booksStore.fetchAllBooks(),
+            booksStore.fetchUserBooks(this.user.id),
             collectionsStore.fetchCollections(),
             reviewsStore.fetchMyReviews()
           ])

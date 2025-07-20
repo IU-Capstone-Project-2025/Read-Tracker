@@ -1,47 +1,78 @@
 import { defineStore } from 'pinia'
-import { 
+import {
   apiFetchBooks,
   apiFetchBook,
-  apiCreateBook
+  apiCreateBook,
+  apiFetchUserBooks
 } from '@/api/books'
 
 export const useBooksStore = defineStore('books', {
   state: () => ({
     userId: null,
-    books: JSON.parse(localStorage.getItem('userBooks')) || []
+    allBooks: [],
+    userBooks: JSON.parse(localStorage.getItem('userBooks')) || []
   }),
-  
+
   actions: {
     async init(userId) {
       this.userId = userId
     },
+    async fetchAllBooks() {
+      try {
+        const booksData = await apiFetchBooks();
+        this.allBooks = booksData;
+        this.persistBooks()
+        return booksData
+      } catch (error) {
+        console.error('Failed to fetch all books:', error);
+      }
+    },
+    async fetchUserBooks(userId) {
+      const userBooksData = await apiFetchUserBooks(userId);
+      this.userBooks = userBooksData.map(ub => ({
+        bookId: ub.book_id,
+        status: ub.status,
+        startDate: ub.start_date,
+        endDate: ub.end_date,
+        }));
+      this.persistBooks()
+      return userBooksData
+      },
 
     async fetchBook(bookId) {
       const bookData = await apiFetchBook(bookId)
       return bookData
     },
-    
-    async fetchBooks() {
-      const booksData = await apiFetchBooks()
-      this.books = booksData.map(book => ({
-        ...book,
-        status: 'to-read',
-        addedDate: Date.now()
-      }))
-      this.persistBooks()
-      return booksData
-    },
 
-    async updateBookStatus(bookId, newStatus) {
-      const book = this.books.find(b => b.id === bookId)
-      if (book) {
-        book.status = newStatus
+
+    async updateUserBookStatus(bookId, newStatus) {
+      const userBook = this.userBooks.find(ub => ub.bookId === bookId);
+      if (userBook) {
+        userBook.status = newStatus;
         this.persistBooks()
       }
     },
     
     async persistBooks() {
-      localStorage.setItem('userBooks', JSON.stringify(this.books))
+      localStorage.setItem('userBooks', JSON.stringify(this.userBooks))
     }
-  }
-})
+  },
+  getters: {
+    userBooksWithDetails(state) {
+      return state.userBooks.map(ub => {
+        const book = state.allBooks.find(b => b.id === ub.bookId);
+        if (!book) {
+          console.warn(`Book with id ${ub.bookId} not found in allBooks`);
+          return null;
+        }
+        const mergedBook = { ...book, ...ub, id: ub.bookId };
+        console.log('[Store] Merged book cover:', {
+          id: mergedBook.id,
+          title: mergedBook.title,
+          cover: mergedBook.cover
+        });
+        return mergedBook;
+      }).filter(book => book !== null);
+    },
+  },
+});

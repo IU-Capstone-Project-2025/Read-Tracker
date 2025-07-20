@@ -47,12 +47,12 @@ import { useBooksStore } from '@/store/books'
 const router = useRouter()
 const reviewsStore = useReviewsStore()
 const booksStore = useBooksStore()
-const books = computed(() => booksStore.books)
+const books = computed(() => booksStore.allBooks)
 const userReviews = computed(() => reviewsStore.reviews)
 
 onMounted(async () => {
-  if (!booksStore.books.length) {
-    booksStore.fetchBooks()
+  if (!booksStore.allBooks.length) {
+    booksStore.fetchAllBooks()
   }
   await reviewsStore.fetchMyReviews()
 })
