@@ -102,7 +102,7 @@ const filteredBooks = computed(() => {
     case 'title':
       return filtered.sort((a, b) => a.title.localeCompare(b.title))
     case 'status':
-      const statusOrder = { 'to-read': 1, 'reading': 2, 'completed': 3 }
+      const statusOrder = { 'want to read': 1, 'reading now': 2, 'have read': 3 }
       return filtered.sort((a, b) => statusOrder[a.status] - statusOrder[b.status])
     case 'added':
       return filtered.sort((a, b) => new Date(b.startDate) - new Date(a.startDate))

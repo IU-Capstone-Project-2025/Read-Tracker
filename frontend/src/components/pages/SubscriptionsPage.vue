@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useSubscriptionsStore } from '@/store/subscriptions'
 import { useAuthStore } from '@/store/auth'
 
