@@ -3,7 +3,7 @@
     <div class="review-header">
       <img 
         src="/images/placeholder.png" 
-        alt="No avater available" 
+        alt="No avatar available" 
         class="avatar"
       />
       <div class="user-info">
@@ -76,10 +76,7 @@ const toggleSubscription = async () => {
   subscriptionLoading.value = true
   try {
     if (isSubscribed.value) {
-      const subscriptionId = subscriptionsStore.getSubscriptionId(props.review.user_id)
-      if (subscriptionId) {
-        await subscriptionsStore.unsubscribe(subscriptionId)
-      }
+      await subscriptionsStore.unsubscribe(props.review.user_id, currentUserId.value)
     } else {
       await subscriptionsStore.subscribe(props.review.user_id, currentUserId.value)
     }
@@ -90,8 +87,14 @@ const toggleSubscription = async () => {
   }
 }
 
-onMounted(() => {
-  fetchUsername()
+onMounted(async () => {
+  try {
+    const userProfile = await usersStore.fetchUserProfile(props.review.user_id)
+    username.value = userProfile?.username || props.review.user_id
+  } catch (e) {
+    console.error('Failed to load username:', e)
+    username.value = props.review.user_id
+  }
 })
 
 </script>

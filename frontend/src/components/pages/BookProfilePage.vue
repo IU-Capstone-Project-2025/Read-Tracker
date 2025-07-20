@@ -117,7 +117,7 @@ onMounted(async () => {
     await reviewsStore.fetchCommunityReviews(bookId)
     
     if (authStore.isAuthenticated) {
-      await subscriptionsStore.fetchSubscriptions(authStore.user_id)
+      await subscriptionsStore.fetchSubscriptions(authStore.user.id)
     }
   } catch (e) {
     console.error('Failed to load book, notes or reviews:', e)

@@ -16,23 +16,23 @@ export const useSubscriptionsStore = defineStore('subscriptions', {
   
   actions: {
     async init(userId) {
-        this.userId = userId
+      this.userId = userId
     },
 
     async getAllReviews() {
-        try {
-            const data = await apiGetAllReviews(this.userId)
-            this.reviews = data.data || []
-        } catch (e) {
-            console.error('getAllReviews error:', e)
-        }
+      try {
+        const data = await apiGetAllReviews(this.userId)
+        this.reviews = data.data || []
+      } catch (e) {
+        console.error('getAllReviews error:', e)
+      }
     },
 
     async fetchSubscriptions(userId) {
       try {
         this.loading = true
         const response = await getUserSubscriptions(userId)
-        this.subscriptions = response.data || []
+        this.subscriptions = response.data.map(sub => sub.id) || []
       } catch (e) {
         console.error('fetchSubscriptions error:', e)
         throw e
@@ -43,19 +43,20 @@ export const useSubscriptionsStore = defineStore('subscriptions', {
     
     async subscribe(publisherId, subscriberId) {
       try {
-        const response = await subscribeToUser(publisherId, subscriberId)
-        this.subscriptions.push(publisherId)
-        return publisherId
+        await subscribeToUser(publisherId, subscriberId)
+        if (!this.subscriptions.includes(publisherId)) {
+          this.subscriptions.push(publisherId)
+        }
       } catch (e) {
         console.error('subscribe error:', e)
         throw e
       }
     },
     
-    async unsubscribe(subscriptionId) {
+    async unsubscribe(publisherId, subscriberId) {
       try {
-        await unsubscribeFromUser(subscriptionId)
-        this.subscriptions = this.subscriptions.filter(sub => sub.id !== subscriptionId)
+        await unsubscribeFromUser(publisherId, subscriberId)
+        this.subscriptions = this.subscriptions.filter(id => id !== publisherId)
       } catch (e) {
         console.error('unsubscribe error:', e)
         throw e
@@ -63,12 +64,7 @@ export const useSubscriptionsStore = defineStore('subscriptions', {
     },
     
     isSubscribedTo(userId) {
-      return this.subscriptions.some(sub => sub.publisher_id === userId)
-    },
-    
-    getSubscriptionId(userId) {
-      const subscription = this.subscriptions.find(sub => sub.publisher_id === userId)
-      return subscription ? subscription.id : null
+      return this.subscriptions.includes(userId)
     }
   }
 })
