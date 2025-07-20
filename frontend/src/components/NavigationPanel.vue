@@ -37,6 +37,15 @@
 
       <div
         class="menu-item"
+        :class="{ active: currentPage === 'publicBooks' }"
+        @click="$emit('navigate', 'publicBooks')"
+      >
+        <span class="menu-icon"><i class="fas fa-book-open"></i></span>
+        <span class="menu-text">All Books</span>
+      </div>
+
+      <div
+        class="menu-item"
         :class="{ active: currentPage === 'collections' }"
         @click="$emit('navigate', 'collections')"
       >

@@ -11,7 +11,6 @@ export async function apiFetchBooks() {
     const response = await api.get('/books/')
     if (response.data.status === 'success') {
       console.log(`[API] Successfully fetched ${response.data.data.length} books`)
-      console.log(`123`)
       return response.data.data.map(book => ({
         id: book.id,
         title: book.title,
@@ -41,6 +40,7 @@ export async function apiFetchBook(bookId) {
     if (response.data.status === 'success') {
       console.log(`[API] Successfully fetched book: ${response.data.data.title}`)
       const book = response.data.data
+      console.log('[API] Raw book cover:', { id: book.id, title: book.title, cover: book.cover });
       return {
         id: book.id,
         title: book.title,
@@ -123,5 +123,51 @@ export async function apiDeleteBook(bookId) {
   } catch (error) {
     console.error('API error:', error)
     throw error
+  }
+}
+
+export async function apiFetchUserBooks(userId) {
+  try {
+    console.log(`[API] Fetching user books for user`);
+    const response = await api.post('/me/books', { user_id: userId });
+    if (response.data.status === 'success') {
+      console.log(`[API] Successfully fetched ${response.data.data.length} user books`);
+      return response.data.data;
+    } else {
+      const errorMsg = response.data.message || 'Failed to fetch user books';
+      console.error('[API] fetchUserBooks error:', errorMsg);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    const errorMsg = error.response?.data?.message || 'Failed to load user books';
+    console.error('[API] fetchUserBooks exception:', errorMsg, error);
+    throw new Error(errorMsg);
+  }
+}
+
+export async function apiAddUserBook(userId, bookId, status) {
+  try {
+    console.log(`[API] Adding book ${bookId} to user ${userId} with status ${status}`)
+    const response = await api.post(`/me/books/${bookId}/new`, { user_id: userId, status })
+    if (response.data.status === 'success') {
+      console.log(`[API] Successfully added book ${bookId} to user`)
+      console.log(response)
+      result = {
+        user_id: userId,
+        book_id: bookId,
+        status: response.data.data.status,
+        start_date: response.data.data.start_date || null,
+        end_date: response.data.data.end_date || null
+      }
+      return result
+    } else {
+      const errorMsg = response.data.message || 'Failed to add book to user collection'
+      console.error('[API] addUserBook error:', errorMsg)
+      throw new Error(errorMsg)
+    }
+  } catch (error) {
+    const errorMsg = error.response?.data?.message || 'Failed to add book to user collection'
+    console.error('[API] addUserBook exception:', errorMsg, error)
+    throw new Error(errorMsg)
   }
 }

@@ -77,20 +77,24 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBooksStore } from '@/store/books'
+import { useAuthStore } from '@/store/auth'
 
 const router = useRouter()
 const booksStore = useBooksStore()
+const authStore = useAuthStore()
 
 const statusFilter = ref('all')
 const sortBy = ref('title')
 
 onMounted(async () => {
-  await booksStore.fetchBooks()
+  if (booksStore.allBooks.length === 0) {
+    await booksStore.fetchAllBooks()
+  }
+  await booksStore.fetchUserBooks(authStore.user.id)
 })
 
 const filteredBooks = computed(() => {
-  let filtered = [...booksStore.books]
-
+  let filtered = [...booksStore.userBooksWithDetails]
   if (statusFilter.value !== 'all') {
     filtered = filtered.filter(book => book.status === statusFilter.value)
   }
@@ -101,7 +105,7 @@ const filteredBooks = computed(() => {
       const statusOrder = { 'to-read': 1, 'reading': 2, 'completed': 3 }
       return filtered.sort((a, b) => statusOrder[a.status] - statusOrder[b.status])
     case 'added':
-      return filtered.sort((a, b) => b.addedDate - a.addedDate)
+      return filtered.sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
     default:
       return filtered
   }
@@ -112,7 +116,7 @@ const goToBookProfile = (bookId) => {
 }
 
 const updateBookStatus = (book) => {
-  booksStore.updateBookStatus(book.id, book.status)
+  booksStore.updateUserBookStatus(book.id, book.status)
 }
 </script>
 

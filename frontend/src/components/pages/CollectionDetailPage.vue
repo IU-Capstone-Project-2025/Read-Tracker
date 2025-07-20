@@ -219,7 +219,7 @@ async function searchBooks() {
   searchError.value = null
   
   try {
-    const allBooks = await booksStore.books
+    const allBooks = await booksStore.allBooks
     searchResults.value = allBooks.filter(book =>
       (book.title ?? '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       (book.author ?? '').toLowerCase().includes(searchQuery.value.toLowerCase())
