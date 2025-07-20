@@ -42,6 +42,14 @@
           <p class="book-info" v-if="book.description">{{ book.description.substring(0, 100) }}...</p>
           <p class="book-info" v-else>No description available</p>
           <button class="reviews-button">View Details</button>
+          <button
+            v-if="!isBookInUserCollection(book.id)"
+            @click.stop="addToMyBooks(book.id)"
+            class="add-to-my-books-button"
+          >
+            Add to My Books
+          </button>
+          <span v-else>Already in My Books</span>
         </div>
       </div>
     </div>
@@ -52,9 +60,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBooksStore } from '@/store/books'
+import { useAuthStore } from '@/store/auth'
 
 const router = useRouter()
 const booksStore = useBooksStore()
+const authStore = useAuthStore()
 const sortBy = ref('title')
 
 onMounted(async () => {
@@ -72,6 +82,22 @@ const sortedBooks = computed(() => {
   }
   return books
 })
+
+const isBookInUserCollection = (bookId) => {
+  return booksStore.userBooks.some(book => book.bookId === bookId)
+}
+
+const addToMyBooks = async (bookId) => {
+  if (!authStore.isAuthenticated) {
+    alert('Please log in to add books to your collection.')
+    return
+  }
+  try {
+    await booksStore.addBookToUserCollection(bookId)
+  } catch (error) {
+    console.error('Failed to add book to collection:', error)
+  }
+}
 
 const goToBookProfile = (bookId) => {
   router.push({ name: 'bookProfile', params: { id: bookId } })
@@ -122,6 +148,20 @@ const goToBookProfile = (bookId) => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 30px;
+}
+
+.add-to-my-books-button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-to-my-books-button:hover {
+  background-color: #45a049;
 }
 
 @media (max-width: 768px) {

@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia'
+import { useAuthStore } from '@/store/auth'
 import {
   apiFetchBooks,
   apiFetchBook,
   apiCreateBook,
-  apiFetchUserBooks
+  apiFetchUserBooks,
+  apiAddUserBook
 } from '@/api/books'
 
 export const useBooksStore = defineStore('books', {
@@ -44,6 +46,29 @@ export const useBooksStore = defineStore('books', {
       return bookData
     },
 
+    async addBookToUserCollection(bookId) {
+      const authStore = useAuthStore()
+      if (!authStore.user || !authStore.user.id) {
+        throw new Error('User not authenticated')
+      }
+      if (this.userBooks.some(book => book.bookId === bookId)) {
+        throw new Error('Book is already in your collection')
+      }
+      try {
+        const status = 'want to read'
+        const userBook = await apiAddUserBook(authStore.user.id, bookId, status)
+        console.log('Status: ${userBook.status}')
+        this.userBooks.push({
+          bookId: userBook.book_id,
+          status: userBook.status,
+          startDate: userBook.start_date,
+          endDate: userBook.end_date
+        })
+        this.persistBooks()
+      } catch (error) {
+        throw error
+      }
+    },
 
     async updateUserBookStatus(bookId, newStatus) {
       const userBook = this.userBooks.find(ub => ub.bookId === bookId);
