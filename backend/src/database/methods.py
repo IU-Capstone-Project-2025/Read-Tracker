@@ -790,7 +790,7 @@ class DBHandler:
             subscribed_ids = [sub.subscribed_id for sub in subscriptions]
             if not subscribed_ids:
                 return [], None
-            publishers = session.query(Users).filter(Users.user_id.in_(subscribed_ids)).all()
+            publishers = session.query(Users).filter(Users.id.in_(subscribed_ids)).all()
             return publishers, None
         except SQLAlchemyError as e:
             print(f"Error retrieving reviews for follower {follower_id}: {str(e)}")
