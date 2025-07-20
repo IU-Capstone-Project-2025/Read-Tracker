@@ -8,7 +8,7 @@
       />
       <div class="user-info">
         <div class="username-container">
-          <h3 class="username">{{ review.user_id }}</h3>
+          <h3 class="username">{{ username }}</h3>
           <button 
             v-if="showSubscribeButton"
             @click="toggleSubscription"
@@ -35,6 +35,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/store/auth'
 import { useSubscriptionsStore } from '@/store/subscriptions'
+import { useUsersStore } from '@/store/users'
 
 const props = defineProps({
   review: {
@@ -45,7 +46,9 @@ const props = defineProps({
 
 const authStore = useAuthStore()
 const subscriptionsStore = useSubscriptionsStore()
+const usersStore = useUsersStore()
 const subscriptionLoading = ref(false)
+const username = ref('')
 
 const currentUserId = computed(() => authStore.user?.id)
 const showSubscribeButton = computed(() => 
@@ -56,6 +59,11 @@ const isSubscribed = computed(() => {
   if (!currentUserId.value) return false
   return subscriptionsStore.isSubscribedTo(props.review.user_id)
 })
+
+const fetchUsername = async () => {
+  const userProfile = await usersStore.fetchUserProfile(props.review.user_id)
+  username.value = userProfile?.username || props.review.user_id
+}
 
 const formatDate = (dateString) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' }
@@ -81,6 +89,11 @@ const toggleSubscription = async () => {
     subscriptionLoading.value = false
   }
 }
+
+onMounted(() => {
+  fetchUsername()
+})
+
 </script>
 
 <style scoped>

@@ -19,6 +19,7 @@ import BookProfilePage from './components/pages/BookProfilePage.vue'
 import CollectionDetailPage from './components/pages/CollectionDetailPage.vue'
 import SubscriptionsPage from './components/pages/SubscriptionsPage.vue'
 import { useAuthStore } from './store/auth'
+import { useUsersStore } from '@/store/users'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -70,5 +71,6 @@ app.config.globalProperties.$config = config
 app.use(router)
 app.use(pinia)
 app.mount('#app')
+useUsersStore(pinia)
 
 console.log('Runtime config loaded:', config)
