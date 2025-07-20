@@ -38,7 +38,7 @@
         </div>
         <div class="book-details">
           <h3 class="book-title">{{ book.title }}</h3>
-          <span class="book-author">{{ book.author }}</span>
+          <span class="book-author">{{ book.author || 'Автор неизвестен' }}</span>
           <p class="book-info" v-if="book.description">{{ book.description.substring(0, 100) }}...</p>
           <p class="book-info" v-else>No description available</p>
           <button class="reviews-button">View Details</button>
@@ -49,7 +49,7 @@
           >
             Add to My Books
           </button>
-          <span v-else>Already in My Books</span>
+          <button class="add-to-my-books-button-passive" v-else>Already in My Books</button>
         </div>
       </div>
     </div>
@@ -76,9 +76,13 @@ onMounted(async () => {
 const sortedBooks = computed(() => {
   let books = [...booksStore.allBooks]
   if (sortBy.value === 'title') {
-    return books.sort((a, b) => a.title.localeCompare(b.title))
+    return books.sort((a, b) =>
+      (a.title || '').localeCompare(b.title || '')
+    )
   } else if (sortBy.value === 'author') {
-    return books.sort((a, b) => a.author.localeCompare(b.author))
+    return books.sort((a, b) =>
+      (a.author || '').localeCompare(b.author || '')
+    )
   }
   return books
 })
@@ -153,15 +157,26 @@ const goToBookProfile = (bookId) => {
 .add-to-my-books-button {
   margin-top: 10px;
   padding: 8px 12px;
-  background-color: #4CAF50;
+  background-color: #764ba2;
+  border-radius: 40px;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
 }
 
 .add-to-my-books-button:hover {
-  background-color: #45a049;
+  background-color: #667eea;
+  border-radius: 40px;
+  transform: translateY(-2px);
+}
+
+.add-to-my-books-button-passive{
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 40px;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {

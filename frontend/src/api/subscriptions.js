@@ -70,7 +70,7 @@ export const unsubscribeFromUser = async (subscriptionId) => {
 export const getUserSubscriptions = async (userId) => {
   try {
     console.log(`[API] Fetching subscriptions for user: ${userId}`)
-    const response = await api.get(`/users/${userId}/subscriptions`)
+    const response = await api.post(`/subscriptions/all_subscriptions`, {user_id: userId})
     
     if (response.data.status !== 'success') {
       const errorMsg = response.data.message || 'Failed to load subscriptions. Please try again.'

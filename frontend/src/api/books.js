@@ -152,14 +152,7 @@ export async function apiAddUserBook(userId, bookId, status) {
     if (response.data.status === 'success') {
       console.log(`[API] Successfully added book ${bookId} to user`)
       console.log(response)
-      result = {
-        user_id: userId,
-        book_id: bookId,
-        status: response.data.data.status,
-        start_date: response.data.data.start_date || null,
-        end_date: response.data.data.end_date || null
-      }
-      return result
+      return response
     } else {
       const errorMsg = response.data.message || 'Failed to add book to user collection'
       console.error('[API] addUserBook error:', errorMsg)

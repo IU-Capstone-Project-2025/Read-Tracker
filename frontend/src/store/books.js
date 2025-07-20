@@ -58,13 +58,7 @@ export const useBooksStore = defineStore('books', {
         const status = 'want to read'
         const userBook = await apiAddUserBook(authStore.user.id, bookId, status)
         console.log('Status: ${userBook.status}')
-        this.userBooks.push({
-          bookId: userBook.book_id,
-          status: userBook.status,
-          startDate: userBook.start_date,
-          endDate: userBook.end_date
-        })
-        this.persistBooks()
+        await this.fetchUserBooks(this.userId)
       } catch (error) {
         throw error
       }

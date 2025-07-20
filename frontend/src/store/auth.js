@@ -26,7 +26,7 @@ export const useAuthStore = defineStore('auth', {
     error: null,
     isInitialized: false,
     streaks: [],
-    localMarks: JSON.parse(localStorage.getItem('reading_marks') || '{}'),
+    localMarks: JSON.parse('{}'),
     todayMarked: false,
   }),
   getters: {
