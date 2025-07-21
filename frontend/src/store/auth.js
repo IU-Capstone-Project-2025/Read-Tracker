@@ -121,8 +121,10 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       this.user = null
       this.token = null
-      localStorage.removeItem(config.app.authTokenStorageKey)
       this.isInitialized = false
+      this.localMarks = {}
+      this.todayMarked = false
+      localStorage.removeItem(config.app.authTokenStorageKey)
     },
     
     async requestPasswordReset(email) {
@@ -201,7 +203,9 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async loadLocalMarks() {
-      const marks = JSON.parse(localStorage.getItem('reading_marks') || '{}')
+      if (!this.user) return
+      const key = `reading_marks_${this.user.id}`
+      const marks = JSON.parse(localStorage.getItem(key) || '{}')
       const today = new Date().toISOString().slice(0, 10)
 
       this.localMarks = marks
@@ -224,11 +228,14 @@ export const useAuthStore = defineStore('auth', {
       try {
         await apiCheckIn(this.user.id)
         const today = new Date().toISOString().slice(0, 10)
-        this.localMarks[today] = true
-        localStorage.setItem('reading_marks', JSON.stringify(this.localMarks))
+        const key = `reading_marks_${this.user.id}`
+        const marks = JSON.parse(localStorage.getItem(key) || '{}')
+        marks[today] = true
+        localStorage.setItem(key, JSON.stringify(marks))
+
+        this.localMarks = marks
         this.todayMarked = true
-      }
-      catch (error) {
+      } catch (error) {
         console.error(error)
         throw error
       }
