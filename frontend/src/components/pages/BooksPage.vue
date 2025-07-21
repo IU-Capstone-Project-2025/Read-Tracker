@@ -10,9 +10,9 @@
         <label>Filter by status:</label>
         <select v-model="statusFilter" class="filter-select">
           <option value="all">All Books</option>
-          <option value="to-read">To Read</option>
-          <option value="reading">Reading</option>
-          <option value="completed">Completed</option>
+          <option value="want to read">To Read</option>
+          <option value="reading now">Reading</option>
+          <option value="have read">Completed</option>
         </select>
       </div>
       <div class="sort-control">
@@ -58,9 +58,9 @@
               @change="updateBookStatus(book)"
               class="status-select"
             >
-              <option value="to-read">To Read</option>
-              <option value="reading">Reading</option>
-              <option value="completed">Completed</option>
+              <option value="want to read">To Read</option>
+              <option value="reading now">Reading</option>
+              <option value="have read">Completed</option>
             </select>
           </div>
           
@@ -111,12 +111,17 @@ const filteredBooks = computed(() => {
   }
 })
 
-const goToBookProfile = (bookId) => {
+const goToBookProfile = async (bookId) => {
   router.push({ name: 'bookProfile', params: { id: bookId } })
 }
 
-const updateBookStatus = (book) => {
-  booksStore.updateUserBookStatus(book.id, book.status)
+const updateBookStatus = async (book) => {
+  try{
+    await booksStore.updateUserBookStatus(book.id, book.status)
+  }
+  catch (err) {
+    console.error(err)
+  }
 }
 </script>
 
