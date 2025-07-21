@@ -38,7 +38,7 @@
         </div>
         <div class="book-details">
           <h3 class="book-title">{{ book.title }}</h3>
-          <span class="book-author">{{ book.author || 'Автор неизвестен' }}</span>
+          <span class="book-author">{{ book.author || 'Author unknown' }}</span>
           <p class="book-info" v-if="book.description">{{ book.description.substring(0, 100) }}...</p>
           <p class="book-info" v-else>No description available</p>
           <button class="reviews-button">View Details</button>
@@ -170,19 +170,15 @@ const goToBookProfile = (bookId) => {
   transform: translateY(-2px);
 }
 
-.add-to-my-books-button-passive{
+.add-to-my-books-button-passive {
   margin-top: 10px;
   padding: 8px 12px;
   border-radius: 40px;
   color: white;
   border: none;
   cursor: pointer;
-}
-
-@media (max-width: 768px) {
-  .books-controls {
-    flex-direction: column;
-    gap: 10px;
-  }
+  background-color: #764ba2;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>
