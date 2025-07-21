@@ -145,6 +145,10 @@ async def get_all_subscriptions(request: SubscriptionsRequest):
     answer = [
         UserData(
             id=user.id,
+            name=user.name,
+            mail=user.mail,
+            avatar=user.avatar,
+            created_at=user.created_at
         )
         for user in data
     ]
