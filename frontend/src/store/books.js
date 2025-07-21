@@ -5,7 +5,8 @@ import {
   apiFetchBook,
   apiCreateBook,
   apiFetchUserBooks,
-  apiAddUserBook
+  apiAddUserBook,
+  apiUpdateBook
 } from '@/api/books'
 
 export const useBooksStore = defineStore('books', {
@@ -65,10 +66,14 @@ export const useBooksStore = defineStore('books', {
     },
 
     async updateUserBookStatus(bookId, newStatus) {
-      const userBook = this.userBooks.find(ub => ub.bookId === bookId);
-      if (userBook) {
-        userBook.status = newStatus;
-        this.persistBooks()
+      try {
+        const userBook = this.userBooks.find(ub => ub.bookId === bookId);
+        if (userBook) {
+          
+        }
+      }
+      catch (err) {
+        
       }
     },
     
