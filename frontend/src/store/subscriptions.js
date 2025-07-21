@@ -44,7 +44,7 @@ export const useSubscriptionsStore = defineStore('subscriptions', {
     async subscribe(publisherId) {
       try {
         const response = await subscribeToUser(publisherId, this.userId)
-        this.subscriptions.push(publisherId)
+        await this.fetchSubscriptions()
         return publisherId
       } catch (e) {
         console.error('subscribe error:', e)
@@ -52,10 +52,12 @@ export const useSubscriptionsStore = defineStore('subscriptions', {
       }
     },
     
-    async unsubscribe(subscriptionId) {
+    async unsubscribe(publisherId) {
       try {
-        await unsubscribeFromUser(subscriptionId)
-        this.subscriptions = this.subscriptions.filter(sub => sub.id !== subscriptionId)
+        await unsubscribeFromUser(publisherId, this.userId)
+        this.subscriptions = this.subscriptions.filter(
+          sub => sub.id !== publisherId
+        )
       } catch (e) {
         console.error('unsubscribe error:', e)
         throw e
@@ -63,11 +65,11 @@ export const useSubscriptionsStore = defineStore('subscriptions', {
     },
     
     isSubscribedTo(userId) {
-      return this.subscriptions.some(sub => sub.publisher_id === userId)
+      return this.subscriptions.some(sub => sub.id === userId)
     },
     
     getSubscriptionId(userId) {
-      const subscription = this.subscriptions.find(sub => sub.publisher_id === userId)
+      const subscription = this.subscriptions.find(sub => sub.id === userId)
       return subscription ? subscription.id : null
     }
   }

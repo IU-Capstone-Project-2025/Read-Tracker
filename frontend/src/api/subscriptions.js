@@ -48,10 +48,15 @@ export const subscribeToUser = async (publisherId, subscriberId) => {
   }
 }
 
-export const unsubscribeFromUser = async (subscriptionId) => {
+export const unsubscribeFromUser = async (publisherId, subscriberId) => {
   try {
-    console.log(`[API] Unsubscribing from subscription: ${subscriptionId}`)
-    const response = await api.delete(`/subscriptions/${subscriptionId}`)
+    console.log(`[API] Unsubscribing from user: ${publisherId}`)
+    const response = await api.delete('/subscriptions', {
+      data: {
+        publisher_id: publisherId,
+        subscriber_id: subscriberId
+      }
+    })
     
     if (response.data.status !== 'success') {
       const errorMsg = response.data.message || 'Failed to unsubscribe. Please try again.'

@@ -67,10 +67,10 @@ onMounted(async () => {
   }
 })
 
-const unsubscribe = async (subscriptionId) => {
-  unsubscribing.value = subscriptionId
+const unsubscribe = async (publisherId) => {
+  unsubscribing.value = publisherId
   try {
-    await subscriptionsStore.unsubscribe(subscriptionId)
+    await subscriptionsStore.unsubscribe(publisherId)
   } catch (e) {
     console.error('Unsubscribe failed:', e)
   } finally {
