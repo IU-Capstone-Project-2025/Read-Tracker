@@ -73,11 +73,6 @@
     </div>
 
     <div class="bottom-menu">
-      <div class="menu-item">
-        <span class="menu-icon"><i class="fas fa-cog"></i></span>
-        <span class="menu-text">Settings</span>
-      </div>
-
       <div class="menu-item" @click="handleLogout">
         <span class="menu-icon"><i class="fas fa-sign-out-alt"></i></span>
         <span class="menu-text">Log Out</span>

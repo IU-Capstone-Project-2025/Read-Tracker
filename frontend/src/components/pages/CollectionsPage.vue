@@ -86,16 +86,6 @@
             <textarea maxlength="150" v-model="newCollection.description" placeholder="Enter a brief description"></textarea>
           </div>
           
-          <div class="form-group">
-            <label class="checkbox-label">
-              <label class="checkbox-label">
-                <input type="checkbox" v-model="newCollection.isPrivate">
-                <span class="checkmark"></span>
-                <span class="checkbox-text">Make this collection private</span>
-              </label>
-            </label>
-          </div>
-          
           <div class="form-actions">
             <button type="button" class="secondary-btn" @click="showCreateModal = false">
               Cancel
@@ -123,14 +113,6 @@
           <div class="form-group">
             <label>Description</label>
             <textarea maxlength="150" v-model="editCollectionData.description"></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label class="checkbox-label">
-                <input type="checkbox" v-model="newCollection.isPrivate">
-                <span class="checkmark"></span>
-                <span class="checkbox-text">Make this collection private</span>
-              </label>
           </div>
           
           <div class="form-actions">

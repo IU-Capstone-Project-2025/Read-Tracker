@@ -17,9 +17,6 @@
               <h3 class="book-title">{{ getBookTitle(review.book_id) }}</h3>
               <div class="review-meta">
                 <div class="review-rating">{{ review.rate }}/10</div>
-                <div class="visibility-tag" :class="{ 'public': review.isPublic, 'private': !review.isPublic }">
-                  {{ review.isPublic ? 'Public' : 'Private' }}
-                </div>
               </div>
             </div>
             <p class="review-text">{{ review.text }}</p>

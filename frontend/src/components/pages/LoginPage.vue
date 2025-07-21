@@ -29,12 +29,6 @@
           <i class="fas fa-lock"></i>
         </div>
         
-        <div class="form-options">
-          <router-link to="/forgot-password" class="forgot-link">
-            Forgot Password?
-          </router-link>
-        </div>
-        
         <button type="submit" class="auth-btn" :disabled="loading">
           <span v-if="!loading">Sign In</span>
           <i v-else class="fas fa-spinner fa-spin"></i>

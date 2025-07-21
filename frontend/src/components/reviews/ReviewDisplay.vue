@@ -4,9 +4,6 @@
       <div class="rating">
         Rating: <span class="rating-value">{{ review.rate }}/10</span>
       </div>
-      <div class="visibility-tag" :class="{ 'public': review.isPublic, 'private': !review.isPublic }">
-        {{ review.isPublic ? 'Public' : 'Private' }}
-      </div>
     </div>
     
     <div class="review-content">{{ review.text }}</div>

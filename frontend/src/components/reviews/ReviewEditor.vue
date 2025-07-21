@@ -17,13 +17,6 @@
     
     <textarea v-model="reviewContent" placeholder="Write your review..." rows="4"></textarea>
     
-    <div class="visibility">
-      <label>
-        <input type="checkbox" v-model="isPublic"> 
-        Make this review public
-      </label>
-    </div>
-    
     <div class="actions">
       <button @click="saveReview" class="save-btn">Save Review</button>
       <button v-if="existingReview" @click="cancel" class="cancel-btn">Cancel</button>
