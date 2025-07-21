@@ -91,14 +91,11 @@ export async function apiCreateBook(bookData) {
   }
 }
 
-export async function apiUpdateBook(bookId, bookData) {
+export async function apiUpdateBook(userId, bookId, newStatus) {
   try {
-    const response = await api.put(`/books/${bookId}`, {
-      title: bookData.title,
-      author: bookData.author,
-      language: bookData.language,
-      description: bookData.description,
-      status: bookData.status
+    const response = await api.put(`/me/books/${bookId}`, {
+      user_id: userId,
+      status: newStatus
     })
     
     if (response.data.status === 'success') {

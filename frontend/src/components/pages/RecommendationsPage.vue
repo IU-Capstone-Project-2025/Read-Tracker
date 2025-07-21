@@ -7,20 +7,21 @@
 
     <div class="recommendations-feed">
       <div 
-        class="review-card" 
+        class="review-card"
+        @click="goToBook(review.book.id)"
         v-for="(review, index) in reviewsWithBooks" 
         :key="index"
       >
         <div class="book-cover-container">
           <img 
             v-if="review.book.cover" 
-            :src="review.book.cover" 
+            :src="`/images/${review.book.cover}.jpg`"
             :alt="review.book.title" 
             class="book-cover"
           />
           <img 
             v-else 
-            src="/images/placeholder.png" 
+            src="/images/placeholder.png"
             alt="No cover available" 
             class="book-cover"
           />
@@ -40,9 +41,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useBooksStore } from '@/store/books'
 import { useSubscriptionsStore } from '@/store/subscriptions'
 
+const router = useRouter()
 const booksStore = useBooksStore()
 const reviewsStore = useSubscriptionsStore()
 
@@ -52,7 +55,7 @@ onMounted(async () => {
 
 const reviewsWithBooks = computed(() => {
   return reviewsStore.reviews.map(review => {
-    const book = booksStore.books.find(b => b.id === review.book_id) || {}
+    const book = booksStore.allBooks.find(b => b.id === review.book_id) || {}
     return {
       ...review,
       book: {
@@ -64,6 +67,10 @@ const reviewsWithBooks = computed(() => {
     }
   })
 })
+
+const goToBook = async (bookId) => {
+  router.push({ name: 'bookProfile', params: { id: bookId } })
+}
 </script>
 
 <style scoped>
