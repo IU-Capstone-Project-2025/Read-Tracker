@@ -81,7 +81,7 @@ const toggleSubscription = async () => {
         await subscriptionsStore.unsubscribe(subscriptionId)
       }
     } else {
-      await subscriptionsStore.subscribe(props.review.user_id, currentUserId.value)
+      await subscriptionsStore.subscribe(props.review.user_id)
     }
   } catch (e) {
     console.error('Subscription toggle failed:', e)

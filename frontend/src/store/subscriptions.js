@@ -28,10 +28,10 @@ export const useSubscriptionsStore = defineStore('subscriptions', {
         }
     },
 
-    async fetchSubscriptions(userId) {
+    async fetchSubscriptions() {
       try {
         this.loading = true
-        const response = await getUserSubscriptions(userId)
+        const response = await getUserSubscriptions(this.userId)
         this.subscriptions = response.data || []
       } catch (e) {
         console.error('fetchSubscriptions error:', e)
@@ -41,9 +41,9 @@ export const useSubscriptionsStore = defineStore('subscriptions', {
       }
     },
     
-    async subscribe(publisherId, subscriberId) {
+    async subscribe(publisherId) {
       try {
-        const response = await subscribeToUser(publisherId, subscriberId)
+        const response = await subscribeToUser(publisherId, this.userId)
         this.subscriptions.push(publisherId)
         return publisherId
       } catch (e) {
