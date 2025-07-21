@@ -22,7 +22,6 @@
       <div class="book-info">
         <h1 class="book-title">{{ book.title }}</h1>
         <p class="book-author">by {{ book.author }}</p>
-        <p class="book-meta">{{ book.genre }} • Published 2023</p>
         <p class="book-description">{{ book.description }}</p>
       </div>
     </div>
