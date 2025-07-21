@@ -67,13 +67,11 @@ export const useBooksStore = defineStore('books', {
 
     async updateUserBookStatus(bookId, newStatus) {
       try {
-        const userBook = this.userBooks.find(ub => ub.bookId === bookId);
-        if (userBook) {
-          
-        }
+        await apiUpdateBook(this.userId, bookId, newStatus)
+        await this.fetchUserBooks(this.userId)
       }
       catch (err) {
-        
+        console.error('Failed to update user book status:', err)
       }
     },
     
