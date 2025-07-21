@@ -7,26 +7,24 @@
     </div>
     
     <div v-else>
-      <div v-if="subscriptions.length" class="subscriptions-list">
-        <div v-for="subscription in subscriptions" :key="subscription.id" class="subscription-card">
+      <div v-if="enrichedSubscriptions.length" class="subscriptions-list">
+        <div v-for="subscription in enrichedSubscriptions" :key="subscription.id" class="subscription-card">
           <div class="user-info">
-            <img 
-              :src="subscription.publisher.avatar || '/images/avatar-placeholder.png'" 
-              :alt="subscription.publisher.username" 
-              class="avatar"
-            />
+            <div class="avatar">
+              <i class="fas fa-user"></i>
+            </div>
             <div>
-              <h3 class="username">{{ subscription.publisher.username }}</h3>
-              <p class="email">{{ subscription.publisher.email }}</p>
+              <h3 class="username">{{ subscription.username }}</h3>
+              <p class="email">{{ subscription.email }}</p>
             </div>
           </div>
           <button 
-            @click="unsubscribe(subscription.id)" 
+            @click="unsubscribe(subscription.publisher_id)" 
             class="unsubscribe-btn"
-            :disabled="unsubscribing === subscription.id"
+            :disabled="unsubscribing === subscription.publisher_id"
           >
             Unsubscribe
-            <span v-if="unsubscribing === subscription.id" class="spinner"></span>
+            <span v-if="unsubscribing === subscription.publisher_id" class="spinner"></span>
           </button>
         </div>
       </div>
@@ -40,22 +38,46 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useSubscriptionsStore } from '@/store/subscriptions'
 import { useAuthStore } from '@/store/auth'
+import { useUsersStore } from '@/store/users'
 
 const authStore = useAuthStore()
 const subscriptionsStore = useSubscriptionsStore()
+const usersStore = useUsersStore()
 
 const loading = ref(true)
 const unsubscribing = ref(null)
+const enrichedSubscriptions = ref([])
 
-const subscriptions = computed(() => 
-  subscriptionsStore.subscriptions.map(sub => ({
-    ...sub,
-    publisher: sub.publisher || { username: 'Unknown User', email: 'unknown@example.com' }
-  }))
-)
+watch(() => subscriptionsStore.subscriptions, async (newSubscriptions) => {
+  if (!newSubscriptions.length) {
+    enrichedSubscriptions.value = []
+    return
+  }
+  
+  const enriched = []
+  for (const sub of newSubscriptions) {
+    try {
+      const userProfile = await usersStore.fetchUserProfile(sub.publisher_id)
+      enriched.push({
+        ...sub,
+        username: userProfile?.username || 'Unknown User',
+        email: userProfile?.email || 'unknown@example.com'
+      })
+    } catch (e) {
+      console.error('Failed to load user profile:', e)
+      enriched.push({
+        ...sub,
+        username: 'Unknown User',
+        email: 'unknown@example.com'
+      })
+    }
+  }
+  
+  enrichedSubscriptions.value = enriched
+}, { immediate: true })
 
 onMounted(async () => {
   try {
@@ -67,10 +89,10 @@ onMounted(async () => {
   }
 })
 
-const unsubscribe = async (subscriptionId) => {
-  unsubscribing.value = subscriptionId
+const unsubscribe = async (publisherId) => {
+  unsubscribing.value = publisherId
   try {
-    await subscriptionsStore.unsubscribe(subscriptionId)
+    await subscriptionsStore.unsubscribe(publisherId)
   } catch (e) {
     console.error('Unsubscribe failed:', e)
   } finally {
@@ -127,7 +149,12 @@ h1 {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  object-fit: cover;
+  background: #764ba2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
 }
 
 .username {

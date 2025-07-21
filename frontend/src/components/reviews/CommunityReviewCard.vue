@@ -76,10 +76,7 @@ const toggleSubscription = async () => {
   subscriptionLoading.value = true
   try {
     if (isSubscribed.value) {
-      const subscriptionId = subscriptionsStore.getSubscriptionId(props.review.user_id)
-      if (subscriptionId) {
-        await subscriptionsStore.unsubscribe(subscriptionId)
-      }
+      await subscriptionsStore.unsubscribe(props.review.user_id)
     } else {
       await subscriptionsStore.subscribe(props.review.user_id)
     }
